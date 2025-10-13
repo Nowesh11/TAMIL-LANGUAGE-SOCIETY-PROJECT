@@ -6,22 +6,43 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "reset-db": "tsx scripts/reset-db.ts",
+    "seed": "tsx scripts/seed-books.ts",
+    "seed:books": "tsx scripts/seed-books.ts",
+    "seed:books-components": "tsx scripts/seed-books-components.ts",
+    "seed:hero-home": "tsx scripts/seed-hero-home.ts",
+    "seed:about": "tsx scripts/seed-about.ts",
+    "seed:team": "tsx scripts/seed-team.ts",
+    "seed:recruitment-all": "tsx scripts/seed-recruitment-all.ts",
+    "seed:nav-footer-global": "tsx scripts/seed-nav-footer-global.ts",
+    "seed:ebooks-components": "tsx scripts/seed-ebooks-components.ts",
+    "seed:ebooks": "tsx scripts/seed-ebooks.ts",
+    "seed:contacts-components": "tsx scripts/seed-contacts-components.ts",
+    "cleanup:components": "tsx scripts/cleanup-duplicates.ts"
   },
   "dependencies": {
+    "@types/mongoose": "^5.11.96",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^17.2.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.18.3",
+    "next": "15.5.4",
     "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "next": "15.5.4"
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "tsx": "^4.20.6",
+    "typescript": "^5"
   }
 }

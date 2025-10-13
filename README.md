@@ -1,36 +1,127 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tamil Language Society Website | தமிழ் மொழி சங்கம்
 
-## Getting Started
+A modern, bilingual website built with Next.js 14 for the Tamil Language Society, promoting Tamil language, culture, and heritage through community engagement.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Next.js 14** with App Router
+- **TypeScript** for type safety
+- **Tailwind CSS v4** for modern styling
+- **MongoDB** with Mongoose for database operations
+- **Bilingual support** (English & Tamil)
+- **SEO optimized** with comprehensive metadata
+- **Responsive design** for all devices
+
+## 📁 Project Structure
+
+```
+tamil-language-society/
+├── src/
+│   ├── app/                 # Next.js App Router pages
+│   │   ├── api/            # API routes
+│   │   ├── globals.css     # Global styles
+│   │   ├── layout.tsx      # Root layout with bilingual metadata
+│   │   └── page.tsx        # Home page
+│   ├── components/         # Reusable React components
+│   ├── lib/               # Utility functions and configurations
+│   │   └── mongodb.ts     # MongoDB connection setup
+│   └── models/            # Database models (Mongoose schemas)
+├── public/                # Static assets
+├── .env.example          # Environment variables template
+├── .env.local           # Local environment variables
+└── global.d.ts          # Global TypeScript definitions
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Installation & Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Clone the repository:**
+   ```bash
+   cd tamil-language-society
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-## Learn More
+3. **Set up environment variables:**
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Update `.env.local` with your MongoDB connection string and other configuration values.
 
-To learn more about Next.js, take a look at the following resources:
+4. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. **Open your browser:**
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🗄️ Database Setup
 
-## Deploy on Vercel
+The project uses MongoDB with Mongoose. Make sure you have:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **MongoDB installed locally** or a **MongoDB Atlas account**
+2. **Update the MONGODB_URI** in your `.env.local` file:
+   - Local: `mongodb://localhost:27017/tamil-language-society`
+   - Atlas: `mongodb+srv://username:password@cluster.mongodb.net/tamil-language-society`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🌐 Environment Variables
+
+Key environment variables (see `.env.example` for complete list):
+
+- `MONGODB_URI` - MongoDB connection string
+- `NEXTAUTH_URL` - Application URL (http://localhost:3000 for development)
+- `NEXTAUTH_SECRET` - Secret key for authentication
+- `NODE_ENV` - Environment (development/production)
+
+## 🎨 Styling
+
+The project uses **Tailwind CSS v4** with:
+- Custom CSS variables for theming
+- Dark mode support
+- Responsive design utilities
+- Tamil font support ready
+
+## 📱 Bilingual Support
+
+The website supports both English and Tamil:
+- **Metadata** includes both languages
+- **SEO optimization** for multilingual content
+- **Language alternates** configured in layout
+- **Ready for i18n implementation**
+
+## 🚀 Deployment
+
+The project is ready for deployment on platforms like:
+- **Vercel** (recommended for Next.js)
+- **Netlify**
+- **Railway**
+- **DigitalOcean App Platform**
+
+Make sure to set up your environment variables in your deployment platform.
+
+## 📝 Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is created for the Tamil Language Society community.
+
+---
+
+**Built with ❤️ for the Tamil community | தமிழ் சமூகத்திற்காக அன்புடன் உருவாக்கப்பட்டது**
