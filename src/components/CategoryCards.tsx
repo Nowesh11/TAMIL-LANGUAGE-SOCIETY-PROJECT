@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
+import '../styles/components/CategoryCards.css';
 
 export default function CategoryCards({ onCategoryClick }: { onCategoryClick: (cat: string) => void }) {
   const [cats, setCats] = useState<{ name: string; count: number }[]>([]);
@@ -12,14 +13,35 @@ export default function CategoryCards({ onCategoryClick }: { onCategoryClick: (c
       } catch {}
     })();
   }, []);
-  if (!cats.length) return null;
+  if (!cats.length) return (
+    <div className="category-cards-loading">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="category-card-skeleton">
+          <div className="skeleton-icon"></div>
+          <div className="skeleton-title"></div>
+          <div className="skeleton-description"></div>
+          <div className="skeleton-description"></div>
+        </div>
+      ))}
+    </div>
+  );
+  
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="category-cards">
       {cats.map((c) => (
-        <button key={c.name} className="card p-4 hover-lift" onClick={() => onCategoryClick(c.name)}>
-          <div className="text-lg font-semibold">{c.name}</div>
-          <div className="text-sm text-muted">{c.count} books</div>
-        </button>
+        <div key={c.name} className="category-card" onClick={() => onCategoryClick(c.name)}>
+          <div className="category-card-icon">
+            📚
+          </div>
+          <h3 className="category-card-title">{c.name}</h3>
+          <p className="category-card-description">
+            Explore our collection of {c.name.toLowerCase()} books and resources
+          </p>
+          <div className="category-card-count">
+            <span>{c.count} books</span>
+            <span className="category-card-arrow">→</span>
+          </div>
+        </div>
       ))}
     </div>
   );

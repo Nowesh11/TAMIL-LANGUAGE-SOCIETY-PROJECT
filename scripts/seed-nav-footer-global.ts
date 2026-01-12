@@ -37,7 +37,7 @@ async function main() {
   const admin = await ensureAdmin();
 
   // Pages to seed navbar/footer for (global usage across site)
-  const pages = ['home', 'about', 'projects', 'ebooks', 'books', 'contacts', 'noti', 'login', 'sign'];
+  const pages = ['home', 'about', 'projects', 'ebooks', 'books', 'contacts', 'notifications', 'login', 'sign'];
 
   const navbarContent = {
     themeToggle: true,
@@ -55,7 +55,7 @@ async function main() {
       { label: { en: 'Ebooks', ta: 'மின்னூல்கள்' }, href: '/ebooks', variant: 'link', dataKey: 'global.menu.ebooks' },
       { label: { en: 'Book Store', ta: 'புத்தக அங்காடி' }, href: '/books', variant: 'link', dataKey: 'global.menu.bookstore' },
       { label: { en: 'Contact Us', ta: 'எங்களை தொடர்பு கொள்ள' }, href: '/contacts', variant: 'link', dataKey: 'global.menu.contact' },
-      { label: { en: 'Notifications', ta: 'அறிவிப்புகள்' }, href: '/noti', variant: 'neon', testId: 'notification-bell', isNotification: true },
+      { label: { en: 'Notifications', ta: 'அறிவிப்புகள்' }, href: '/notifications', variant: 'neon', testId: 'notification-bell', isNotification: true },
       { label: { en: 'Login', ta: 'உள்நுழை' }, href: '/login', variant: 'glass', dataKey: 'global.menu.login' },
       { label: { en: 'Sign Up', ta: 'பதிவு செய்' }, href: '/sign', variant: 'neon', dataKey: 'global.menu.signup' }
     ],
@@ -89,7 +89,7 @@ async function main() {
     },
     supportLinks: {
       contactLink: { text: { en: 'Contact Us', ta: 'எங்களை தொடர்பு கொள்ள' }, url: '/contacts' },
-      notificationsLink: { text: { en: 'Notifications', ta: 'அறிவிப்புகள்' }, url: '/noti' }
+      notificationsLink: { text: { en: 'Notifications', ta: 'அறிவிப்புகள்' }, url: '/notifications' }
     },
     newsletter: {
       title: { en: 'Newsletter', ta: 'செய்திமடல்' },

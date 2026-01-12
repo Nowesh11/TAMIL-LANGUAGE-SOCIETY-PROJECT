@@ -43,9 +43,9 @@ async function main() {
         { text: { en: 'Shop Books', ta: 'பததகஙகள வஙக' }, href: '/views/books.html', variant: 'secondary' }
       ],
       backgroundImages: [
-        { src: '/globe.svg', alt: { en: 'Global culture', ta: 'உலக கலாச்சாரம்' } },
-        { src: '/next.svg', alt: { en: 'Next.js logo', ta: 'நெக்ஸ்ட்.ஜேஸ் லோகோ' } },
-        { src: '/vercel.svg', alt: { en: 'Vercel logo', ta: 'வெர்செல் லோகோ' } }
+        { src: '/hero-bg-1.svg', alt: { en: 'Tamil heritage background', ta: 'தமிழ் பாரம்பரிய பின்னணி' } },
+        { src: '/hero-bg-2.svg', alt: { en: 'Cultural celebration background', ta: 'கலாச்சார கொண்டாட்ட பின்னணி' } },
+        { src: '/hero-bg-3.svg', alt: { en: 'Community growth background', ta: 'சமூக வளர்ச்சி பின்னணி' } }
       ]
     },
     order: 1,

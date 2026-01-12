@@ -2,8 +2,12 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
 import { useLanguage } from '../hooks/LanguageContext';
+import { useTheme } from '../hooks/ThemeContext';
+import { useAuth } from '../hooks/useAuth';
+import '../styles/components/NavBar.css';
+
+type Lang = "en" | "ta";
 import { safeFetchJson } from '../lib/safeFetch';
 
 type Bilingual = { en: string; ta: string };
@@ -36,13 +40,44 @@ type ComponentRecord = {
   content: NavbarContent;
 };
 
-export default function NavBar({ page = 'home' }: { page?: string }) {
-  const { lang, setLang } = useLanguage();
-  const router = useRouter();
-  const [data, setData] = useState<NavbarContent | null>(null);
-  const [isMenuOpen, setMenuOpen] = useState(false);
-  const [isDark, setIsDark] = useState(false);
-  const [loading, setLoading] = useState(true);
+export default function NavBar({ page = 'home', data: initialData }: { page?: string, data?: any }) {
+  // Context hooks with error handling
+  let lang: Lang = 'en';
+  let setLang = (newLang: Lang) => {};
+  let isDark = false;
+  let toggleTheme = () => {};
+  let user = null;
+  let logout = () => {};
+
+  try {
+    const languageContext = useLanguage();
+    lang = languageContext.lang;
+    setLang = languageContext.setLang;
+  } catch (error) {
+    console.log('Language context not available, using defaults:', error instanceof Error ? error.message : String(error));
+  }
+
+  try {
+    const themeContext = useTheme();
+    isDark = themeContext.isDark;
+    toggleTheme = themeContext.toggleTheme;
+  } catch (error) {
+    console.log('Theme context not available, using defaults:', error instanceof Error ? error.message : String(error));
+  }
+
+  try {
+    const authContext = useAuth();
+    user = authContext.user;
+    logout = authContext.logout;
+  } catch (error) {
+    console.log('Auth context not available, using defaults:', error instanceof Error ? error.message : String(error));
+  }
+
+  const [data, setData] = useState<NavbarContent | null>(initialData || null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(!initialData);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [hasInitialized, setHasInitialized] = useState(!!initialData);
 
   function resolveUploadUrl(src: string) {
     try {
@@ -64,21 +99,33 @@ export default function NavBar({ page = 'home' }: { page?: string }) {
     }
   }
 
-  useEffect(() => {
-    const storedTheme = typeof window !== 'undefined' && localStorage.getItem('theme');
-    if (storedTheme) {
-      const dark = storedTheme === 'dark';
-      setIsDark(dark);
-      if (typeof document !== 'undefined') {
-        const root = document.documentElement;
-        dark ? root.classList.add('dark') : root.classList.remove('dark');
+  // Fetch unread notifications count
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await fetch('/api/notifications?unread=1');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.items) {
+          setUnreadCount(data.items.length);
+        }
       }
+    } catch (error) {
+      console.error('Failed to fetch unread notifications:', error);
     }
-  }, []);
+  };
 
+  // Load navbar data on mount
   useEffect(() => {
+    if (hasInitialized) {
+      return;
+    }
+    
+    setHasInitialized(true);
+    
     async function load() {
       try {
+        setLoading(true);
+        
         // Always fetch global navbar from 'home' page to use single DB entry across site
         const currentPage = 'home';
 
@@ -96,55 +143,89 @@ export default function NavBar({ page = 'home' }: { page?: string }) {
         }
 
         async function fetchFor(p: string) {
-          const json = await safeFetchJson<{ components?: ComponentRecord[] }>(buildUrl(p));
-          const list = Array.isArray(json.components) ? (json.components as ComponentRecord[]) : [];
-          return list.find((c) => c.type === 'navbar') || null;
+          const url = buildUrl(p);
+          try {
+            const json = await safeFetchJson<{ components?: ComponentRecord[] }>(url);
+            const list = Array.isArray(json.components) ? (json.components as ComponentRecord[]) : [];
+            const navbar = list.find((c) => c.type === 'navbar') || null;
+            return navbar;
+          } catch (error) {
+            console.error('NavBar: Error fetching data:', error);
+            return null;
+          }
         }
 
         const navbar = await fetchFor(currentPage);
-        if (navbar?.content) setData(navbar.content);
+        if (navbar?.content) {
+          setData(navbar.content);
+        }
       } catch (e) {
         console.error('Failed to load navbar', e);
       } finally {
         setLoading(false);
       }
     }
+    
+    // Load navbar data
     load();
-  }, []);
-
-  useEffect(() => {
-    if (typeof document !== 'undefined') {
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
-      const root = document.documentElement;
-      isDark ? root.classList.add('dark') : root.classList.remove('dark');
-    }
-  }, [isDark]);
-
-  const toggleTheme = () => setIsDark((d) => !d);
+    
+    // Fetch unread count initially
+    fetchUnreadCount();
+    
+    // Set up interval to refresh unread count every 30 seconds
+    const interval = setInterval(fetchUnreadCount, 30000);
+    
+    return () => clearInterval(interval);
+  }, [hasInitialized]); // Add hasInitialized to dependency array
 
   if (loading) {
     return (
-      <nav className={["navbar","hover-lift", isDark ? 'dark-local' : ''].filter(Boolean).join(' ')} id="navbar">
-        <div className="nav-container">
-          <div className="nav-logo hover-glow animate-text-glow">
-            <div className="logo-img shimmer" style={{ width: 40, height: 40, borderRadius: 8 }} />
-            <span className="logo-text shimmer" style={{ display: 'inline-block', width: 180, height: 18 }} />
-          </div>
-          <div className="nav-menu" id="nav-menu">
-            <span className="nav-link shimmer" style={{ width: 80, height: 16 }} />
-            <span className="nav-link shimmer" style={{ width: 80, height: 16 }} />
-            <span className="nav-link shimmer" style={{ width: 80, height: 16 }} />
+      <nav className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo skeleton */}
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse" />
+              <div className="w-32 h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+            </div>
+            
+            {/* Menu items skeleton */}
+            <div className="hidden md:flex items-center space-x-8">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="w-16 h-4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+              ))}
+            </div>
+            
+            {/* Right side skeleton */}
+            <div className="flex items-center space-x-4">
+              <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+              <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+              <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+            </div>
           </div>
         </div>
       </nav>
     );
   }
 
-  const content = data;
-  if (!content) return null;
+  console.log('NavBar: Rendering with data:', data);
+
+  // Use data from database, no hardcoded fallbacks
+  if (!data) {
+    console.log('NavBar: No data available, rendering empty navbar');
+    return (
+      <nav className={["navbar","hover-lift", isDark ? 'dark-local' : ''].filter(Boolean).join(' ')} id="navbar">
+        <div className="nav-container">
+          <div className="nav-logo hover-glow animate-text-glow">
+            <span className="logo-text">Loading...</span>
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   const navClass = ['navbar', 'hover-lift', isDark ? 'dark-local' : ''].filter(Boolean).join(' ');
-  const pathname = router?.pathname || (typeof window !== 'undefined' ? window.location.pathname : '/');
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
 
   const isActive = (href: string) => {
     try {
@@ -159,29 +240,39 @@ export default function NavBar({ page = 'home' }: { page?: string }) {
       return pathname === href || (href !== '/' && pathname.startsWith(href));
     }
   };
+
   return (
     <nav className={navClass} id="navbar">
       <div className="nav-container">
         <div className="nav-logo hover-glow animate-text-glow">
-          {content.logo?.image ? (
+          {data.logo?.image ? (
             <Image
-              src={resolveUploadUrl(content.logo.image.src)}
-              alt={content.logo.image.alt[lang]}
-              width={content.logo.image.width || 40}
-              height={content.logo.image.height || 40}
+              src={resolveUploadUrl(data.logo.image.src)}
+              alt={
+                typeof data.logo.image.alt === 'string' 
+                  ? data.logo.image.alt 
+                  : data.logo.image.alt?.[lang] || data.logo.image.alt?.en || ''
+              }
+              width={data.logo.image.width || 40}
+              height={data.logo.image.height || 40}
               className="logo-img animate-rotate-3d"
               unoptimized
             />
           ) : null}
-          {content.logo?.text ? (
+          {data.logo?.text ? (
             <span className="logo-text" data-key="global.logo.text">
-              {content.logo.text[lang]}
+              {data.logo.text?.[lang] || data.logo.text?.en || ''}
             </span>
           ) : null}
         </div>
 
-        <div className={`nav-menu ${isMenuOpen ? 'open' : ''}`} id="nav-menu">
-          {content.menu?.map((m, idx) => {
+        <div className={`nav-menu ${menuOpen ? 'open' : ''}`} id="nav-menu">
+          {data.menu?.map((m, idx) => {
+            // Skip auth links if user is authenticated
+            if (user && (m.href === '/login' || m.href === '/signup' || m.href === '/sign' || m.href === '/auth/login' || m.href === '/auth/signup')) {
+              return null;
+            }
+            
             const className = [
               'nav-link',
               isActive(m.href) ? 'active' : '',
@@ -197,7 +288,11 @@ export default function NavBar({ page = 'home' }: { page?: string }) {
                 {m.isNotification ? (
                   <span className="notification-icon hover-glow animate-pulse-3d">
                     <i className="fa-solid fa-bell fa-fw" />
-                    <span className="notification-dot animate-glow-pulse" id="notification-dot" />
+                    {unreadCount > 0 && (
+                      <span className="notification-badge animate-glow-pulse">
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </span>
+                    )}
                   </span>
                 ) : (
                   content
@@ -206,9 +301,27 @@ export default function NavBar({ page = 'home' }: { page?: string }) {
             );
           })}
 
-          {content.languageToggle?.enabled ? (
+          {/* Show user info and logout when authenticated */}
+          {user && (
+            <>
+              <div className="nav-user-info hover-glow">
+                <span className="user-name">
+                  {typeof user.name === 'string' ? user.name : user.name?.[lang] || user.name?.en || 'User'}
+                </span>
+              </div>
+              <button 
+                onClick={logout} 
+                className="nav-link btn-glass hover-tilt"
+                title="Logout"
+              >
+                {lang === 'en' ? 'Logout' : 'வெளியேறு'}
+              </button>
+            </>
+          )}
+
+          {data.languageToggle?.enabled ? (
             <div className="language-toggle card-morphism hover-lift" id="language-toggle">
-              {content.languageToggle.languages.includes('en') && (
+              {data.languageToggle.languages.includes('en') && (
                 <button
                   className={`lang-btn ${lang === 'en' ? 'active' : ''} btn-neon`}
                   data-lang="en"
@@ -218,7 +331,7 @@ export default function NavBar({ page = 'home' }: { page?: string }) {
                   EN
                 </button>
               )}
-              {content.languageToggle.languages.includes('ta') && (
+              {data.languageToggle.languages.includes('ta') && (
                 <button
                   className={`lang-btn ${lang === 'ta' ? 'active' : ''} btn-glass`}
                   data-lang="ta"
@@ -232,7 +345,7 @@ export default function NavBar({ page = 'home' }: { page?: string }) {
           ) : null}
         </div>
 
-        {content.hamburger ? (
+        {data.hamburger ? (
           <div className="hamburger" id="hamburger" onClick={() => setMenuOpen((o) => !o)}>
             <span className="bar"></span>
             <span className="bar"></span>
@@ -240,7 +353,7 @@ export default function NavBar({ page = 'home' }: { page?: string }) {
           </div>
         ) : null}
 
-        {content.themeToggle ? (
+        {data.themeToggle ? (
           <div className="theme-toggle card-morphism hover-lift">
             <button
               onClick={toggleTheme}

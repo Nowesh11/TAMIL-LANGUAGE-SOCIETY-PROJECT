@@ -29,7 +29,9 @@ async function dbConnect() {
       bufferCommands: false,
     };
 
+    console.log('🔌 Connecting to MongoDB:', MONGODB_URI?.substring(0, 20) + '...');
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
+      console.log('✅ MongoDB Connected');
       return mongoose;
     });
   }

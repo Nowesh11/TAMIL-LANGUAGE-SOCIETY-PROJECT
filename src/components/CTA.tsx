@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../hooks/LanguageContext';
 import { safeFetchJson } from '../lib/safeFetch';
+import '../styles/components/CTA.css';
 
 type Bilingual = { en: string; ta: string };
 type Button = { text: Bilingual; url: string; variant?: 'primary' | 'secondary' | 'outline' | 'ghost'; target?: '_blank' | '_self' };
@@ -15,13 +16,14 @@ type CTAContent = {
 
 type ComponentRecord = { type: string; content: CTAContent };
 
-export default function CTA({ page = 'home', bureau }: { page?: string; bureau?: string }) {
+export default function CTA({ page = 'home', bureau, data: propData }: { page?: string; bureau?: string; data?: any }) {
   const { lang } = useLanguage();
-  const [data, setData] = useState<CTAContent | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [data, setData] = useState<CTAContent | null>(propData || null);
+  const [loading, setLoading] = useState<boolean>(!propData);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (propData) return;
     async function load() {
       try {
         const url = (() => {
@@ -40,32 +42,16 @@ export default function CTA({ page = 'home', bureau }: { page?: string; bureau?:
         const json = await safeFetchJson<{ components?: ComponentRecord[] }>(url);
         const list = Array.isArray(json.components) ? (json.components as ComponentRecord[]) : [];
         const record = list.find((c) => c.type === 'cta');
-        if (record?.content) setData(record.content);
-        else {
-          // Provide a graceful fallback CTA content
-          setData({
-            title: { en: 'Join Us', ta: 'எங்களுடன் சேருங்கள்' },
-            subtitle: { en: 'Be part of our journey', ta: 'எங்கள் பயணத்தில் பங்கேற்கவும்' },
-            description: { en: 'Support Tamil language and culture by engaging with our projects and events.', ta: 'எங்கள் திட்டங்கள் மற்றும் நிகழ்வுகளில் பங்கேற்பதன் மூலம் தமிழ் மொழி மற்றும் பண்பாட்டை ஆதரிக்கவும்.' },
-            buttons: [
-              { text: { en: 'Explore Projects', ta: 'திட்டங்களை பாருங்கள்' }, url: '/projects', variant: 'primary' },
-              { text: { en: 'Learn More', ta: 'மேலும் அறிக' }, url: '/about', variant: 'secondary' }
-            ]
-          });
-          setError(null);
+        if (record?.content) {
+          setData(record.content);
+        } else {
+          setData(null);
+          setError('CTA content not found in database');
         }
       } catch (e) {
         console.error('Failed to load CTA', e);
-        // Keep UI stable with default CTA on network errors
-        setData({
-          title: { en: 'Join Us', ta: 'எங்களுடன் சேருங்கள்' },
-          subtitle: { en: 'Be part of our journey', ta: 'எங்கள் பயணத்தில் பங்கேற்கவும்' },
-          description: { en: 'Support Tamil language and culture by engaging with our projects and events.', ta: 'எங்கள் திட்டங்கள் மற்றும் நிகழ்வுகளில் பங்கேற்பதன் மூலம் தமிழ் மொழி மற்றும் பண்பாட்டை ஆதரிக்கவும்.' },
-          buttons: [
-            { text: { en: 'Explore Projects', ta: 'திட்டங்களை பாருங்கள்' }, url: '/projects', variant: 'primary' }
-          ]
-        });
-        setError(null);
+        setError('Failed to load CTA content');
+        setData(null);
       } finally {
         setLoading(false);
       }
@@ -73,12 +59,17 @@ export default function CTA({ page = 'home', bureau }: { page?: string; bureau?:
     load();
   }, [page, bureau]);
 
+  // Don't render anything if there's no data
+  if (!data && !loading) {
+    return null;
+  }
+
   if (loading) {
     return (
-      <section className="features">
-        <div className="container">
-          <div className="card" style={{ textAlign: 'center', maxWidth: 800, margin: '0 auto', padding: '3rem' }}>
-            <p className="text-muted">Loading call to action...</p>
+      <section className="cta-container bg-section-gradient">
+        <div className="cta-content">
+          <div className="card-morphism shimmer">
+            <p className="text-muted animate-fade-in">Loading call to action...</p>
           </div>
         </div>
       </section>
@@ -92,31 +83,32 @@ export default function CTA({ page = 'home', bureau }: { page?: string; bureau?:
   const { title, subtitle, description, buttons } = data;
 
   return (
-    <section className="features">
-      <div className="container">
-        <div className="card" style={{ textAlign: 'center', maxWidth: 800, margin: '0 auto', padding: '3rem' }}>
-          <h2 style={{ color: 'var(--primary-color)', marginBottom: '1.5rem' }}>{title[lang]}</h2>
+    <section className="cta-container bg-section-gradient">
+      <div className="cta-content">
+        <div className="cta-header">
+          <h2 className="cta-title gradient-title animate-text-glow">{(title?.[lang] || title?.en || (typeof title === 'string' ? title : ''))}</h2>
           {subtitle ? (
-            <p style={{ fontSize: '1rem', color: 'var(--gray-600)', marginBottom: '1rem' }}>{subtitle[lang]}</p>
+            <p className="cta-subtitle animate-fade-in animate-stagger-1">{(subtitle?.[lang] || subtitle?.en || (typeof subtitle === 'string' ? subtitle : ''))}</p>
           ) : null}
           {description ? (
-            <p style={{ fontSize: '1.125rem', color: 'var(--gray-600)', marginBottom: '2rem', lineHeight: 1.8 }}>{description[lang]}</p>
-          ) : null}
-          {buttons && buttons.length > 0 ? (
-            <div className="hero-buttons" style={{ justifyContent: 'center', display: 'flex', gap: '1rem' }}>
-              {buttons.map((b, i) => (
-                <a
-                  key={i}
-                  href={b.url}
-                  target={b.target || '_self'}
-                  className={b.variant === 'secondary' ? 'btn btn-secondary' : 'btn btn-primary'}
-                >
-                  {b.text[lang]}
-                </a>
-              ))}
-            </div>
+            <p className="cta-description animate-fade-in animate-stagger-2">{(description?.[lang] || description?.en || (typeof description === 'string' ? description : ''))}</p>
           ) : null}
         </div>
+        {buttons && buttons.length > 0 ? (
+          <div className="cta-actions">
+            {buttons.map((b, i) => (
+              <a
+                key={i}
+                href={b.url}
+                target={b.target || '_self'}
+                className={`cta-button ${b.variant === 'secondary' ? 'cta-button-secondary btn-glass hover-lift' : 'cta-button-primary btn-neon hover-glow'} animate-slide-in-up`}
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
+                {(b.text?.[lang] || b.text?.en || (typeof b.text === 'string' ? b.text : ''))}
+              </a>
+            ))}
+          </div>
+        ) : null}
       </div>
     </section>
   );

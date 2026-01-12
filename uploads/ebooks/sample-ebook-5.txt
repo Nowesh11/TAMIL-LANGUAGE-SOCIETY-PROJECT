@@ -1,5 +1,0 @@
-Poetry Selections
-=================
-
-This is a sample ebook file seeded for testing downloads.
-It includes selected Tamil poems.

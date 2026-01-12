@@ -1,17 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '../../../../lib/mongodb';
 import Component from '../../../../models/Component';
-import FileRecord from '../../../../models/FileRecord';
+import path from 'path';
+import fs from 'fs';
 
 export const runtime = 'nodejs';
 
 export async function POST() {
   try {
-    await dbConnect();
-    const latestLogo = await FileRecord.findOne({ category: 'image', tags: { $in: ['logo'] } }).sort({ createdAt: -1 });
-    if (!latestLogo) return NextResponse.json({ error: 'No logo uploaded' }, { status: 404 });
-
-    const imageUrl = `/api/files/image?id=${latestLogo._id}`;
+    const baseDir = path.join(process.cwd(), 'uploads', 'components', 'logos');
+    let latestPath: string | null = null;
+    let latestTime = 0;
+    const typeDirs = ['navbar', 'footer'];
+    for (const type of typeDirs) {
+      const dir = path.join(baseDir, type);
+      if (!fs.existsSync(dir)) continue;
+      const files = fs.readdirSync(dir).map(name => path.join(dir, name));
+      for (const filePath of files) {
+        const stat = fs.statSync(filePath);
+        if (stat.isFile() && stat.mtimeMs > latestTime) {
+          latestTime = stat.mtimeMs;
+          latestPath = path.relative(process.cwd(), filePath).replace(/\\/g, '/');
+        }
+      }
+    }
+    if (!latestPath) return NextResponse.json({ error: 'No logo uploaded' }, { status: 404 });
+    const imageUrl = `/api/files/image?path=${encodeURIComponent(latestPath)}`;
 
     const targets = await Component.find({ type: { $in: ['navbar', 'footer'] } });
     for (const comp of targets) {

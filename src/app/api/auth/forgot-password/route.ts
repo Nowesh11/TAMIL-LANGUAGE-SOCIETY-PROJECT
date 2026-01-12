@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '../../../../lib/mongodb';
 import User from '../../../../models/User';
 import PasswordResetToken from '../../../../models/PasswordResetToken';
+import { sendEmail } from '../../../../lib/emailService';
+
+function generateVerificationCode() {
+  // Generate a 6-digit verification code
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 function generateToken(len = 32) {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -15,15 +21,53 @@ export async function POST(req: NextRequest) {
     await dbConnect();
     const body = await req.json();
     const { email } = body;
-    if (!email) return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+    
+    if (!email) {
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+    }
+    
     const user = await User.findOne({ email });
-    if (!user) return NextResponse.json({ success: true }); // avoid leaking existence
+    if (!user) {
+      // Return success to avoid leaking user existence
+      return NextResponse.json({ success: true, message: 'If an account with this email exists, a verification code has been sent.' });
+    }
+    
+    // Generate both a verification code and a secure token
+    const verificationCode = generateVerificationCode();
     const token = generateToken(48);
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-    await PasswordResetToken.create({ user: user._id, token, expiresAt });
-    // TODO: send email with reset link e.g. `${process.env.APP_URL}/reset-password?token=${token}`
-    return NextResponse.json({ success: true });
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes for verification code
+    
+    // Store the verification code and token
+    await PasswordResetToken.create({ 
+      user: user._id, 
+      token, 
+      verificationCode,
+      expiresAt 
+    });
+    
+    // Send verification code via email
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: 'Password Reset Verification Code - Tamil Language Society',
+        template: 'passwordReset',
+        data: {
+          userName: user.name.en,
+          verificationCode,
+          expiresIn: '15 minutes'
+        }
+      });
+    } catch (emailError) {
+      console.error('Failed to send password reset email:', emailError);
+      return NextResponse.json({ error: 'Failed to send verification code. Please try again.' }, { status: 500 });
+    }
+    
+    return NextResponse.json({ 
+      success: true, 
+      message: 'A verification code has been sent to your email address. Please check your inbox.' 
+    });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message || 'Failed to issue reset token' }, { status: 500 });
+    console.error('Forgot password error:', e);
+    return NextResponse.json({ error: e.message || 'Failed to process password reset request' }, { status: 500 });
   }
 }

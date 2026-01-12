@@ -1,5 +1,0 @@
-Educational Essays
-==================
-
-This is a sample ebook file seeded for testing downloads.
-It contains placeholder content on education and learning.

@@ -1,0 +1,429 @@
+/* ========================================
+   DYNAMIC FORM FIELDS - Modern Component
+   Beautiful Dynamic Form Builder
+   ======================================== */
+
+.dynamic-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  animation: fadeIn 0.6s ease-out;
+}
+
+.dynamic-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--border);
+}
+
+.dynamic-form-title {
+  font-family: var(--font-family-secondary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.add-field-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-sm);
+}
+
+.add-field-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.add-field-btn:active {
+  transform: translateY(0);
+}
+
+.dynamic-field {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  position: relative;
+  transition: all var(--transition-normal);
+  animation: slideIn 0.4s ease-out;
+}
+
+.dynamic-field:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+}
+
+.dynamic-field.dragging {
+  opacity: 0.5;
+  transform: rotate(2deg);
+  box-shadow: var(--shadow-xl);
+}
+
+.field-header {
+  display: flex;
+  align-items: center;
+  justify-content: between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.field-drag-handle {
+  cursor: grab;
+  color: var(--foreground-muted);
+  padding: var(--space-xs);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.field-drag-handle:hover {
+  background: var(--surface-hover);
+  color: var(--primary);
+}
+
+.field-drag-handle:active {
+  cursor: grabbing;
+}
+
+.field-type-badge {
+  background: var(--gradient-secondary);
+  color: white;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.field-actions {
+  display: flex;
+  gap: var(--space-xs);
+  margin-left: auto;
+}
+
+.field-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-xs);
+  border-radius: var(--radius-md);
+  color: var(--foreground-muted);
+  transition: all var(--transition-fast);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.field-action-btn:hover {
+  background: var(--surface-hover);
+  color: var(--foreground);
+}
+
+.field-action-btn.delete:hover {
+  background: var(--error);
+  color: white;
+}
+
+.field-config {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.field-label {
+  font-weight: 500;
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+
+.field-input {
+  width: 100%;
+  padding: var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  transition: all var(--transition-normal);
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.field-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.field-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right var(--space-sm) center;
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+  padding-right: 2.5rem;
+}
+
+.field-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+
+.field-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.field-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  background: var(--background-secondary);
+  border-radius: var(--radius-md);
+}
+
+.field-option-input {
+  flex: 1;
+  border: none;
+  background: none;
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+
+.field-option-input:focus {
+  outline: none;
+}
+
+.remove-option-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--error);
+  padding: var(--space-xs);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.remove-option-btn:hover {
+  background: var(--error);
+  color: white;
+}
+
+.add-option-btn {
+  background: var(--surface-hover);
+  border: 1px dashed var(--border);
+  color: var(--foreground-muted);
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-size: 0.875rem;
+}
+
+.add-option-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.field-validation {
+  grid-column: 1 / -1;
+  background: var(--background-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+}
+
+.validation-title {
+  font-weight: 500;
+  color: var(--foreground);
+  margin-bottom: var(--space-md);
+  font-size: 0.875rem;
+}
+
+.validation-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md);
+}
+
+.validation-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.validation-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+}
+
+.validation-label {
+  font-size: 0.875rem;
+  color: var(--foreground-secondary);
+}
+
+.field-preview {
+  grid-column: 1 / -1;
+  background: var(--background-tertiary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  border: 1px dashed var(--border);
+}
+
+.preview-title {
+  font-weight: 500;
+  color: var(--foreground);
+  margin-bottom: var(--space-md);
+  font-size: 0.875rem;
+}
+
+.preview-field {
+  max-width: 300px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--space-3xl);
+  color: var(--foreground-muted);
+}
+
+.empty-state-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--space-lg);
+  color: var(--foreground-muted);
+}
+
+.empty-state-title {
+  font-size: 1.125rem;
+  font-weight: 500;
+  margin-bottom: var(--space-sm);
+}
+
+.empty-state-description {
+  font-size: 0.95rem;
+  margin-bottom: var(--space-lg);
+}
+
+/* Field Type Specific Styles */
+.field-type-text .field-type-badge { background: var(--gradient-primary); }
+.field-type-email .field-type-badge { background: var(--gradient-secondary); }
+.field-type-number .field-type-badge { background: var(--gradient-warm); }
+.field-type-select .field-type-badge { background: var(--gradient-cool); }
+.field-type-textarea .field-type-badge { background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%); }
+.field-type-checkbox .field-type-badge { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+.field-type-radio .field-type-badge { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .field-config {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  
+  .dynamic-form-header {
+    flex-direction: column;
+    gap: var(--space-md);
+    align-items: stretch;
+  }
+  
+  .validation-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .field-header {
+    flex-wrap: wrap;
+  }
+}
+
+/* Dark Theme Enhancements */
+.dark .dynamic-field {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.dark .field-input {
+  background: var(--background);
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+.dark .field-option {
+  background: var(--background-tertiary);
+}
+
+.dark .field-validation {
+  background: var(--background-tertiary);
+}
+
+.dark .field-preview {
+  background: var(--background);
+  border-color: var(--border);
+}
+
+.dark .add-option-btn {
+  background: var(--surface-hover);
+  border-color: var(--border);
+}
+
+/* Loading State */
+.dynamic-form-loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.field-skeleton {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  animation: pulse 2s infinite;
+}
+
+.field-skeleton-header {
+  height: 24px;
+  background: var(--background-secondary);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-lg);
+  width: 60%;
+}
+
+.field-skeleton-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+.field-skeleton-input {
+  height: 40px;
+  background: var(--background-secondary);
+  border-radius: var(--radius-lg);
+}

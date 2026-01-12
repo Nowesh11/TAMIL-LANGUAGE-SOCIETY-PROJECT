@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useLanguage } from '../hooks/LanguageContext';
 import { safeFetchJson } from '../lib/safeFetch';
+import '../styles/components/Footer.css';
 
 type Bilingual = { en: string; ta: string };
 
@@ -41,12 +42,13 @@ function resolveUploadUrl(src: string) {
   }
 }
 
-export default function Footer({ page = 'home' }: { page?: string }) {
+export default function Footer({ page = 'home', data: initialData }: { page?: string, data?: any }) {
   const { lang } = useLanguage();
-  const [data, setData] = useState<FooterContent | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<FooterContent | null>(initialData || null);
+  const [loading, setLoading] = useState(!initialData);
 
   useEffect(() => {
+    if (initialData) return;
     async function load() {
       try {
         // Always fetch global footer from 'home' page to use single DB entry across site
@@ -89,8 +91,8 @@ export default function Footer({ page = 'home' }: { page?: string }) {
           <div className="footer-content">
             <div className="footer-section">
               <div className="footer-logo">
-                <div className="logo shimmer" style={{ width: 48, height: 48, borderRadius: 8 }} />
-                <span className="shimmer" style={{ display: 'inline-block', width: 200, height: 16 }} />
+                <div className="logo shimmer skeleton-logo" />
+                <span className="shimmer skeleton-text" />
               </div>
             </div>
           </div>
@@ -109,11 +111,11 @@ export default function Footer({ page = 'home' }: { page?: string }) {
           <div className="footer-section hover-lift">
             <div className="footer-logo hover-glow animate-text-glow">
               {content.logo?.image ? (
-                <Image src={resolveUploadUrl(content.logo.image.src)} alt={content.logo.image.alt[lang]} width={48} height={48} className="animate-rotate-3d" unoptimized />
+                <Image src={resolveUploadUrl(content.logo.image.src)} alt={content.logo.image.alt?.[lang] || content.logo.image.alt?.en || ''} width={48} height={48} className="animate-rotate-3d" unoptimized />
               ) : null}
-              {content.logo?.text ? <span className="font-extrabold gradient-title">{content.logo.text[lang]}</span> : null}
+              {content.logo?.text ? <span className="font-extrabold gradient-title">{content.logo.text?.[lang] || content.logo.text?.en || ''}</span> : null}
             </div>
-            {content.description ? <p>{content.description[lang]}</p> : null}
+            {content.description ? <p>{content.description?.[lang] || content.description?.en || ''}</p> : null}
             <div className="social-links">
               {content.socialLinks?.facebookUrl && (
                 <Link href={content.socialLinks.facebookUrl} className="social-link btn-neon hover-glow animate-pulse-3d" aria-label="Facebook">
@@ -139,40 +141,40 @@ export default function Footer({ page = 'home' }: { page?: string }) {
           </div>
 
           <div className="footer-section hover-lift">
-            <h2 className="animate-text-glow font-bold gradient-title">{content.quickLinksTitle ? content.quickLinksTitle[lang] : ''}</h2>
+            <h2 className="animate-text-glow font-bold gradient-title">{content.quickLinksTitle ? (content.quickLinksTitle?.[lang] || content.quickLinksTitle?.en || '') : ''}</h2>
             <ul>
               {content.quickLinks?.aboutLink && (
-                <li><Link href={content.quickLinks.aboutLink.url} className="hover-tilt">{content.quickLinks.aboutLink.text[lang]}</Link></li>
+                <li><Link href={content.quickLinks.aboutLink.url} className="hover-tilt">{content.quickLinks.aboutLink.text?.[lang] || content.quickLinks.aboutLink.text?.en || ''}</Link></li>
               )}
               {content.quickLinks?.projectsLink && (
-                <li><Link href={content.quickLinks.projectsLink.url} className="hover-tilt">{content.quickLinks.projectsLink.text[lang]}</Link></li>
+                <li><Link href={content.quickLinks.projectsLink.url} className="hover-tilt">{content.quickLinks.projectsLink.text?.[lang] || content.quickLinks.projectsLink.text?.en || ''}</Link></li>
               )}
               {content.quickLinks?.ebooksLink && (
-                <li><Link href={content.quickLinks.ebooksLink.url} className="hover-tilt">{content.quickLinks.ebooksLink.text[lang]}</Link></li>
+                <li><Link href={content.quickLinks.ebooksLink.url} className="hover-tilt">{content.quickLinks.ebooksLink.text?.[lang] || content.quickLinks.ebooksLink.text?.en || ''}</Link></li>
               )}
               {content.quickLinks?.bookstoreLink && (
-                <li><Link href={content.quickLinks.bookstoreLink.url} className="hover-tilt">{content.quickLinks.bookstoreLink.text[lang]}</Link></li>
+                <li><Link href={content.quickLinks.bookstoreLink.url} className="hover-tilt">{content.quickLinks.bookstoreLink.text?.[lang] || content.quickLinks.bookstoreLink.text?.en || ''}</Link></li>
               )}
             </ul>
           </div>
 
           <div className="footer-section hover-lift">
-            <h2 className="animate-text-glow font-bold gradient-title">{content.supportTitle ? content.supportTitle[lang] : ''}</h2>
+            <h2 className="animate-text-glow font-bold gradient-title">{content.supportTitle ? (content.supportTitle?.[lang] || content.supportTitle?.en || '') : ''}</h2>
             <ul>
               {content.supportLinks?.contactLink && (
-                <li><Link href={content.supportLinks.contactLink.url} className="hover-tilt">{content.supportLinks.contactLink.text[lang]}</Link></li>
+                <li><Link href={content.supportLinks.contactLink.url} className="hover-tilt">{content.supportLinks.contactLink.text?.[lang] || content.supportLinks.contactLink.text?.en || ''}</Link></li>
               )}
               {content.supportLinks?.notificationsLink && (
-                <li><Link href={content.supportLinks.notificationsLink.url} className="hover-tilt">{content.supportLinks.notificationsLink.text[lang]}</Link></li>
+                <li><Link href={content.supportLinks.notificationsLink.url} className="hover-tilt">{content.supportLinks.notificationsLink.text?.[lang] || content.supportLinks.notificationsLink.text?.en || ''}</Link></li>
               )}
             </ul>
           </div>
 
           <div className="footer-section card-neon hover-lift">
-            <h2 className="animate-text-glow font-bold gradient-title">{content.newsletter?.title ? content.newsletter.title[lang] : 'Newsletter'}</h2>
-            <p>{content.newsletter?.description ? content.newsletter.description[lang] : ''}</p>
+            <h2 className="animate-text-glow font-bold gradient-title">{content.newsletter?.title ? (content.newsletter.title?.[lang] || content.newsletter.title?.en || 'Newsletter') : 'Newsletter'}</h2>
+            <p>{content.newsletter?.description ? (content.newsletter.description?.[lang] || content.newsletter.description?.en || '') : ''}</p>
             <div className="newsletter-form">
-              <input type="email" placeholder={content.newsletter?.emailPlaceholder ? content.newsletter.emailPlaceholder[lang] : 'Enter your email'} className="newsletter-input btn-glass hover-glow" aria-label="Email" />
+              <input type="email" placeholder={content.newsletter?.emailPlaceholder ? (content.newsletter.emailPlaceholder?.[lang] || content.newsletter.emailPlaceholder?.en || 'Enter your email') : 'Enter your email'} className="newsletter-input btn-glass hover-glow" aria-label="Email" />
               <button className="newsletter-btn btn-neon hover-glow animate-pulse-3d" aria-label="Subscribe to newsletter">
                 <i className={(content.newsletter?.buttonIcon || 'fa-solid fa-paper-plane') + ' fa-fw text-white'}></i>
               </button>
@@ -181,7 +183,7 @@ export default function Footer({ page = 'home' }: { page?: string }) {
         </div>
 
         <div className="footer-bottom card-morphism hover-lift">
-          <p className="animate-text-glow">{content.copyright ? content.copyright[lang] : ''}</p>
+          <p className="animate-text-glow">{content.copyright ? (typeof content.copyright === 'string' ? content.copyright : (content.copyright?.[lang] || content.copyright?.en || '')) : ''}</p>
         </div>
       </div>
     </footer>

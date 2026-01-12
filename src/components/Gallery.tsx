@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '../hooks/LanguageContext';
+import '../styles/components/Gallery.css';
 
 type Bilingual = { en: string; ta: string };
 type ImageContent = { src: string; alt: Bilingual; width?: number; height?: number };
@@ -22,13 +23,21 @@ type ComponentRecord = {
   slug?: string;
 };
 
-export default function Gallery({ page = 'about', slug }: { page?: string; slug?: string }) {
+export default function Gallery({ page = 'about', slug, data: propData }: { page?: string; slug?: string; data?: any }) {
   const { lang } = useLanguage();
   const [data, setData] = useState<GalleryContent | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // If data is provided as prop, use it directly
+    if (propData) {
+      setData(propData as GalleryContent);
+      setLoading(false);
+      return;
+    }
+
+    // Fallback to API call if no data prop provided
     async function load() {
       try {
         const res = await fetch(`/api/components/page?page=${encodeURIComponent(page)}`);
@@ -49,7 +58,7 @@ export default function Gallery({ page = 'about', slug }: { page?: string; slug?
       }
     }
     load();
-  }, [page, slug]);
+  }, [page, slug, propData]);
   const content: GalleryContent | null = data;
 
   const cols = (content?.columns) || 3;
@@ -74,7 +83,7 @@ export default function Gallery({ page = 'about', slug }: { page?: string; slug?
         <>
           {content.title && (
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-6 text-center">
-              {content.title[lang]}
+              {content.title?.[lang] || content.title?.en || ''}
             </h2>
           )}
           <div className={`grid ${gridCols} gap-6`}>
@@ -82,7 +91,7 @@ export default function Gallery({ page = 'about', slug }: { page?: string; slug?
               <div key={idx} className="rounded-xl overflow-hidden shadow-sm ring-1 ring-slate-200/60 dark:ring-white/10">
                 <Image 
                   src={img.src} 
-                  alt={img.alt[lang]} 
+                  alt={typeof img.alt === 'string' ? img.alt : (img.alt?.[lang] || img.alt?.en || '')} 
                   width={img.width || 400} 
                   height={img.height || 300} 
                   className="object-cover w-full h-56 md:h-64 lg:h-72" 

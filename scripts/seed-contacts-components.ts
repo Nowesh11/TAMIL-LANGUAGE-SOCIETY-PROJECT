@@ -91,7 +91,7 @@ async function run() {
     content: {
       title: { en: heroTitle, ta: 'எங்களை தொடர்பு கொள்ள' },
       subtitle: { en: heroSubtitle, ta: 'உங்கள் செய்தியை அனுப்புங்கள்; விரைவில் பதிலளிப்போம்.' },
-      backgroundImage: '/globe.svg',
+      backgroundImage: '/hero-bg-3.svg',
       cta: {
         label: { en: 'Start Chat', ta: 'அரட்டை தொடங்க' },
         href: '/contacts'
@@ -238,6 +238,8 @@ async function run() {
   });
 
   // Map embed using TextSection (HTML)
+  // Replaced Google Maps Embed API with a direct iframe link that doesn't require an API key for basic embedding
+  // or uses the correct embed format to avoid RefererNotAllowedMapError
   await upsertComponent({
     type: 'text',
     page: 'contacts',
@@ -245,8 +247,8 @@ async function run() {
     content: {
       title: { en: 'Find Us on the Map', ta: 'வரைபடத்தில் எங்களை காணுங்கள்' },
       content: {
-        en: '<div class="map-container"><iframe title="Tamil Language Society Location" src="https://maps.google.com/maps?q=Kuala%20Lumpur&t=&z=13&ie=UTF8&iwloc=&output=embed" width="100%" height="360" style="border:0;border-radius:16px;box-shadow:var(--shadow-md)"></iframe></div>',
-        ta: '<div class="map-container"><iframe title="தமிழ் மொழி சங்கத்தின் இடம்" src="https://maps.google.com/maps?q=Kuala%20Lumpur&t=&z=13&ie=UTF8&iwloc=&output=embed" width="100%" height="360" style="border:0;border-radius:16px;box-shadow:var(--shadow-md)"></iframe></div>'
+        en: '<div class="map-container" style="position:relative;overflow:hidden;padding-top:56.25%;"><iframe title="Tamil Language Society Location" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3983.794625895744!2d101.686855!3d3.139003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc3625f9c39e55%3A0x6a0a03975525540!2sKuala%20Lumpur!5e0!3m2!1sen!2smy!4v1652865241592!5m2!1sen!2smy" width="100%" height="100%" style="border:0;position:absolute;top:0;left:0;border-radius:16px;box-shadow:var(--shadow-md);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>',
+        ta: '<div class="map-container" style="position:relative;overflow:hidden;padding-top:56.25%;"><iframe title="தமிழ் மொழி சங்கத்தின் இடம்" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3983.794625895744!2d101.686855!3d3.139003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc3625f9c39e55%3A0x6a0a03975525540!2sKuala%20Lumpur!5e0!3m2!1sen!2smy!4v1652865241592!5m2!1sen!2smy" width="100%" height="100%" style="border:0;position:absolute;top:0;left:0;border-radius:16px;box-shadow:var(--shadow-md);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>'
       },
       format: 'html',
       alignment: 'center',

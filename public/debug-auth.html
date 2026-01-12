@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Authentication</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Authentication Debug Tool</h1>
+    
+    <div class="section">
+        <h3>Current Storage State</h3>
+        <button onclick="checkStorage()">Check localStorage</button>
+        <div id="storage-result"></div>
+    </div>
+
+    <div class="section">
+        <h3>Login Test</h3>
+        <button onclick="testLogin()">Test Admin Login</button>
+        <div id="login-result"></div>
+    </div>
+
+    <div class="section">
+        <h3>API Test</h3>
+        <button onclick="testComponentsAPI()">Test Components API</button>
+        <div id="api-result"></div>
+    </div>
+
+    <div class="section">
+        <h3>Clear Storage</h3>
+        <button onclick="clearStorage()">Clear All Storage</button>
+        <div id="clear-result"></div>
+    </div>
+
+    <script>
+        function checkStorage() {
+            const accessToken = localStorage.getItem('accessToken');
+            const loginTime = localStorage.getItem('loginTime');
+            
+            let result = '<h4>localStorage Contents:</h4>';
+            result += `<p><strong>accessToken:</strong> ${accessToken ? 'Present (' + accessToken.substring(0, 20) + '...)' : 'Not found'}</p>`;
+            result += `<p><strong>loginTime:</strong> ${loginTime || 'Not found'}</p>`;
+            
+            if (loginTime) {
+                const now = Date.now();
+                const loginTimestamp = parseInt(loginTime);
+                const timeDiff = now - loginTimestamp;
+                const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+                result += `<p><strong>Time since login:</strong> ${hours} hours ago</p>`;
+                
+                const oneDayInMs = 24 * 60 * 60 * 1000;
+                const isExpired = timeDiff > oneDayInMs;
+                result += `<p><strong>Token status:</strong> ${isExpired ? 'EXPIRED' : 'Valid'}</p>`;
+            }
+            
+            document.getElementById('storage-result').innerHTML = result;
+        }
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('login-result');
+            resultDiv.innerHTML = '<p>Testing login...</p>';
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@tamilsociety.org',
+                        password: 'admin123'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('accessToken', data.accessToken);
+                    localStorage.setItem('loginTime', Date.now().toString());
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Login Successful</h4>
+                            <p><strong>User:</strong> ${data.user.email}</p>
+                            <p><strong>Role:</strong> ${data.user.role}</p>
+                            <p><strong>Token:</strong> ${data.accessToken.substring(0, 20)}...</p>
+                        </div>
+                    `;
+                } else {
+                    const errorData = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Login Failed</h4>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Error:</strong> ${errorData.message || 'Unknown error'}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Login Error</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testComponentsAPI() {
+            const resultDiv = document.getElementById('api-result');
+            const accessToken = localStorage.getItem('accessToken');
+            
+            if (!accessToken) {
+                resultDiv.innerHTML = '<div class="error"><p>❌ No access token found. Please login first.</p></div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p>Testing Components API...</p>';
+            
+            try {
+                const response = await fetch('/api/admin/components?page=1&limit=5', {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Components API Success</h4>
+                            <p><strong>Total Components:</strong> ${data.pagination?.total || 0}</p>
+                            <p><strong>Components Returned:</strong> ${data.components?.length || 0}</p>
+                            <p><strong>Stats Available:</strong> ${data.stats ? 'Yes' : 'No'}</p>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    const errorText = await response.text();
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Components API Failed</h4>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Error:</strong> ${errorText}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ API Error</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function clearStorage() {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('loginTime');
+            document.getElementById('clear-result').innerHTML = '<p>✅ Storage cleared</p>';
+        }
+
+        // Auto-check storage on page load
+        window.onload = function() {
+            checkStorage();
+        };
+    </script>
+</body>
+</html>

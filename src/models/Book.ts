@@ -198,6 +198,36 @@ BookSchema.methods.reduceStock = function(quantity: number) {
   throw new Error('Insufficient stock');
 };
 
+// Import notification triggers
+import { NotificationTriggers } from '../lib/notificationTriggers';
+
+// Post-save middleware for create/update notifications
+BookSchema.post('save', async function(doc, next) {
+  try {
+    if (this.isNew) {
+      // Book created
+      await NotificationTriggers.onBookChange('created', doc, doc.createdBy);
+    } else {
+      // Book updated
+      await NotificationTriggers.onBookChange('updated', doc, doc.createdBy);
+    }
+  } catch (error) {
+    console.error('Error creating book notification:', error);
+  }
+  next();
+});
+
+// Post-remove middleware for delete notifications
+BookSchema.post('findOneAndDelete', async function(doc) {
+  try {
+    if (doc) {
+      await NotificationTriggers.onBookChange('deleted', doc, doc.createdBy);
+    }
+  } catch (error) {
+    console.error('Error creating book deletion notification:', error);
+  }
+});
+
 // Export the model
 const Book = mongoose.models.Book || mongoose.model<IBook>('Book', BookSchema);
 export default Book;

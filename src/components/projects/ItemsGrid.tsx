@@ -37,7 +37,7 @@ export default function ItemsGrid({ type, bureau }: { type: 'project' | 'activit
   }
 
   if (!items.length) {
-    return <p style={{ color: 'var(--gray-600)' }}>No items found.</p>;
+    return <p className="text-muted">No items found.</p>;
   }
 
   const wrapperClass = type === 'project' ? 'projects-grid' : type === 'activity' ? 'activities-grid' : 'initiatives-grid';

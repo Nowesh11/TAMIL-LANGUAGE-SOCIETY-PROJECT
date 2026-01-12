@@ -33,6 +33,7 @@ export interface IRecruitmentForm extends Document {
   role: 'crew' | 'participants' | 'volunteer';
   projectItemId?: Types.ObjectId;
   fields: IFormField[];
+  image?: string; // Optional recruitment form image
   isActive: boolean;
   startDate?: Date;
   endDate?: Date;
@@ -89,7 +90,7 @@ const FormFieldSchema = new Schema<IFormField>({
     type: String,
     required: [true, 'Field type is required'],
     enum: {
-      values: ['text', 'email', 'textarea', 'select', 'checkbox', 'radio', 'file', 'number', 'date', 'tel', 'url'],
+      values: ['text', 'email', 'textarea', 'select', 'checkbox', 'radio', 'file', 'number', 'date', 'tel', 'phone', 'url', 'time', 'scale', 'grid_radio', 'grid_checkbox'],
       message: 'Invalid field type'
     }
   },
@@ -187,6 +188,11 @@ const RecruitmentFormSchema = new Schema<IRecruitmentForm>({
       },
       message: 'At least one form field is required'
     }
+  },
+  image: {
+    type: String,
+    trim: true,
+    maxlength: [500, 'Image path cannot exceed 500 characters']
   },
   isActive: {
     type: Boolean,

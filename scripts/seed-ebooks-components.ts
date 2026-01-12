@@ -79,8 +79,10 @@ async function run() {
           { text: { en: 'Browse Ebooks', ta: 'மின்னினை நூல்கள் காண' }, href: '/ebooks', variant: 'primary' }
         ],
       },
-      active: true,
+      order: 1,
+      isActive: true,
       createdBy: admin._id,
+      slug: 'ebooks-hero'
     },
     { upsert: true, new: true }
   );

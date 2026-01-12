@@ -4,6 +4,9 @@ import { getUserFromAccessToken } from '../../../lib/auth';
 import PaymentSettings from '../../../models/PaymentSettings';
 import Purchase from '../../../models/Purchase';
 import Book from '../../../models/Book';
+import { NotificationService } from '../../../lib/notificationService';
+import { ActivityLogger } from '../../../lib/activityLogger';
+import { sendEmail } from '../../../lib/emailService';
 
 export const runtime = 'nodejs';
 
@@ -17,7 +20,7 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status') || undefined;
-    const purchases = await Purchase.getByUser(user._id, status || undefined);
+    const purchases = await (Purchase as any).getByUser(user._id, status || undefined);
 
     return NextResponse.json({ success: true, items: purchases });
   } catch (e: unknown) {
@@ -37,7 +40,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const items: Array<{ bookId: string; quantity: number }> = body.items || [];
     const shippingAddress = body.shippingAddress || null;
-    const method: 'epayum' | 'fbx' | 'cash' | 'card' = body.method;
+    const method: 'epayum' | 'fpx' | 'cash' | 'card' = body.method;
     const notes: string | undefined = body.notes;
 
     if (!Array.isArray(items) || items.length === 0) {
@@ -46,11 +49,11 @@ export async function POST(req: NextRequest) {
     if (!shippingAddress || !shippingAddress.fullName || !shippingAddress.addressLine1 || !shippingAddress.city || !shippingAddress.state || !shippingAddress.postalCode || !shippingAddress.country) {
       return NextResponse.json({ success: false, error: 'Invalid shipping address' }, { status: 400 });
     }
-    if (!method || (method !== 'epayum' && method !== 'fbx' && method !== 'cash' && method !== 'card')) {
+    if (!method || (method !== 'epayum' && method !== 'fpx' && method !== 'cash' && method !== 'card')) {
       return NextResponse.json({ success: false, error: 'Invalid payment method' }, { status: 400 });
     }
 
-    const settings = await PaymentSettings.getCurrentSettings();
+    const settings = await (PaymentSettings as any).getCurrentSettings();
     if (!settings) {
       return NextResponse.json({ success: false, error: 'Payment settings not configured' }, { status: 500 });
     }
@@ -87,6 +90,7 @@ export async function POST(req: NextRequest) {
 
     // Create purchase documents per item
     const created: any[] = [];
+    const now = new Date();
     for (let i = 0; i < bookDocs.length; i++) {
       const book = bookDocs[i];
       const { unit, qty, total } = perItemTotals[i];
@@ -111,8 +115,62 @@ export async function POST(req: NextRequest) {
       });
       created.push(p);
 
+      // Log book purchase activity
+      await ActivityLogger.logBookPurchase(user._id, book._id, book.title?.en || 'Unknown Book', finalAmount);
+
       // Reduce stock
       await book.reduceStock(qty);
+
+      // Create notification per item
+      try {
+        await NotificationService.createNotification({
+          type: 'success',
+          title: {
+            en: `Purchase Confirmed: ${book.title?.en || 'Item'}`,
+            ta: `கொள்முதல் உறுதி: ${book.title?.ta || book.title?.en || 'பொருள்'}`
+          },
+          message: {
+            en: `You successfully purchased ${qty} × ${book.title?.en || 'Item'}. Your order is being processed and you will receive updates via email.`,
+            ta: `நீங்கள் வெற்றிகரமாக ${qty} × ${book.title?.ta || book.title?.en || 'பொருள்'} வாங்கியுள்ளீர்கள். உங்கள் ஆர்டர் செயலாக்கப்படுகிறது மற்றும் மின்னஞ்சல் மூலம் புதுப்பிப்புகளைப் பெறுவீர்கள்.`
+          },
+          tags: ['event', 'purchase'],
+          targetAudience: 'specific',
+          userRef: user._id,
+          priority: 'high',
+          sendEmail: false,
+          actionUrl: '/account/purchases',
+          actionText: {
+            en: 'View Purchases',
+            ta: 'கொள்முதல்களைப் பார்க்கவும்'
+          },
+          createdBy: user._id
+        });
+      } catch (notificationError) {
+        console.error('Failed to create purchase notification:', notificationError);
+        // Don't fail the purchase if notification creation fails
+      }
+    }
+
+    // Send Receipt Email
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: `Order Confirmation - #${created[0]._id.toString().slice(-6).toUpperCase()}`,
+        template: 'bookPurchaseReceipt',
+        data: {
+          userName: user.name?.en || 'Valued Member',
+          orderId: created[0]._id.toString().slice(-6).toUpperCase(),
+          items: bookDocs.map((b, i) => ({
+            title: b.title?.en || 'Book',
+            quantity: items[i].quantity,
+            price: settings.currency + ' ' + perItemTotals[i].unit.toFixed(2)
+          })),
+          total: settings.currency + ' ' + finalTotal.toFixed(2),
+          shippingAddress: `${shippingAddress.fullName}, ${shippingAddress.addressLine1}, ${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.postalCode}, ${shippingAddress.country}`
+        }
+      });
+    } catch (emailError) {
+      console.error('Failed to send receipt email:', emailError);
     }
 
     return NextResponse.json({ success: true, order: { subtotal, tax, shippingFee, finalTotal }, purchases: created });

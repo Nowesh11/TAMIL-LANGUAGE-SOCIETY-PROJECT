@@ -1,5 +1,0 @@
-Tamil Literature Anthology
-==========================
-
-This is a sample ebook file seeded for testing downloads.
-It contains placeholder content related to Tamil literature.

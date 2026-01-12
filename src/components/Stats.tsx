@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { safeFetchJson } from '../lib/safeFetch';
 import { useLanguage } from '../hooks/LanguageContext';
+import '../styles/components/Stats.css';
 
 interface Bilingual {
   en: string;
@@ -28,13 +29,21 @@ interface ComponentRecord {
   content: StatsContent;
 }
 
-export default function Stats({ page = 'home', bureau }: { page?: string; bureau?: string }) {
+export default function Stats({ page = 'home', bureau, data: propData }: { page?: string; bureau?: string; data?: any }) {
   const { lang } = useLanguage();
   const [data, setData] = useState<StatsContent | null>(null);
   const [values, setValues] = useState<number[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    // If data is provided as prop, use it directly
+    if (propData) {
+      setData(propData as StatsContent);
+      setLoading(false);
+      return;
+    }
+
+    // Fallback to API call if no data prop provided
     async function load() {
       try {
         const url = (() => {
@@ -55,26 +64,17 @@ export default function Stats({ page = 'home', bureau }: { page?: string; bureau
         if (record?.content) {
           setData(record.content);
         } else {
-          // Fallback default content to avoid empty UI
-          setData({
-            title: { en: 'Statistics', ta: 'புள்ளிவிவரங்கள்' },
-            stats: [
-              { label: { en: 'Members', ta: 'உறுப்பினர்கள்' }, value: '0', icon: 'fa-solid fa-users' },
-              { label: { en: 'Projects', ta: 'திட்டங்கள்' }, value: '0', icon: 'fa-solid fa-diagram-project' },
-              { label: { en: 'Events', ta: 'நிகழ்வுகள்' }, value: '0', icon: 'fa-solid fa-calendar-days' },
-            ],
-            layout: 'grid',
-            animated: false,
-          });
+          setData(null);
         }
       } catch (e) {
         console.error('Failed to load stats', e);
+        setData(null);
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, [page, bureau]);
+  }, [page, bureau, propData]);
 
   useEffect(() => {
     if (!data) return;
@@ -113,6 +113,11 @@ export default function Stats({ page = 'home', bureau }: { page?: string; bureau
     };
   }, [data]);
 
+  // Don't render anything if there's no data
+  if (!data && !loading) {
+    return null;
+  }
+
   if (loading) {
     return (
       <section className="stats bg-section-gradient py-10">
@@ -127,17 +132,16 @@ export default function Stats({ page = 'home', bureau }: { page?: string; bureau
     );
   }
 
-  const content = data;
-  if (!content) return null;
+  if (!data) return null;
 
   return (
     <section className="stats bg-section-gradient py-10">
       <div className="container">
-        {content.title ? (
-          <h3 className="section-title gradient-title text-3xl font-bold mb-6 text-center"><span className="animate-text-glow">{content.title[lang]}</span></h3>
+        {data.title ? (
+          <h3 className="section-title gradient-title text-3xl font-bold mb-6 text-center"><span className="animate-text-glow">{data.title?.[lang] || data.title?.en || ''}</span></h3>
         ) : null}
         <div className="stats-grid grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {content.stats.map((s, idx) => (
+          {data.stats.map((s, idx) => (
             <div key={idx} className="stat-item card-morphism card-gradient text-white animate-slide-in-up hover-lift hover-glow">
               <div className="flex items-center gap-3">
                 {s.icon ? <i className={`${s.icon} fa-fw stat-icon text-white`}></i> : null}
@@ -146,7 +150,7 @@ export default function Stats({ page = 'home', bureau }: { page?: string; bureau
                   {s.suffix ? s.suffix : ''}
                 </div>
               </div>
-              <div className="stat-label animate-fade-in animate-stagger-1 opacity-90">{s.label[lang]}</div>
+              <div className="stat-label animate-fade-in animate-stagger-1 opacity-90">{s.label?.[lang] || s.label?.en || ''}</div>
             </div>
           ))}
         </div>

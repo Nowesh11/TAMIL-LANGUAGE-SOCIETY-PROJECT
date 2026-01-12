@@ -1,82 +1,104 @@
-import NavBar from '../components/NavBar';
-import Hero from '../components/Hero';
-import Footer from '../components/Footer';
-import SeoHead from '../components/SeoHead';
-import Vision from '../components/Vision';
-import Mission from '../components/Mission';
-import Gallery from '../components/Gallery';
-import TeamHierarchy from '../components/TeamHierarchy';
-
+import { useEffect, useState } from 'react';
+import DynamicComponent from '../components/DynamicComponent';
+import { safeFetchJson } from '../lib/safeFetch';
 
 export default function AboutPage() {
+  const [components, setComponents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchComponents();
+  }, []);
+
+  async function fetchComponents() {
+    try {
+      const res = await safeFetchJson('/api/components/page?page=about');
+      if (res?.success) {
+        setComponents(res.components || []);
+      } else {
+        setComponents([]);
+      }
+    } catch (error) {
+      console.error('Error fetching components:', error);
+      setComponents([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center aurora-gradient">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Sort components by order
+  const sortedComponents = components.sort((a, b) => a.order - b.order);
+
+  // Filter components by type for organized rendering
+  const seoComponents = sortedComponents.filter(c => c.type === 'seo');
+  const navbarComponents = sortedComponents.filter(c => c.type === 'navbar');
+  const heroComponents = sortedComponents.filter(c => c.type === 'hero');
+  const contentComponents = sortedComponents.filter(c => 
+    c.type !== 'seo' && c.type !== 'navbar' && c.type !== 'hero' && c.type !== 'footer'
+  );
+  const footerComponents = sortedComponents.filter(c => c.type === 'footer');
+
   return (
     <>
-      <SeoHead page="about" />
+      {/* SEO Components */}
+      {seoComponents.map((component) => (
+        <DynamicComponent key={component._id} component={component} />
+      ))}
+      
       <div className="font-sans min-h-screen aurora-gradient layout-page">
-        <NavBar page="about" />
+        {/* Navbar Components */}
+        {navbarComponents.map((component) => (
+          <DynamicComponent key={component._id} component={component} />
+        ))}
+        
         <main className="space-y-12 layout-container">
-          {/* Hero banner with soft overlay */}
-          <section className="-mt-10 hero-gradient">
-            <div className="layout-container">
-              <div className="layout-card animate-fade-in">
-                <Hero page="about" />
+          {/* Hero Components */}
+          {heroComponents.length > 0 && (
+            <section className="-mt-10 hero-gradient">
+              <div className="layout-container">
+                {heroComponents.map((component) => (
+                  <div key={component._id} className="layout-card animate-fade-in">
+                    <DynamicComponent component={component} />
+                  </div>
+                ))}
               </div>
-            </div>
-            <div className="divider-glow" />
-          </section>
+              <div className="divider-glow" />
+            </section>
+          )}
 
-          {/* Vision & Mission */}
-          <section className="section-gradient-soft layout-section">
-            <div className="layout-container">
-              <div className="layout-grid section-stack" style={{gridTemplateColumns: '1fr'}}>
-                <div className="layout-card animate-slide-in-up">
-                  <Vision page="about" />
-                </div>
-                <div className="layout-card animate-slide-in-up">
-                  <Mission page="about" />
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Our History: Gallery first, then inline text (no separate component) */}
+          {/* Content Components */}
           <section className="layout-section">
             <div className="layout-container">
-              <div id="our-history" className="section-stack">
-                <div className="layout-card animate-slide-in-up">
-                  <Gallery page="about" slug="our-history-gallery" />
-                </div>
-                <div className="layout-card animate-slide-in-up">
-                  <h2 className="text-2xl md:text-3xl font-bold mb-4">A Legacy of Tamil Excellence</h2>
-                  <p className="text-muted mb-3">
-                    Founded in 2020, the Tamil Language Society emerged from a passionate vision to bridge
-                    the gap between traditional Tamil heritage and modern digital accessibility. Our journey began
-                    with a small group of Tamil scholars, educators, and technology enthusiasts who recognized the
-                    urgent need to preserve and promote Tamil language in the digital age.
-                  </p>
-                  <p className="text-muted">
-                    Over the years, we have grown from a local initiative to a global movement, connecting Tamil
-                    communities worldwide and creating innovative platforms for language learning, cultural exchange,
-                    and literary preservation. Our commitment to excellence has made us a trusted resource for Tamil
-                    language education and cultural promotion.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Team */}
-          <section className="layout-section">
-            <div className="layout-container">
-              <div id="our-team" className="layout-card animate-slide-in-up">
-                <TeamHierarchy />
+              <div className="section-stack">
+                {contentComponents.map((component) => (
+                  <div key={component._id} className="layout-card animate-slide-in-up">
+                    <DynamicComponent component={component} />
+                  </div>
+                ))}
               </div>
             </div>
           </section>
         </main>
-        <footer className="mt-10">
-          <Footer page="about" />
-        </footer>
+        
+        {/* Footer Components */}
+        {footerComponents.length > 0 && (
+          <footer className="mt-10">
+            {footerComponents.map((component) => (
+              <DynamicComponent key={component._id} component={component} />
+            ))}
+          </footer>
+        )}
       </div>
     </>
   );

@@ -1,5 +1,6 @@
 "use client";
 import EbookCard from './EbookCard';
+import '../styles/components/EbooksGrid.css';
 
 export default function EbooksGrid({ ebooks, loading, onDownload, onRate, onLoadMore, hasMore }: {
   ebooks: any[];

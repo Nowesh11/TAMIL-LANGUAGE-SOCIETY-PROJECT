@@ -7,14 +7,14 @@ export const runtime = 'nodejs';
 export async function GET(req: NextRequest) {
   try {
     await dbConnect();
-    const posters = await Poster.find({ active: true }).sort({ order: 1 });
+    const posters = await Poster.find({ isActive: true }).sort({ order: 1 });
     const result = posters.map((p) => ({
       _id: p._id,
       title: p.title,
       description: p.description,
       order: p.order,
-      active: p.active,
-      imageUrl: `/api/posters/image?id=${p._id}`,
+      isActive: p.isActive,
+      imageUrl: `/api/posters/image?id=${p._id}&t=${new Date(p.updatedAt).getTime()}`,
     }));
     return NextResponse.json({ posters: result });
   } catch (e: unknown) {

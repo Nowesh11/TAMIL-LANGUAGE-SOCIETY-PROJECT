@@ -1,32 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs/promises';
-import dbConnect from '../../../../lib/mongodb';
-import FileRecord from '../../../../models/FileRecord';
+// This route now serves files directly by path. Use /api/files/get?path=/uploads/<category>/<filename>
 
 export const runtime = 'nodejs';
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
-    if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
-
-    await dbConnect();
-    const record = await FileRecord.findById(id);
-    if (!record) return NextResponse.json({ error: 'File not found' }, { status: 404 });
-    const storedPath = String(record.path || '');
-    if (!storedPath) return NextResponse.json({ error: 'Path missing' }, { status: 404 });
+    const storedPath = String(searchParams.get('path') || '');
+    if (!storedPath) return NextResponse.json({ error: 'Missing path' }, { status: 400 });
 
     let filePath: string;
     const cleaned = storedPath.replace(/^[/\\]+/, '');
-    if (path.isAbsolute(storedPath)) {
-      filePath = storedPath;
-    } else if (storedPath.startsWith('/')) {
-      filePath = path.join(process.cwd(), 'public', cleaned);
-    } else {
-      filePath = path.join(process.cwd(), cleaned);
-    }
+    filePath = path.isAbsolute(storedPath)
+      ? storedPath
+      : path.join(process.cwd(), storedPath.startsWith('/') ? path.join('public', cleaned) : cleaned);
 
     let data: Buffer | null = null;
     try {
@@ -51,7 +40,7 @@ export async function GET(req: NextRequest) {
       if (!data) return NextResponse.json({ error: 'File not found', resolvedPath: filePath }, { status: 404 });
     }
 
-    const ext = path.extname(record.filename || filePath).toLowerCase();
+    const ext = path.extname(filePath).toLowerCase();
     const mime = ext === '.svg' ? 'image/svg+xml'
       : ext === '.png' ? 'image/png'
       : ext === '.gif' ? 'image/gif'

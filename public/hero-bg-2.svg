@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" fill="none">
+  <defs>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF4444;stop-opacity:0.8" />
+      <stop offset="50%" style="stop-color:#F59E0B;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#EAB308;stop-opacity:0.4" />
+    </linearGradient>
+    <radialGradient id="radial2" cx="70%" cy="20%" r="60%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.15" />
+      <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1920" height="1080" fill="url(#grad2)"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="1500" cy="300" r="180" fill="url(#radial2)"/>
+  <circle cx="400" cy="700" r="120" fill="url(#radial2)"/>
+  <circle cx="1200" cy="900" r="90" fill="url(#radial2)"/>
+  
+  <!-- Tamil script inspired curves -->
+  <g opacity="0.1" fill="none" stroke="#FFFFFF" stroke-width="3">
+    <path d="M500 200 Q600 100 700 200 Q800 300 900 200"/>
+    <path d="M1000 600 Q1100 500 1200 600 Q1300 700 1400 600"/>
+    <path d="M300 500 Q400 400 500 500 Q600 600 700 500"/>
+  </g>
+  
+  <!-- Cultural motifs -->
+  <g opacity="0.08" fill="#FFFFFF">
+    <circle cx="200" cy="200" r="8"/>
+    <circle cx="1700" cy="500" r="6"/>
+    <circle cx="800" cy="150" r="4"/>
+    <circle cx="1400" cy="850" r="10"/>
+    <circle cx="600" cy="950" r="5"/>
+  </g>
+</svg>

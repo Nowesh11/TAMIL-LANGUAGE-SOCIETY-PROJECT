@@ -2,6 +2,14 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "./site.css";
+import "../styles/global-theme.css";
+import "../styles/auth.css";
+import "../styles/admin/modern.css";
+import { LanguageProvider } from "../hooks/LanguageContext";
+import { ThemeProvider } from "../hooks/ThemeContext";
+import ErrorBoundary from "../components/ErrorBoundary";
+import ReactQueryProvider from "../components/ReactQueryProvider";
+import ToasterProvider from "../components/ToasterProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -80,27 +88,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <head>
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#dc2626" />
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-          crossOrigin="anonymous"
-          referrerPolicy="no-referrer"
-        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background text-foreground`}
       >
-        <div id="root">
-          {children}
-        </div>
+        <ThemeProvider>
+          <LanguageProvider>
+            <ReactQueryProvider>
+              <ToasterProvider />
+              <ErrorBoundary>
+                <div id="root">
+                  {children}
+                </div>
+              </ErrorBoundary>
+            </ReactQueryProvider>
+          </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
 }
-
-

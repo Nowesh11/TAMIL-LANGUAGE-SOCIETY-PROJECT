@@ -15,19 +15,26 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
     const member = id ? await Team.findById(id) : await Team.findOne({ slug });
+    console.log('Team member lookup:', { id, slug, found: !!member });
     if (!member) return NextResponse.json({ error: 'Team member not found' }, { status: 404 });
     const storedPath = String(member.imagePath || '');
+    console.log('Image path from DB:', storedPath);
     if (!storedPath) return NextResponse.json({ error: 'Image path missing' }, { status: 404 });
 
     let imgPath: string;
     const cleaned = storedPath.replace(/^[/\\]+/, '');
+    console.log('Cleaned path:', cleaned);
     if (path.isAbsolute(storedPath)) {
       imgPath = storedPath;
+    } else if (storedPath.startsWith('/uploads/')) {
+      // Handle uploads directory paths
+      imgPath = path.join(process.cwd(), cleaned);
     } else if (storedPath.startsWith('/')) {
       imgPath = path.join(process.cwd(), 'public', cleaned);
     } else {
       imgPath = path.join(process.cwd(), cleaned);
     }
+    console.log('Final image path:', imgPath);
 
     let data: Buffer | null = null;
     try {

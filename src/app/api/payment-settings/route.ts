@@ -7,12 +7,12 @@ export const runtime = 'nodejs';
 export async function GET(_req: NextRequest) {
   try {
     await dbConnect();
-    const settings = await PaymentSettings.getCurrentSettings();
+    const settings = await (PaymentSettings as any).getCurrentSettings();
     if (!settings) {
       return NextResponse.json({ success: false, error: 'Payment settings not configured' }, { status: 404 });
     }
 
-    const methods = await PaymentSettings.getActivePaymentMethods();
+    const methods = await (PaymentSettings as any).getActivePaymentMethods();
     return NextResponse.json({
       success: true,
       settings: {
@@ -20,7 +20,7 @@ export async function GET(_req: NextRequest) {
         taxRate: settings.taxRate,
         shipping: settings.shipping,
         epayum: settings.epayum,
-        fbx: settings.fbx,
+        fpx: settings.fpx,
         isMaintenanceMode: settings.isMaintenanceMode,
         maintenanceMessage: settings.maintenanceMessage,
         supportEmail: settings.supportEmail,

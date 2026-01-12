@@ -1,26 +1,225 @@
+
 /* ========================================
-   GLOBALS.CSS - Next.js + Tailwind Setup
-   Minimal layer for framework integration
+   MODERN GLOBALS.CSS - Clean Base Styles
+   Beautiful Color Palette & Typography
    ======================================== */
 
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
-/* ===== BASE VARIABLES ===== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== MODERN COLOR PALETTE ===== */
 :root {
-  --background: #f8f9fa;
-  --foreground: #1a202c;
+  /* Modern Light Theme */
+  --background: #ffffff;
+  --background-secondary: #f8fafc;
+  --background-tertiary: #f1f5f9;
+  --foreground: #0f172a;
+  --foreground-secondary: #334155;
+  --foreground-muted: #64748b;
+  
+  /* Modern Brand Colors */
+  --primary: #6366f1;
+  --primary-light: #818cf8;
+  --primary-dark: #4f46e5;
+  --secondary: #06b6d4;
+  --secondary-light: #22d3ee;
+  --secondary-dark: #0891b2;
+  --accent: #f59e0b;
+  --accent-light: #fbbf24;
+  --accent-dark: #d97706;
+  
+  /* Status Colors */
+  --success: #10b981;
+  --success-light: #34d399;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+  
+  /* Surface Colors */
+  --surface: #ffffff;
+  --surface-hover: #f8fafc;
+  --surface-active: #f1f5f9;
+  --border: #e2e8f0;
+  --border-light: #f1f5f9;
+  --border-dark: #cbd5e1;
+  
+  /* Shadows */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  
+  /* Glass Effect */
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --backdrop-blur: blur(20px);
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --gradient-secondary: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  --gradient-warm: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+  --gradient-cool: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  
+  /* Typography */
+  --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-secondary: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  
+  /* Spacing Scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
 }
 
+/* ===== MODERN DARK THEME ===== */
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ffffff;
+  --background: #0f172a;
+  --background-secondary: #1e293b;
+  --background-tertiary: #334155;
+  --foreground: #f8fafc;
+  --foreground-secondary: #cbd5e1;
+  --foreground-muted: #94a3b8;
+  
+  /* Enhanced Brand Colors for Dark */
+  --primary: #818cf8;
+  --primary-light: #a5b4fc;
+  --primary-dark: #6366f1;
+  --secondary: #22d3ee;
+  --secondary-light: #67e8f9;
+  --secondary-dark: #06b6d4;
+  --accent: #fbbf24;
+  --accent-light: #fcd34d;
+  --accent-dark: #f59e0b;
+  
+  /* Dark Surface Colors */
+  --surface: #1e293b;
+  --surface-hover: #334155;
+  --surface-active: #475569;
+  --border: #334155;
+  --border-light: #475569;
+  --border-dark: #1e293b;
+  
+  /* Dark Glass Effect */
+  --glass-bg: rgba(30, 41, 59, 0.8);
+  --glass-border: rgba(99, 102, 241, 0.2);
+  
+  /* Enhanced Shadows for Dark */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.5);
 }
 
-/* ===== BODY BASE ===== */
+/* ===== BASE STYLES ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
 body {
-  color: var(--foreground);
+  font-family: var(--font-family-primary);
   background: var(--background);
-  /* Clean background - no gradients */
+  color: var(--foreground);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* ===== MODERN ANIMATIONS ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ===== UTILITY CLASSES ===== */
+.animate-fade-in { animation: fadeIn 0.6s ease-out; }
+.animate-slide-in { animation: slideIn 0.6s ease-out; }
+.animate-scale-in { animation: scaleIn 0.4s ease-out; }
+.animate-pulse { animation: pulse 2s infinite; }
+
+/* ===== FOCUS STYLES ===== */
+*:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ===== SCROLLBAR STYLES ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-dark);
+  border-radius: var(--radius-lg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* ===== SELECTION STYLES ===== */
+::selection {
+  background: var(--primary);
+  color: white;
 }
 
 /* ===== NEXT.JS COMPATIBILITY ===== */
@@ -43,61 +242,70 @@ html:not(.dark) {
   color-scheme: light;
 }
 
-/* ===== TAILWIND UTILITIES WORK SEAMLESSLY ===== */
-/* All custom styling is in site.css */
-/* This file only handles framework integration */
-/* Recruitment form styles */
-.recruitment-section {
-  margin-top: 3rem;
-  padding: 2.5rem;
-  background: linear-gradient(180deg, #ffffff, #f9fafb);
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+/* ===== MODAL STYLES ===== */
+.modern-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-out;
 }
 
-.recruitment-header {
+.modern-modal-container {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2xl);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--border);
+}
+
+.modern-modal-header {
+  padding: 1rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--surface);
+  z-index: 10;
 }
 
-.recruitment-title {
-  font-size: clamp(20px, 2.2vw, 28px);
-  font-weight: 700;
+.modern-modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--foreground);
 }
 
-.recruitment-status { font-size: 14px; opacity: 0.8; }
-.recruitment-cta { margin-top: 2rem; }
-
-.recruitment-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 14px 20px;
-  border-radius: 12px;
-  background: #0ea5e9;
-  color: #ffffff;
-  border: 0;
+.modern-close-button {
+  background: transparent;
+  border: none;
+  color: var(--foreground-muted);
   cursor: pointer;
-  box-shadow: 0 6px 14px rgba(14, 165, 233, 0.35);
-  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
 }
-.recruitment-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(14,165,233,0.35); }
-.recruitment-btn:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
 
-.recruitment-form { margin-top: 2.5rem; display: grid; gap: 2rem; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-.form-field { display: grid; gap: 0.5rem; }
-.form-label { font-weight: 600; }
-.form-input, .form-textarea {
-  width: 100%; padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 10px; background: #ffffff;
+.modern-close-button:hover {
+  background: var(--background-secondary);
+  color: var(--error);
+  transform: rotate(90deg);
 }
-.form-textarea { min-height: 120px; resize: vertical; }
-.form-actions { display: flex; gap: 1.5rem; }
-.submit-btn { padding: 12px 18px; border-radius: 10px; background: #10b981; color: #ffffff; border: 0; cursor: pointer; box-shadow: 0 6px 14px rgba(16,185,129,0.35); }
-.submit-btn:hover { filter: brightness(1.05); }
-.cancel-btn { padding: 12px 18px; border-radius: 10px; background: #f3f4f6; border: 1px solid #e5e7eb; }
 
-@media (max-width: 1024px) { .form-row { grid-template-columns: 1fr; } }
+.modern-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+}

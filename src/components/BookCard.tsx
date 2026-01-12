@@ -1,6 +1,7 @@
 "use client";
 import { useMemo } from 'react';
 import { useLanguage } from '../hooks/LanguageContext';
+import '../styles/components/BookCard.css';
 
 type Bilingual = { en: string; ta: string };
 type Book = {
@@ -38,13 +39,17 @@ export default function BookCard({ book, onAddToCart, onBuyNow }: {
           <p>{description}</p>
           <div className="project-status">
             <div className={`status-indicator ${outOfStock ? 'bg-red-500' : 'bg-green-500'}`} />
-            <span>Price: RM {book.price?.toFixed(2)}</span>
-            <span>{outOfStock ? 'Out of stock' : `In stock: ${book.stock}`}</span>
+            <span>{lang === 'ta' ? 'விலை' : 'Price'}: RM {book.price?.toFixed(2)}</span>
+            <span>{outOfStock ? (lang === 'ta' ? 'கையிருப்பில் இல்லை' : 'Out of stock') : (lang === 'ta' ? `கையிருப்பில்: ${book.stock}` : `In stock: ${book.stock}`)}</span>
           </div>
         </div>
         <div className="project-content flex gap-2">
-          <button className="btn btn-secondary" onClick={() => onAddToCart(book._id)} disabled={outOfStock}>Add to Cart</button>
-          <button className="btn btn-primary" onClick={() => onBuyNow(book)} disabled={outOfStock}>Buy Now</button>
+          <button className="btn btn-secondary" onClick={() => onAddToCart(book._id)} disabled={outOfStock}>
+            {lang === 'ta' ? 'கார்ட்டில் சேர்க்கவும்' : 'Add to Cart'}
+          </button>
+          <button className="btn btn-primary" onClick={() => onBuyNow(book)} disabled={outOfStock}>
+            {lang === 'ta' ? 'இப்போது வாங்கவும்' : 'Buy Now'}
+          </button>
         </div>
       </div>
     </div>

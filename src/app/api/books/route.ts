@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '../../../lib/mongodb';
 import Book from '../../../models/Book';
+import { getUserFromAccessToken } from '../../../lib/auth';
+import { NotificationService } from '../../../lib/notificationService';
 
 export const runtime = 'nodejs';
 

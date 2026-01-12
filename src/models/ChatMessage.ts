@@ -204,6 +204,10 @@ ChatMessageSchema.index({ isDeleted: 1 });
 ChatMessageSchema.index({ messageType: 1 });
 ChatMessageSchema.index({ replyTo: 1 });
 
+// TTL Index: Auto-delete messages after 7 days
+// 7 days * 24 hours * 60 minutes * 60 seconds = 604800 seconds
+ChatMessageSchema.index({ createdAt: 1 }, { expireAfterSeconds: 604800 });
+
 // Compound indexes
 ChatMessageSchema.index({ conversationId: 1, isDeleted: 1, timestamp: -1 });
 ChatMessageSchema.index({ recipientId: 1, isRead: 1, timestamp: -1 });

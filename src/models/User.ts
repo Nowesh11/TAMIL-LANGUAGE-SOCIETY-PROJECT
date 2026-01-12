@@ -6,6 +6,21 @@ export interface BilingualText {
   ta: string;
 }
 
+// TypeScript interface for notification preferences
+export interface NotificationPreferences {
+  email: {
+    announcements: boolean;
+    newContent: boolean;
+    weekly: boolean;
+  };
+  push: {
+    breaking: boolean;
+    newContent: boolean;
+    updates: boolean;
+  };
+  language: 'en' | 'ta' | 'both';
+}
+
 // TypeScript interface for User document
 export interface IUser extends Document {
   _id: Types.ObjectId;
@@ -14,6 +29,9 @@ export interface IUser extends Document {
   name: BilingualText;
   role: 'admin' | 'user';
   purchases: Types.ObjectId[];
+  notificationPreferences?: NotificationPreferences;
+  isOnline?: boolean;
+  lastSeen?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -58,15 +76,33 @@ const UserSchema = new Schema<IUser>({
   purchases: [{
     type: Schema.Types.ObjectId,
     ref: 'Purchase'
-  }]
+  }],
+  notificationPreferences: {
+    email: {
+      announcements: { type: Boolean, default: true },
+      newContent: { type: Boolean, default: true },
+      weekly: { type: Boolean, default: false }
+    },
+    push: {
+      breaking: { type: Boolean, default: true },
+      newContent: { type: Boolean, default: false },
+      updates: { type: Boolean, default: true }
+    },
+    language: {
+      type: String,
+      enum: ['en', 'ta', 'both'],
+      default: 'both'
+    }
+  },
+  isOnline: { type: Boolean, default: false },
+  lastSeen: { type: Date }
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
 
-// Indexes for better performance
-UserSchema.index({ email: 1 });
+// Indexes for better performance (removed duplicate email index since unique: true already creates one)
 UserSchema.index({ role: 1 });
 UserSchema.index({ createdAt: -1 });
 

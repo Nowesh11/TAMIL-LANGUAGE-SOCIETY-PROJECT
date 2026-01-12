@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Image from 'next/image';
 import { useLanguage } from "../hooks/LanguageContext";
 import { safeFetchJson } from '../lib/safeFetch';
+import '../styles/components/Hero.css';
 
 type Bilingual = { en: string; ta: string };
  type ImageContent = { src: string; alt: Bilingual; width?: number; height?: number };
@@ -13,17 +14,27 @@ type HeroContent = {
   ctas?: { text: Bilingual; href: string; variant?: "primary" | "secondary" }[];
   accent?: string;
   backgroundImages?: ImageContent[];
+  backgroundImage?: string;
+  image?: string;
 };
 
 type ComponentRecord = { type: string; content: HeroContent };
 
-export default function Hero({ page = 'home', bureau }: { page?: string; bureau?: string }) {
+export default function Hero({ page = 'home', bureau, data: propData }: { page?: string; bureau?: string; data?: any }) {
   const { lang } = useLanguage();
   const [data, setData] = useState<HeroContent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    // If data is provided as prop, use it directly
+    if (propData) {
+      setData(propData as HeroContent);
+      setLoading(false);
+      return;
+    }
+
+    // Fallback to API call if no data prop provided
     async function load() {
       try {
         const reqUrl = (() => {
@@ -43,71 +54,80 @@ export default function Hero({ page = 'home', bureau }: { page?: string; bureau?
         const json = await safeFetchJson<{ components?: ComponentRecord[] }>(reqUrl);
         const list = Array.isArray(json.components) ? (json.components as ComponentRecord[]) : [];
         const hero = list.find((c) => c.type === 'hero');
-        if (hero?.content) setData(hero.content);
-        else {
-          // Provide a graceful fallback hero to avoid empty UI
-          setData({
-            title: { en: 'Tamil Language Society', ta: 'தமிழ் மொழி சங்கம்' },
-            subtitle: { en: 'Celebrating language and culture', ta: 'மொழி மற்றும் பண்பாட்டை கொண்டாடுதல்' },
-            ctas: [
-              { text: { en: 'Explore Books', ta: 'புத்தகங்களை ஆராயுங்கள்' }, href: '/books', variant: 'primary' },
-              { text: { en: 'Our Mission', ta: 'எங்கள் பணி' }, href: '/about', variant: 'secondary' }
-            ],
-            backgroundImages: []
-          });
-          setError(null);
+        if (hero?.content) {
+          setData(hero.content);
+        } else {
+          setData(null);
+          setError('Hero content not found in database');
         }
       } catch (e) {
         console.error('Failed to load hero', e);
-        // Keep UI stable with default content on network errors
-        setData({
-          title: { en: 'Tamil Language Society', ta: 'தமிழ் மொழி சங்கம்' },
-          subtitle: { en: 'Celebrating language and culture', ta: 'மொழி மற்றும் பண்பாட்டை கொண்டாடுதல்' },
-          ctas: [
-            { text: { en: 'Explore Books', ta: 'புத்தகங்களை ஆராயுங்கள்' }, href: '/books', variant: 'primary' }
-          ],
-          backgroundImages: []
-        });
-        setError(null);
+        setError('Failed to load hero content');
+        setData(null);
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, [page, bureau]);
+  }, [page, bureau, propData]);
 
   const title = data?.title;
   const subtitle = data?.subtitle;
   const ctas = data?.ctas || [];
 
-  const images = data?.backgroundImages || [];
+  // Combine all images: SVG backgrounds + uploaded images
+  const allImages = [];
+  
+  // Add SVG background images
+  if (data?.backgroundImages) {
+    allImages.push(...data.backgroundImages);
+  }
+  
+  // Add uploaded background image
+  if (data?.backgroundImage) {
+    allImages.push({
+      src: data.backgroundImage,
+      alt: { en: "Hero background image", ta: "ஹீரோ பின்னணி படம்" }
+    });
+  }
+  
+  // Add uploaded image
+  if (data?.image) {
+    allImages.push({
+      src: data.image,
+      alt: { en: "Hero image", ta: "ஹீரோ படம்" }
+    });
+  }
+
   const [index, setIndex] = useState(0);
   useEffect(() => {
-    if (!images.length) return;
+    if (!allImages.length) return;
     const id = setInterval(() => {
-      setIndex((prev) => (prev + 1) % images.length);
+      setIndex((prev) => (prev + 1) % allImages.length);
     }, 5000);
     return () => clearInterval(id);
-  }, [images.length]);
+  }, [allImages.length]);
+
+  // Don't render anything if there's no data
+  if (!data && !loading) {
+    return null;
+  }
 
   return (
-    <section className="relative w-full min-h-screen overflow-hidden">
-      <div className="absolute inset-0 z-0">
-        {images.length ? (
-          images.map((img, i) => (
+    <section className="relative w-full h-screen overflow-hidden">
+      <div className="absolute inset-0 z-0 w-full h-full">
+        {allImages.length > 0 && (
+          allImages.map((img, i) => (
             <Image
               key={i}
               src={img.src}
-              alt={img.alt[lang]}
+              alt={typeof img.alt === 'string' ? img.alt : (img.alt?.[lang] || img.alt?.en || '')}
               fill
-              className="object-cover transition-opacity duration-700"
-              style={{ opacity: i === index ? 1 : 0 }}
+              className={`object-cover hero-slide ${i === index ? 'hero-slide--active' : ''}`}
               priority={i === 0}
               unoptimized
             />
           ))
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-rose-600 to-amber-500" />
         )}
         <div className="absolute inset-0 bg-black/60" />
       </div>
@@ -127,12 +147,12 @@ export default function Hero({ page = 'home', bureau }: { page?: string; bureau?
             <>
               {title && (
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white whitespace-nowrap">
-                  {title[lang]}
+                  {typeof title === 'string' ? title : (title?.[lang] || title?.en || '')}
                 </h1>
               )}
               {subtitle && (
                 <p className="mt-4 text-lg sm:text-xl md:text-2xl opacity-90">
-                  {subtitle[lang]}
+                  {typeof subtitle === 'string' ? subtitle : (subtitle?.[lang] || subtitle?.en || '')}
                 </p>
               )}
               {ctas.length > 0 && (
@@ -145,7 +165,7 @@ export default function Hero({ page = 'home', bureau }: { page?: string; bureau?
                         "px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all btn-gradient-secondary hover:scale-[1.02] text-white" :
                         "px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all btn-gradient-primary hover:scale-[1.02] text-white"}
                     >
-                      {cta.text[lang]}
+                      {cta.text?.[lang] || cta.text?.en || ''}
                     </a>
                   ))}
                 </div>

@@ -12,6 +12,13 @@ export interface IImageContent {
   alt: IBilingualContent;
   width?: number;
   height?: number;
+  uploadedImage?: {
+    filename: string;
+    originalName: string;
+    size: number;
+    mimeType: string;
+    uploadDate: Date;
+  };
 }
 
 // Interface for link content
@@ -37,6 +44,13 @@ export interface IHeroContent {
   description?: IBilingualContent;
   backgroundImages?: IImageContent[];
   backgroundVideo?: string;
+  uploadedBackgroundVideo?: {
+    filename: string;
+    originalName: string;
+    size: number;
+    mimeType: string;
+    uploadDate: Date;
+  };
   overlay?: {
     enabled: boolean;
     color: string;
@@ -204,13 +218,22 @@ export interface ISocialLinksContent {
 // Interface for video component content
 export interface IVideoContent {
   title?: IBilingualContent;
-  videoUrl: string;
+  videoUrl: string; // Can be external URL or uploaded file path
+  videoType?: 'upload' | 'external' | 'youtube' | 'vimeo'; // Type of video source
+  uploadedVideo?: {
+    filename: string;
+    originalName: string;
+    size: number;
+    mimeType: string;
+    uploadDate: Date;
+  };
   thumbnailImage?: IImageContent;
   autoplay?: boolean;
   controls?: boolean;
   muted?: boolean;
   loop?: boolean;
   aspectRatio?: '16:9' | '4:3' | '1:1';
+  poster?: string; // Poster image URL for video
 }
 
 // Interface for countdown component content
@@ -375,6 +398,20 @@ const BilingualContentSchema = new Schema({
   }
 }, { _id: false });
 
+// Optional bilingual content schema for SEO fields
+const OptionalBilingualContentSchema = new Schema({
+  en: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  ta: {
+    type: String,
+    trim: true,
+    default: ''
+  }
+}, { _id: false });
+
 
 
 // Component schema definition
@@ -474,8 +511,8 @@ const ComponentSchema = new Schema<IComponent>({
     }
   },
   seo: {
-    title: BilingualContentSchema,
-    description: BilingualContentSchema,
+    title: OptionalBilingualContentSchema,
+    description: OptionalBilingualContentSchema,
     keywords: [{
       type: String,
       trim: true,
@@ -735,15 +772,8 @@ ComponentSchema.pre('save', function(next) {
         }
         break;
       case 'seo':
-        const seoTitle = content.title as IBilingualContent | undefined;
-        if (!seoTitle || !seoTitle.en || !seoTitle.ta) {
-          return next(new Error('SEO component must have a title in both languages'));
-        }
-        // description is optional but if provided should be bilingual
-        const seoDescription = content.description as IBilingualContent | undefined;
-        if (seoDescription && (!seoDescription.en || !seoDescription.ta)) {
-          return next(new Error('SEO description must be provided in both languages'));
-        }
+        // SEO fields are optional - no validation required
+        // The schema handles defaults and optional validation
         break;
       case 'timeline':
         const items = content.items as ITimelineItem[] | undefined;

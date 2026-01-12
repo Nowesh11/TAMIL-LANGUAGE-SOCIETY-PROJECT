@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from 'react';
+import '../styles/components/MiniCart.css';
 
 type CartItem = { bookId: string; title: { en: string; ta?: string }; price: number; quantity: number };
 
@@ -23,18 +24,18 @@ export default function MiniCart({ items, onItemsChange, onGoToCheckout }: {
   }
 
   return (
-    <>
+    <div className="mini-cart">
       <button
         aria-label="Open cart"
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-50 rounded-full bg-black/80 text-white shadow-lg hover:shadow-xl transition-all px-5 py-4 flex items-center gap-2 backdrop-blur"
+        className="mini-cart-trigger fixed bottom-6 right-6 z-50"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="none"
           aria-hidden="true"
-          className="w-5 h-5"
+          className="mini-cart-icon"
         >
           <path
             d="M3 3h2l.4 2M7 13h10l3-8H6.4M7 13l-2-8H3"
@@ -46,49 +47,79 @@ export default function MiniCart({ items, onItemsChange, onGoToCheckout }: {
           <circle cx="9" cy="19" r="1" stroke="currentColor" strokeWidth="2" />
           <circle cx="17" cy="19" r="1" stroke="currentColor" strokeWidth="2" />
         </svg>
-        <span className="text-sm font-semibold">{count}</span>
+        {count > 0 && (
+          <span className={`mini-cart-badge ${count > 0 ? 'pulse' : ''}`}>
+            {count}
+          </span>
+        )}
       </button>
 
       {open && (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
           <div className="absolute right-0 top-0 h-full w-80 bg-white dark:bg-slate-900 shadow-2xl border-l border-slate-200 dark:border-slate-800 flex flex-col">
-            <div className="px-4 py-3 flex items-center justify-between border-b border-slate-200 dark:border-slate-800">
-              <div className="font-semibold">Your Cart</div>
-              <button className="text-sm text-slate-500 hover:text-slate-800 dark:hover:text-white" onClick={() => setOpen(false)}>Close</button>
+            <div className="mini-cart-header">
+              <div className="mini-cart-title">Your Cart</div>
+              <button className="mini-cart-close" onClick={() => setOpen(false)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
             </div>
-            <div className="flex-1 overflow-y-auto">
+            <div className="mini-cart-items">
               {!items.length && (
-                <div className="p-4 text-sm text-slate-500">Your cart is empty.</div>
+                <div className="mini-cart-empty">
+                  <svg className="mini-cart-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l3-8H6.4M7 13l-2-8H3" />
+                    <circle cx="9" cy="19" r="1" />
+                    <circle cx="17" cy="19" r="1" />
+                  </svg>
+                  <div className="mini-cart-empty-text">Your cart is empty.</div>
+                  <a href="/books" className="mini-cart-empty-btn">Browse Books</a>
+                </div>
               )}
               {items.map((it) => (
-                <div key={it.bookId} className="px-4 py-3 flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800">
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{it.title?.en || 'Book'}</div>
-                    <div className="text-xs text-slate-500">RM {(it.price || 0).toFixed(2)}</div>
+                <div key={it.bookId} className="mini-cart-item">
+                  <div className="mini-cart-item-image" style={{ backgroundColor: '#f3f4f6' }}></div>
+                  <div className="mini-cart-item-details">
+                    <div className="mini-cart-item-title">{
+                      typeof it.title === 'string' 
+                        ? it.title 
+                        : it.title?.en || 'Book'
+                    }</div>
+                    <div className="mini-cart-item-meta">
+                      <span className="mini-cart-item-price">RM {(it.price || 0).toFixed(2)}</span>
+                      <span className="mini-cart-item-quantity">Qty: {it.quantity}</span>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800" onClick={() => dec(it.bookId)}>-</button>
                     <div className="w-7 text-center text-sm">{it.quantity}</div>
                     <button className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800" onClick={() => inc(it.bookId)}>+</button>
-                    <button className="text-red-600 text-sm" onClick={() => remove(it.bookId)}>Remove</button>
+                    <button className="mini-cart-item-remove" onClick={() => remove(it.bookId)}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="3,6 5,6 21,6"></polyline>
+                        <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                      </svg>
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-              <div className="flex justify-between text-sm mb-3">
-                <span>Subtotal</span>
-                <span className="font-semibold">RM {subtotal.toFixed(2)}</span>
+            <div className="mini-cart-footer">
+              <div className="mini-cart-total">
+                <span className="mini-cart-total-label">Subtotal</span>
+                <span className="mini-cart-total-amount">RM {subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between gap-2">
-                <button className="flex-1 px-3 py-2 rounded bg-slate-100 dark:bg-slate-800" onClick={() => setOpen(false)}>Continue</button>
-                <button className="flex-1 px-3 py-2 rounded bg-black text-white" onClick={() => { setOpen(false); onGoToCheckout && onGoToCheckout(); }}>Checkout</button>
+              <div className="mini-cart-actions">
+                <button className="mini-cart-btn mini-cart-btn-secondary" onClick={() => setOpen(false)}>Continue Shopping</button>
+                <button className="mini-cart-btn mini-cart-btn-primary" onClick={() => { setOpen(false); onGoToCheckout && onGoToCheckout(); }}>Checkout</button>
               </div>
             </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

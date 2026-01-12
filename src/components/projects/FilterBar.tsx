@@ -1,33 +1,67 @@
 "use client";
 import React from 'react';
+import { useLanguage } from '@/hooks/LanguageContext';
 
 type FilterBarProps = {
   value?: string;
   onChange: (bureau?: string) => void;
 };
 
-const options: { label: string; value: string }[] = [
-  { label: 'Sports & Leadership Bureau', value: 'sports_leadership' },
-  { label: 'Education & Intellectual Bureau', value: 'education_intellectual' },
-  { label: 'Arts & Culture Bureau', value: 'arts_culture' },
-  { label: 'Social Welfare & Voluntary Bureau', value: 'social_welfare_voluntary' },
-  { label: 'Language & Literature Bureau', value: 'language_literature' },
+const options: { label: { en: string; ta: string }; value: string }[] = [
+  { 
+    label: { 
+      en: 'Sports & Leadership Bureau', 
+      ta: 'விளையாட்டு மற்றும் தலைமைத்துவ பணியகம்' 
+    }, 
+    value: 'sports_leadership' 
+  },
+  { 
+    label: { 
+      en: 'Education & Intellectual Bureau', 
+      ta: 'கல்வி மற்றும் அறிவுசார் பணியகம்' 
+    }, 
+    value: 'education_intellectual' 
+  },
+  { 
+    label: { 
+      en: 'Arts & Culture Bureau', 
+      ta: 'கலை மற்றும் கலாச்சார பணியகம்' 
+    }, 
+    value: 'arts_culture' 
+  },
+  { 
+    label: { 
+      en: 'Social Welfare & Voluntary Bureau', 
+      ta: 'சமூக நலன் மற்றும் தன்னார்வ பணியகம்' 
+    }, 
+    value: 'social_welfare_voluntary' 
+  },
+  { 
+    label: { 
+      en: 'Language & Literature Bureau', 
+      ta: 'மொழி மற்றும் இலக்கிய பணியகம்' 
+    }, 
+    value: 'language_literature' 
+  },
 ];
 
 export default function FilterBar({ value, onChange }: FilterBarProps) {
+  const { lang } = useLanguage();
+
   return (
-    <div className="layout-container" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-      <button className="btn-primary" onClick={() => onChange(undefined)} style={{ padding: '0.5rem 1rem', borderRadius: '999px' }}>
-        All Bureaus
+    <div className="layout-container filter-bar">
+      <button className="btn-primary filter-btn" onClick={() => onChange(undefined)}>
+        {lang === 'ta' ? 'அனைத்து பணியகங்கள்' : 'All Bureaus'}
       </button>
       {options.map((opt) => (
         <button
           key={opt.value}
-          className="btn-primary"
+          className={`btn-primary filter-btn ${value === opt.value ? 'filter-btn--active' : ''}`}
           onClick={() => onChange(opt.value)}
-          style={{ padding: '0.5rem 1rem', borderRadius: '999px', opacity: value === opt.value ? 1 : 0.8 }}
         >
-          {opt.label}
+          {typeof opt.label === 'string' 
+            ? opt.label 
+            : opt.label?.[lang] || opt.label?.en || ''}
         </button>
       ))}
     </div>

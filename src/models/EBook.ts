@@ -217,6 +217,36 @@ EBookSchema.methods.incrementDownload = function() {
   return this.save();
 };
 
+// Import notification triggers
+import { NotificationTriggers } from '../lib/notificationTriggers';
+
+// Post-save middleware for create/update notifications
+EBookSchema.post('save', async function(doc, next) {
+  try {
+    if (this.isNew) {
+      // EBook created
+      await NotificationTriggers.onEBookChange('created', doc, doc.createdBy);
+    } else {
+      // EBook updated
+      await NotificationTriggers.onEBookChange('updated', doc, doc.createdBy);
+    }
+  } catch (error) {
+    console.error('Error creating ebook notification:', error);
+  }
+  next();
+});
+
+// Post-remove middleware for delete notifications
+EBookSchema.post('findOneAndDelete', async function(doc) {
+  try {
+    if (doc) {
+      await NotificationTriggers.onEBookChange('deleted', doc, doc.createdBy);
+    }
+  } catch (error) {
+    console.error('Error creating ebook deletion notification:', error);
+  }
+});
+
 // Export the model
 const EBook = mongoose.models.EBook || mongoose.model<IEBook>('EBook', EBookSchema);
 export default EBook;

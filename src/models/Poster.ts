@@ -6,9 +6,12 @@ export interface IPoster extends Document {
   _id: Types.ObjectId;
   title: BilingualText;
   description: BilingualText;
+  category: string;
   imagePath: string;
   order: number;
-  active: boolean;
+  isActive: boolean;
+  isFeatured: boolean;
+  eventDate?: Date;
   createdBy: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -44,6 +47,15 @@ const PosterSchema = new Schema<IPoster>({
       maxlength: [1000, 'Description cannot exceed 1000 characters']
     }
   },
+  category: {
+    type: String,
+    required: [true, 'Category is required'],
+    trim: true,
+    enum: {
+      values: ['event', 'announcement', 'cultural', 'educational', 'sports', 'social', 'promotional', 'news'],
+      message: 'Invalid category'
+    }
+  },
   imagePath: {
     type: String,
     required: [true, 'Image path is required'],
@@ -55,9 +67,17 @@ const PosterSchema = new Schema<IPoster>({
     min: [0, 'Order must be a positive number'],
     default: 0
   },
-  active: {
+  isActive: {
     type: Boolean,
     default: true
+  },
+  isFeatured: {
+    type: Boolean,
+    default: false
+  },
+  eventDate: {
+    type: Date,
+    default: null
   },
   createdBy: {
     type: Schema.Types.ObjectId,
@@ -71,11 +91,16 @@ const PosterSchema = new Schema<IPoster>({
 });
 
 // Indexes for better performance
-PosterSchema.index({ active: 1, order: 1 });
+PosterSchema.index({ isActive: 1, order: 1 });
+PosterSchema.index({ isFeatured: 1 });
+PosterSchema.index({ category: 1 });
 PosterSchema.index({ createdBy: 1 });
 PosterSchema.index({ createdAt: -1 });
+PosterSchema.index({ eventDate: -1 });
 
-// Compound index for active posters ordered by display order
+// Compound indexes
+PosterSchema.index({ isActive: 1, isFeatured: 1, order: 1 });
+PosterSchema.index({ category: 1, isActive: 1 });
 
 // Virtual to populate creator information
 PosterSchema.virtual('creator', {
@@ -87,10 +112,47 @@ PosterSchema.virtual('creator', {
 
 // Static method to get active posters in order
 PosterSchema.statics.getActivePosters = function() {
-  return this.find({ active: true })
+  return this.find({ isActive: true })
     .sort({ order: 1, createdAt: -1 })
     .populate('createdBy', 'name email');
 };
+
+// Static method to get featured posters
+PosterSchema.statics.getFeaturedPosters = function() {
+  return this.find({ isActive: true, isFeatured: true })
+    .sort({ order: 1, createdAt: -1 })
+    .populate('createdBy', 'name email');
+};
+
+// Import notification triggers
+import { NotificationTriggers } from '../lib/notificationTriggers';
+
+// Post-save middleware for create/update notifications
+PosterSchema.post('save', async function(doc, next) {
+  try {
+    if (this.isNew) {
+      // Poster created
+      await NotificationTriggers.onPosterChange('created', doc, doc.createdBy);
+    } else {
+      // Poster updated
+      await NotificationTriggers.onPosterChange('updated', doc, doc.createdBy);
+    }
+  } catch (error) {
+    console.error('Error creating poster notification:', error);
+  }
+  next();
+});
+
+// Post-remove middleware for delete notifications
+PosterSchema.post('findOneAndDelete', async function(doc) {
+  try {
+    if (doc) {
+      await NotificationTriggers.onPosterChange('deleted', doc, doc.createdBy);
+    }
+  } catch (error) {
+    console.error('Error creating poster deletion notification:', error);
+  }
+});
 
 // Export the model
 const Poster = mongoose.models.Poster || mongoose.model<IPoster>('Poster', PosterSchema);

@@ -1,4 +1,4 @@
-﻿# Tamil Language Society - Database Models
+# Tamil Language Society - Database Models
 
 This document provides comprehensive information about all Mongoose models created for the Tamil Language Society application.
 
@@ -271,7 +271,7 @@ The application uses MongoDB with Mongoose ODM and includes 14 different models 
 
 **Fields**:
 - `epayum`: Epayum payment configuration
-- `fbx`: FBX payment configuration
+- `fpx`: FPX payment configuration
 - `shipping`: Shipping settings object
 - `taxRate`: Tax percentage
 - `currency`: Default currency

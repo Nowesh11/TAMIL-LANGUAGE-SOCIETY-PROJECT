@@ -33,7 +33,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
 export default function ProtectedPage(props: { user: { id: string; email: string; role: string } }) {
   return (
-    <div style={{ padding: 24 }}>
+    <div className="protected-wrapper">
       <h1>Protected Page</h1>
       <p>Welcome {props.user.email}. Your role is {props.user.role}.</p>
       <p>Admins are redirected to /admin.</p>

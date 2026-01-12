@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" fill="none">
+  <defs>
+    <linearGradient id="aboutGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1E40AF;stop-opacity:0.9" />
+      <stop offset="30%" style="stop-color:#3B82F6;stop-opacity:0.8" />
+      <stop offset="70%" style="stop-color:#8B5CF6;stop-opacity:0.7" />
+      <stop offset="100%" style="stop-color:#10B981;stop-opacity:0.6" />
+    </linearGradient>
+    <radialGradient id="aboutRadial" cx="40%" cy="30%" r="60%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.2" />
+      <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:0" />
+    </radialGradient>
+    <pattern id="tamilPattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+      <circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/>
+      <circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.05)"/>
+      <circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.05)"/>
+    </pattern>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1920" height="1080" fill="url(#aboutGrad)"/>
+  
+  <!-- Pattern overlay -->
+  <rect width="1920" height="1080" fill="url(#tamilPattern)"/>
+  
+  <!-- Main radial highlight -->
+  <circle cx="800" cy="400" r="500" fill="url(#aboutRadial)"/>
+  
+  <!-- Tamil cultural elements -->
+  <g opacity="0.15" fill="none" stroke="#FFFFFF" stroke-width="3">
+    <!-- Traditional Tamil script inspired curves -->
+    <path d="M200 300 Q400 200 600 300 Q800 400 1000 300 Q1200 200 1400 300"/>
+    <path d="M300 600 Q500 500 700 600 Q900 700 1100 600 Q1300 500 1500 600"/>
+    <path d="M100 800 Q300 700 500 800 Q700 900 900 800 Q1100 700 1300 800"/>
+  </g>
+  
+  <!-- Decorative circles representing community -->
+  <g opacity="0.1" fill="#FFFFFF">
+    <circle cx="300" cy="200" r="80"/>
+    <circle cx="1600" cy="300" r="100"/>
+    <circle cx="200" cy="700" r="60"/>
+    <circle cx="1700" cy="800" r="90"/>
+    <circle cx="800" cy="900" r="70"/>
+    <circle cx="1200" cy="150" r="50"/>
+  </g>
+  
+  <!-- Heritage symbols -->
+  <g opacity="0.08" fill="#FFFFFF">
+    <!-- Stylized lotus petals -->
+    <path d="M400 400 Q420 380 440 400 Q420 420 400 400"/>
+    <path d="M1500 500 Q1520 480 1540 500 Q1520 520 1500 500"/>
+    <path d="M600 700 Q620 680 640 700 Q620 720 600 700"/>
+    
+    <!-- Traditional geometric patterns -->
+    <polygon points="1000,200 1020,220 1000,240 980,220"/>
+    <polygon points="700,150 720,170 700,190 680,170"/>
+    <polygon points="1400,700 1420,720 1400,740 1380,720"/>
+  </g>
+  
+  <!-- Subtle text elements -->
+  <g opacity="0.05" fill="#FFFFFF" font-family="serif" font-size="24">
+    <text x="100" y="100">தமிழ்</text>
+    <text x="1700" y="200">மொழி</text>
+    <text x="200" y="950">சங்கம்</text>
+    <text x="1600" y="1000">பாரம்பரியம்</text>
+  </g>
+</svg>

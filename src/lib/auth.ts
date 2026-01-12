@@ -7,13 +7,15 @@ import RefreshToken from '../models/RefreshToken';
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || 'dev_access_secret';
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'dev_refresh_secret';
-const ACCESS_TOKEN_EXPIRES = process.env.ACCESS_TOKEN_EXPIRES || '15m';
+// Ensure default is 1 day (86400 seconds) if env var is missing or invalid
+const ACCESS_TOKEN_EXPIRES = process.env.ACCESS_TOKEN_EXPIRES || '1d';
 const REFRESH_TOKEN_EXPIRES = process.env.REFRESH_TOKEN_EXPIRES || '7d';
 
 function parseExpires(v: string): number {
+  if (!v) return 86400; // Default 1 day if empty
   const s = String(v).trim().toLowerCase();
   const num = parseInt(s, 10);
-  if (!Number.isFinite(num)) return 900; // default 15m
+  if (!Number.isFinite(num)) return 86400; // Default 1 day if NaN (was 15m)
   if (s.endsWith('ms')) return Math.floor(num / 1000);
   if (s.endsWith('s')) return num;
   if (s.endsWith('m')) return num * 60;
@@ -90,14 +92,29 @@ export async function comparePassword(password: string, hash: string) {
   return bcrypt.compare(password, hash);
 }
 
-export async function getUserFromAccessToken(req: NextRequest): Promise<IUser | null> {
-  const auth = req.headers.get('authorization');
-  const bearer = auth && auth.startsWith('Bearer ') ? auth.substring(7) : undefined;
-  const payload = verifyAccessToken(bearer);
-  if (!payload) return null;
-  await dbConnect();
-  const user = await User.findById(payload.sub);
-  return user || null;
+export async function getUserFromAccessToken(request: NextRequest): Promise<IUser | null> {
+  try {
+    const authHeader = request.headers.get('Authorization');
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return null;
+    }
+
+    const token = authHeader.substring(7);
+    const payload = verifyAccessToken(token);
+    
+    if (!payload || !payload.sub) {
+      return null;
+    }
+
+    await dbConnect();
+    const user = await User.findById(payload.sub);
+    
+    return user;
+  } catch (error) {
+    console.error('Error in getUserFromAccessToken:', error);
+    return null;
+  }
 }
 
 export async function persistRefreshToken(userId: string, token: string) {

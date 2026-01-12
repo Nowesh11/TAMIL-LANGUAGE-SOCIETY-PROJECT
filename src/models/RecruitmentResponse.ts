@@ -10,7 +10,7 @@ export interface IRecruitmentResponse extends Document {
   _id: Types.ObjectId;
   formRef: Types.ObjectId;
   projectItemRef?: Types.ObjectId;
-  roleApplied: 'crew' | 'volunteer' | 'participant';
+  roleApplied: 'crew' | 'volunteer' | 'participant' | 'participants';
   answers: IFormAnswer;
   userRef?: Types.ObjectId; // Optional if anonymous submissions allowed
   applicantEmail: string;
@@ -41,8 +41,8 @@ const RecruitmentResponseSchema = new Schema<IRecruitmentResponse>({
     type: String,
     required: [true, 'Role applied is required'],
     enum: {
-      values: ['crew', 'volunteer', 'participant'],
-      message: 'Role applied must be crew, volunteer, or participant'
+      values: ['crew', 'volunteer', 'participant', 'participants'],
+      message: 'Role applied must be crew, volunteer, participant, or participants'
     }
   },
   answers: {

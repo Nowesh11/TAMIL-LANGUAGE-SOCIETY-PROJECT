@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '../hooks/LanguageContext';
+import '../styles/components/Features.css';
 
 interface Bilingual {
   en: string;
@@ -29,12 +30,20 @@ interface ComponentRecord {
   content: FeaturesContent;
 }
 
-export default function Features({ page = 'home' }: { page?: string }) {
+export default function Features({ page = 'home', data: propData }: { page?: string; data?: any }) {
   const { lang } = useLanguage();
   const [data, setData] = useState<FeaturesContent | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    // If data is provided as prop, use it directly
+    if (propData) {
+      setData(propData as FeaturesContent);
+      setLoading(false);
+      return;
+    }
+
+    // Fallback to API call if no data prop provided
     async function load() {
       try {
         const res = await fetch(`/api/components/page?page=${encodeURIComponent(page)}`);
@@ -49,7 +58,7 @@ export default function Features({ page = 'home' }: { page?: string }) {
       }
     }
     load();
-  }, [page]);
+  }, [page, propData]);
   if (loading) {
     return (
       <section className="features bg-section-gradient py-10" id="features">
@@ -75,7 +84,7 @@ export default function Features({ page = 'home' }: { page?: string }) {
     <section className="features bg-section-gradient py-10" id="features">
       <div className="container">
         {content.title ? (
-          <h2 className="section-title text-3xl font-bold gradient-title"><span className="animate-text-glow">{content.title[lang]}</span></h2>
+          <h2 className="section-title text-3xl font-bold gradient-title"><span className="animate-text-glow">{content.title?.[lang] || content.title?.en || ''}</span></h2>
         ) : null}
         <div className={`features-grid grid grid-cols-1 sm:grid-cols-2 ${gridColsClass} gap-6`}>
           {content.features.map((f, idx) => (
@@ -83,11 +92,11 @@ export default function Features({ page = 'home' }: { page?: string }) {
               <div className="feature-icon animate-bounce-in hover-rotate text-2xl">
                 {f.icon ? <i className={`${(f.icon || '').replace(/\bfas\b/g,'fa-solid')} fa-fw text-white`}></i> : null}
               </div>
-              <h2 className="animate-text-glow">{f.title[lang]}</h2>
-              <p className="animate-fade-in animate-stagger-1">{f.description[lang]}</p>
+              <h2 className="animate-text-glow">{f.title?.[lang] || f.title?.en || ''}</h2>
+              <p className="animate-fade-in animate-stagger-1">{f.description?.[lang] || f.description?.en || ''}</p>
               {f.link ? (
                 <Link href={f.link.url} className="feature-link btn-neon hover-pulse">
-                  <span>{f.link.text[lang]}</span> <i className="fa-solid fa-arrow-right fa-fw"></i>
+                  <span>{f.link.text?.[lang] || f.link.text?.en || ''}</span> <i className="fa-solid fa-arrow-right fa-fw"></i>
                 </Link>
               ) : null}
             </div>

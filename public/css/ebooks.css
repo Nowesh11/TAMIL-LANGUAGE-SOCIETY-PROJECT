@@ -1,0 +1,159 @@
+/* Ebooks Page Styles */
+.ebooks-hero {
+    min-height: 60vh;
+}
+
+.ebooks-hero-text {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.ebooks-features {
+    padding-top: 2rem;
+}
+
+.ebooks-search-section {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.ebooks-search-bar {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.ebooks-search-input {
+    width: 100%;
+    padding: 1rem 3rem 1rem 1rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 2rem;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.ebooks-search-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--primary-blue);
+    color: var(--text-inverse);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 1.5rem;
+    cursor: pointer;
+}
+
+.ebooks-filter-section {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.ebooks-filter-select {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--border-secondary, #4B5563);
+    border-radius: 0.5rem;
+    background: var(--bg-secondary, #ffffff);
+    color: var(--text-primary, #333333);
+    transition: all 0.3s ease;
+}
+
+.ebooks-carousel {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 3rem;
+}
+
+.ebooks-carousel-container {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.ebook-card-featured {
+    min-width: 300px;
+    margin-right: 2rem;
+}
+
+.ebook-cover {
+    height: 400px;
+    border-radius: 1rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+}
+
+.ebook-cover-content {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    right: 2rem;
+    text-align: center;
+    color: white;
+}
+
+.ebook-cover-title {
+    font-family: 'Noto Sans Tamil', var(--font-tamil), sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.ebook-cover-author {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.ebook-cover-decoration {
+    position: absolute;
+    bottom: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8rem;
+    opacity: 0.1;
+}
+
+.ebook-info {
+    padding: 1.5rem;
+    background: var(--bg-primary);
+    border-radius: 0 0 1rem 1rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.ebook-info-title {
+    color: var(--gray-900);
+    margin-bottom: 0.5rem;
+}
+
+.ebook-info-description {
+    color: var(--gray-600);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.ebook-info-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ebook-rating {
+    color: var(--accent-gold);
+}
+
+.ebook-rating-text {
+    margin-left: 0.5rem;
+    color: var(--gray-600);
+}
+
+.ebook-download-btn {
+    background: var(--primary-blue);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+}

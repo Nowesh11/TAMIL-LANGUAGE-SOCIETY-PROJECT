@@ -3,15 +3,13 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import dbConnect from '../../../../lib/mongodb';
 import User from '../../../../models/User';
-import FileRecord from '../../../../models/FileRecord';
 
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
   try {
-    await dbConnect();
-    const admin = await User.findOne({ role: 'admin' });
-    if (!admin) return NextResponse.json({ error: 'Admin user not found. Seed users first.' }, { status: 400 });
+    // Optional: connect if future validation is needed
+    // await dbConnect();
 
     const contentType = req.headers.get('content-type') || '';
     if (!contentType.includes('multipart/form-data')) {
@@ -35,29 +33,13 @@ export async function POST(req: NextRequest) {
 
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
     const filename = `${category}_${Date.now()}_${safeName}`;
-    const provisional = new FileRecord({
-      path: '',
-      filename,
-      originalName: file.name,
-      mimeType: file.type || 'application/octet-stream',
-      size: buffer.length,
-      category,
-      description,
-      tags,
-      isPublic,
-      createdBy: admin._id
-    });
-
-    const baseDir = path.join(process.cwd(), 'uploads', category, String(provisional._id));
+    const baseDir = path.join(process.cwd(), 'public', 'uploads', category);
     await fs.mkdir(baseDir, { recursive: true });
-    const destPath = path.join(baseDir, 'file');
+    const destPath = path.join(baseDir, filename);
     await fs.writeFile(destPath, buffer);
 
-    provisional.path = path.join('uploads', category, String(provisional._id), 'file');
-    const record = await provisional.save();
-
-    const url = `/api/files/get?id=${record._id}`;
-    return NextResponse.json({ success: true, url, record });
+    const url = `/uploads/${category}/${filename}`;
+    return NextResponse.json({ success: true, url });
   } catch (e: unknown) {
     const error = e instanceof Error ? e.message : 'Failed to upload file';
     return NextResponse.json({ error }, { status: 500 });

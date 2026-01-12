@@ -1,0 +1,407 @@
+/* ========================================
+   MINI CART - Modern Dropdown Component
+   Beautiful Shopping Cart Preview
+   ======================================== */
+
+.mini-cart {
+  position: relative;
+  display: inline-block;
+}
+
+.mini-cart-trigger {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-sm);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-normal);
+  color: var(--foreground-secondary);
+}
+
+.mini-cart-trigger:hover {
+  background: var(--surface-hover);
+  color: var(--primary);
+  transform: scale(1.05);
+}
+
+.mini-cart-icon {
+  width: 24px;
+  height: 24px;
+  transition: transform var(--transition-normal);
+}
+
+.mini-cart-trigger:hover .mini-cart-icon {
+  transform: rotate(5deg);
+}
+
+.mini-cart-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--gradient-primary);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  animation: scaleIn 0.3s ease-out;
+  box-shadow: var(--shadow-md);
+}
+
+.mini-cart-badge.pulse {
+  animation: pulse 0.6s ease-out;
+}
+
+.mini-cart-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2xl);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all var(--transition-normal);
+  backdrop-filter: var(--backdrop-blur);
+  margin-top: var(--space-sm);
+}
+
+.mini-cart-dropdown.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.mini-cart-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mini-cart-title {
+  font-weight: 600;
+  color: var(--foreground);
+  font-size: 1.125rem;
+}
+
+.mini-cart-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-xs);
+  border-radius: var(--radius-md);
+  color: var(--foreground-muted);
+  transition: all var(--transition-fast);
+}
+
+.mini-cart-close:hover {
+  background: var(--surface-hover);
+  color: var(--foreground);
+}
+
+.mini-cart-items {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: var(--space-sm);
+}
+
+.mini-cart-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  transition: background var(--transition-fast);
+  animation: slideIn 0.3s ease-out;
+}
+
+.mini-cart-item:hover {
+  background: var(--surface-hover);
+}
+
+.mini-cart-item-image {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  background: var(--background-secondary);
+  flex-shrink: 0;
+}
+
+.mini-cart-item-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.mini-cart-item-title {
+  font-weight: 500;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  margin-bottom: var(--space-xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-cart-item-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 0.75rem;
+  color: var(--foreground-muted);
+}
+
+.mini-cart-item-price {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.mini-cart-item-quantity {
+  background: var(--background-secondary);
+  padding: 2px var(--space-xs);
+  border-radius: var(--radius-sm);
+}
+
+.mini-cart-item-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-xs);
+  border-radius: var(--radius-md);
+  color: var(--foreground-muted);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.mini-cart-item-remove:hover {
+  background: var(--error);
+  color: white;
+}
+
+.mini-cart-empty {
+  text-align: center;
+  padding: var(--space-3xl) var(--space-lg);
+  color: var(--foreground-muted);
+}
+
+.mini-cart-empty-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto var(--space-lg);
+  color: var(--foreground-muted);
+}
+
+.mini-cart-empty-text {
+  font-size: 0.95rem;
+  margin-bottom: var(--space-lg);
+}
+
+.mini-cart-empty-btn {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.mini-cart-empty-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.mini-cart-footer {
+  padding: var(--space-lg);
+  border-top: 1px solid var(--border);
+  background: var(--background-secondary);
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+}
+
+.mini-cart-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.mini-cart-total-label {
+  font-size: 1rem;
+}
+
+.mini-cart-total-amount {
+  font-size: 1.125rem;
+  color: var(--primary);
+}
+
+.mini-cart-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.mini-cart-btn {
+  flex: 1;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  border: none;
+  font-size: 0.875rem;
+}
+
+.mini-cart-btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.mini-cart-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.mini-cart-btn-secondary {
+  background: var(--surface);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+
+.mini-cart-btn-secondary:hover {
+  background: var(--surface-hover);
+  border-color: var(--primary);
+}
+
+/* Scrollbar Styling */
+.mini-cart-items::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mini-cart-items::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+  border-radius: var(--radius-sm);
+}
+
+.mini-cart-items::-webkit-scrollbar-thumb {
+  background: var(--border-dark);
+  border-radius: var(--radius-sm);
+}
+
+.mini-cart-items::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .mini-cart-dropdown {
+    width: 320px;
+    right: -20px;
+  }
+  
+  .mini-cart-item-details {
+    min-width: 0;
+  }
+  
+  .mini-cart-actions {
+    flex-direction: column;
+  }
+}
+
+/* Dark Theme Enhancements */
+.dark .mini-cart-dropdown {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.dark .mini-cart-trigger:hover {
+  background: var(--surface-hover);
+}
+
+.dark .mini-cart-item:hover {
+  background: var(--surface-hover);
+}
+
+.dark .mini-cart-footer {
+  background: var(--background-tertiary);
+}
+
+.dark .mini-cart-btn-secondary {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+.dark .mini-cart-btn-secondary:hover {
+  background: var(--surface-hover);
+  border-color: var(--primary);
+}
+
+/* Animation Keyframes */
+@keyframes cartItemAdd {
+  0% {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes cartItemRemove {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+.mini-cart-item.adding {
+  animation: cartItemAdd 0.3s ease-out;
+}
+
+.mini-cart-item.removing {
+  animation: cartItemRemove 0.3s ease-out;
+}
+
+/* Loading State */
+.mini-cart-loading {
+  padding: var(--space-lg);
+  text-align: center;
+}
+
+.mini-cart-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-top: 2px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

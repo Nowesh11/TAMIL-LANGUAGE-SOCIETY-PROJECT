@@ -7,11 +7,12 @@ export interface IEpayumSettings {
   isActive: boolean;
 }
 
-export interface IFbxSettings {
+export interface IFpxSettings {
   bankName: string;
   accountNumber: string;
   accountHolder: string;
   instructions: string;
+  image?: string; // QR code image path
   isActive: boolean;
 }
 
@@ -23,10 +24,17 @@ export interface IShippingSettings {
   availableCountries: string[];
 }
 
+export interface IStripeSettings {
+  publishableKey?: string;
+  secretKey?: string;
+  isActive: boolean;
+}
+
 export interface IPaymentSettings extends Document {
   _id: Types.ObjectId;
   epayum: IEpayumSettings;
-  fbx: IFbxSettings;
+  fpx: IFpxSettings;
+  stripe: IStripeSettings;
   shipping: IShippingSettings;
   taxRate: number; // Percentage (e.g., 6 for 6% GST)
   currency: string;
@@ -66,8 +74,8 @@ const EpayumSettingsSchema = new Schema<IEpayumSettings>({
   }
 }, { _id: false });
 
-// FBX Settings schema
-const FbxSettingsSchema = new Schema<IFbxSettings>({
+// FPX Settings schema
+const FpxSettingsSchema = new Schema<IFpxSettings>({
   bankName: {
     type: String,
     required: [true, 'Bank name is required'],
@@ -93,14 +101,25 @@ const FbxSettingsSchema = new Schema<IFbxSettings>({
   },
   instructions: {
     type: String,
-    required: [true, 'FBX instructions are required'],
+    required: [true, 'FPX instructions are required'],
     trim: true,
     maxlength: [1000, 'Instructions cannot exceed 1000 characters']
+  },
+  image: {
+    type: String,
+    required: false
   },
   isActive: {
     type: Boolean,
     default: true
   }
+}, { _id: false });
+
+// Stripe Settings schema
+const StripeSettingsSchema = new Schema<IStripeSettings>({
+  publishableKey: { type: String, trim: true },
+  secretKey: { type: String, trim: true },
+  isActive: { type: Boolean, default: false }
 }, { _id: false });
 
 // Shipping Settings schema
@@ -160,9 +179,13 @@ const PaymentSettingsSchema = new Schema<IPaymentSettings>({
     type: EpayumSettingsSchema,
     required: [true, 'Epayum settings are required']
   },
-  fbx: {
-    type: FbxSettingsSchema,
-    required: [true, 'FBX settings are required']
+  fpx: {
+    type: FpxSettingsSchema,
+    required: [true, 'FPX settings are required']
+  },
+  stripe: {
+    type: StripeSettingsSchema,
+    default: { isActive: false }
   },
   shipping: {
     type: ShippingSettingsSchema,
@@ -250,14 +273,15 @@ const PaymentSettingsSchema = new Schema<IPaymentSettings>({
 // Indexes for better performance
 PaymentSettingsSchema.index({ isMaintenanceMode: 1 });
 PaymentSettingsSchema.index({ 'epayum.isActive': 1 });
-PaymentSettingsSchema.index({ 'fbx.isActive': 1 });
+PaymentSettingsSchema.index({ 'fpx.isActive': 1 });
 PaymentSettingsSchema.index({ currency: 1 });
 
 // Virtual for active payment methods
 PaymentSettingsSchema.virtual('activePaymentMethods').get(function() {
   const methods = [];
   if (this.epayum.isActive) methods.push('epayum');
-  if (this.fbx.isActive) methods.push('fbx');
+  if (this.fpx.isActive) methods.push('fpx');
+  if (this.stripe?.isActive) methods.push('stripe');
   return methods;
 });
 
@@ -284,12 +308,13 @@ PaymentSettingsSchema.statics.getCurrentSettings = function() {
 // Static method to get active payment methods
 PaymentSettingsSchema.statics.getActivePaymentMethods = function() {
   return this.findOne()
-    .select('epayum.isActive fbx.isActive')
+    .select('epayum.isActive fpx.isActive stripe.isActive')
     .then((settings: IPaymentSettings | null) => {
       if (!settings) return [];
       const methods = [];
       if (settings.epayum.isActive) methods.push('epayum');
-      if (settings.fbx.isActive) methods.push('fbx');
+      if (settings.fpx.isActive) methods.push('fpx');
+      if (settings.stripe?.isActive) methods.push('stripe');
       return methods;
     });
 };
@@ -338,18 +363,18 @@ PaymentSettingsSchema.methods.toggleMaintenanceMode = function(message?: string)
 };
 
 // Instance method to update payment method status
-PaymentSettingsSchema.methods.updatePaymentMethodStatus = function(method: 'epayum' | 'fbx', isActive: boolean) {
+PaymentSettingsSchema.methods.updatePaymentMethodStatus = function(method: 'epayum' | 'fpx', isActive: boolean) {
   if (method === 'epayum') {
     this.epayum.isActive = isActive;
-  } else if (method === 'fbx') {
-    this.fbx.isActive = isActive;
+  } else if (method === 'fpx') {
+    this.fpx.isActive = isActive;
   }
   return this.save();
 };
 
 // Pre-save middleware to ensure at least one payment method is active
 PaymentSettingsSchema.pre('save', function(next) {
-  if (!this.epayum.isActive && !this.fbx.isActive) {
+  if (!this.epayum.isActive && !this.fpx.isActive && !this.stripe?.isActive) {
     return next(new Error('At least one payment method must be active'));
   }
   next();

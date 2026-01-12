@@ -1,0 +1,770 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import AdminLayout from '@/components/admin/AdminLayout';
+import TeamModal from '@/components/admin/TeamModal';
+import { 
+  FiPlus, 
+  FiEdit2, 
+  FiTrash2, 
+  FiSearch, 
+  FiUser, 
+  FiMail, 
+  FiPhone, 
+  FiLinkedin, 
+  FiTwitter, 
+  FiGithub, 
+  FiGlobe,
+  FiFilter,
+  FiRefreshCw,
+  FiX,
+  FiUsers,
+  FiUserCheck,
+  FiUserX,
+  FiStar,
+  FiToggleLeft,
+  FiToggleRight
+} from 'react-icons/fi';
+import { getSafeText } from '@/components/SafeText';
+
+interface TeamMember {
+  _id: string;
+  name: {
+    en: string;
+    ta: string;
+  };
+  position: {
+    en: string;
+    ta: string;
+  };
+  bio: {
+    en: string;
+    ta: string;
+  };
+  email: string;
+  phone?: string;
+  role: string;
+  department: string;
+  hierarchy: number;
+  isActive: boolean;
+  isFeatured: boolean;
+  imagePath?: string;
+  imageUrl?: string;
+  socialLinks?: {
+    linkedin?: string;
+    twitter?: string;
+    github?: string;
+    website?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface TeamStats {
+  total: number;
+  active: number;
+  inactive: number;
+  featured: number;
+}
+
+interface TeamResponse {
+  success: boolean;
+  data: TeamMember[];
+  stats: TeamStats;
+  pagination: {
+    page: number;
+    pages: number;
+    total: number;
+  };
+}
+
+interface StatCard {
+  title: string;
+  value: number;
+  icon: React.ReactNode;
+  color: string;
+}
+
+interface ApiResponse {
+  success: boolean;
+  data: TeamMember[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+  error?: string;
+}
+
+interface TeamFormData {
+  name: {
+    en: string;
+    ta: string;
+  };
+  position: {
+    en: string;
+    ta: string;
+  };
+  bio: {
+    en: string;
+    ta: string;
+  };
+  email: string;
+  phone: string;
+  role: string;
+  department: string;
+  hierarchy: number;
+  isActive: boolean;
+  isFeatured: boolean;
+  imagePath: string;
+  socialLinks: {
+    linkedin: string;
+    twitter: string;
+    github: string;
+    website: string;
+  };
+}
+
+// Constants
+const TEAM_ROLES = [
+  'president', 'vice-president', 'secretary', 'treasurer', 'member', 'advisor'
+];
+
+const TEAM_DEPARTMENTS = [
+  'administration', 'education', 'cultural', 'media', 'technology', 'outreach'
+];
+
+const itemsPerPage = 10;
+
+export default function TeamPage() {
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [stats, setStats] = useState<TeamStats>({ total: 0, active: 0, inactive: 0, featured: 0 });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pages: 1,
+    total: 0
+  });
+  
+  // Filters
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [departmentFilter, setDepartmentFilter] = useState('all');
+  const [featuredFilter, setFeaturedFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('updatedAt');
+  const [sortOrder, setSortOrder] = useState('desc');
+  
+  // Modal states
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+
+  const [formData, setFormData] = useState<TeamFormData>({
+    name: { en: '', ta: '' },
+    position: { en: '', ta: '' },
+    bio: { en: '', ta: '' },
+    email: '',
+    phone: '',
+    role: '',
+    department: '',
+    hierarchy: 0,
+    isActive: true,
+    isFeatured: false,
+    imagePath: '',
+    socialLinks: {
+      linkedin: '',
+      twitter: '',
+      github: '',
+      website: ''
+    }
+  });
+
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  // Fetch team members from API
+  const fetchTeamMembers = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: itemsPerPage.toString(),
+        sortBy,
+        sortOrder
+      });
+
+      if (searchTerm) params.append('search', searchTerm);
+      if (statusFilter !== 'all') params.append('status', statusFilter);
+      if (roleFilter !== 'all') params.append('role', roleFilter);
+      if (departmentFilter !== 'all') params.append('department', departmentFilter);
+      if (featuredFilter !== 'all') params.append('featured', featuredFilter);
+
+      const response = await fetch(`/api/admin/team?${params}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result: TeamResponse = await response.json();
+      
+      if (result.success) {
+        setTeamMembers(result.data);
+        setStats(result.stats);
+        setPagination(result.pagination);
+      } else {
+        throw new Error('Failed to fetch team members');
+      }
+    } catch (error) {
+      console.error('Error fetching team members:', error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch team members');
+      setTeamMembers([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Reset filters
+  const resetFilters = () => {
+    setSearchTerm('');
+    setStatusFilter('all');
+    setRoleFilter('all');
+    setDepartmentFilter('all');
+    setFeaturedFilter('all');
+    setSortBy('updatedAt');
+    setSortOrder('desc');
+    setCurrentPage(1);
+  };
+
+  // Load team members on component mount and when filters change
+  useEffect(() => {
+    fetchTeamMembers();
+  }, [currentPage, searchTerm, statusFilter, roleFilter, departmentFilter, featuredFilter, sortBy, sortOrder]);
+
+  // Handle search with debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Safe stringify function
+  const safeStringify = (obj: any): string => {
+    try {
+      return JSON.stringify(obj);
+    } catch {
+      return String(obj);
+    }
+  };
+
+  // Prepare stats cards
+  const statCards: StatCard[] = [
+    {
+      title: 'Total Members',
+      value: stats.total,
+      color: '#3b82f6',
+      icon: <FiUsers />
+    },
+    {
+      title: 'Active',
+      value: stats.active,
+      color: '#10b981',
+      icon: <FiUserCheck />
+    },
+    {
+      title: 'Inactive',
+      value: stats.inactive,
+      color: '#f59e0b',
+      icon: <FiUserX />
+    },
+    {
+      title: 'Featured',
+      value: stats.featured,
+      color: '#8b5cf6',
+      icon: <FiStar />
+    }
+  ];
+
+  // Handle toggle status
+  const handleToggleStatus = async (memberId: string, currentStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/team/${memberId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isActive: !currentStatus }),
+      });
+
+      if (response.ok) {
+        fetchTeamMembers(); // Refresh the list
+      } else {
+        throw new Error('Failed to update member status');
+      }
+    } catch (error) {
+      console.error('Error updating member status:', error);
+      setError('Failed to update member status');
+    }
+  };
+
+  const handleCreate = () => {
+    setSelectedMember(null);
+    setIsCreateModalOpen(true);
+  };
+
+  const handleEdit = (member: TeamMember) => {
+    setSelectedMember(member);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this team member?')) return;
+
+    try {
+      const response = await fetch(`/api/admin/team?id=${id}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        fetchTeamMembers(); // Refresh the list
+      } else {
+        setError('Failed to delete team member: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error deleting team member:', error);
+      setError('Error deleting team member. Please try again.');
+    }
+  };
+
+  // Handle modal save
+  const handleModalSave = () => {
+    fetchTeamMembers(); // Refresh the list after save
+    setIsCreateModalOpen(false);
+    setIsEditModalOpen(false);
+    setSelectedMember(null);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const filteredTeamMembers = teamMembers.filter(member => {
+    const matchesSearch = !searchTerm || 
+      member.name?.en?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.name?.ta?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.position?.en?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.position?.ta?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.bio?.en?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.bio?.ta?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.email.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || 
+      (statusFilter === 'active' && member.isActive) ||
+      (statusFilter === 'inactive' && !member.isActive);
+    
+    const matchesRole = roleFilter === 'all' || member.role === roleFilter;
+    const matchesDepartment = departmentFilter === 'all' || member.department === departmentFilter;
+    
+    const matchesFeatured = featuredFilter === 'all' ||
+      (featuredFilter === 'featured' && member.isFeatured) ||
+      (featuredFilter === 'not-featured' && !member.isFeatured);
+    
+    return matchesSearch && matchesStatus && matchesRole && matchesDepartment && matchesFeatured;
+  });
+
+  if (isLoading && teamMembers.length === 0) {
+    return (
+      <AdminLayout title="Team Members" subtitle="Manage team members and organizational structure">
+        <div className="admin-loading">
+          <div className="admin-spinner"></div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <>
+    <AdminLayout title="Team Members" subtitle="Manage team members and organizational structure">
+      {/* Error Display */}
+      {error && (
+        <div className="admin-alert admin-alert-error" style={{ marginBottom: '2rem' }}>
+          <FiUsers />
+          {typeof error === 'string' ? error : 'An error occurred'}
+          <button onClick={() => setError(null)} className="admin-alert-close">
+            <FiX />
+          </button>
+        </div>
+      )}
+
+        {/* Stats Cards */}
+        <div className="admin-stats-grid">
+          {statCards.map((card, index) => (
+            <div key={index} className="admin-stat-card">
+              <div className="admin-stat-header">
+                <h3 className="admin-stat-title">{card.title}</h3>
+                <div className="admin-stat-icon" style={{ color: card.color }}>
+                  {card.icon}
+                </div>
+              </div>
+              <div className="admin-stat-value">{card.value.toLocaleString()}</div>
+              <div className="admin-stat-change positive">
+                <FiUsers size={16} />
+                Active management
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Department Stats */}
+        {TEAM_DEPARTMENTS.length > 0 && (
+          <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+            <h3 style={{ marginBottom: '1rem', fontSize: '1.25rem', fontWeight: '600', color: 'var(--admin-text)' }}>
+              Team Members by Department
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              {TEAM_DEPARTMENTS.map((department) => {
+                const count = teamMembers.filter(member => member.department === department).length;
+                return (
+                  <div key={department} className="admin-card" style={{ padding: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <h4 style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--admin-text)', textTransform: 'capitalize' }}>
+                        {department}
+                      </h4>
+                      <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--admin-primary)' }}>
+                        {count}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-light)' }}>
+                      Total members
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Main Content */}
+        <div className="admin-table-container">
+          <div className="admin-table-header">
+            <h2 className="admin-table-title">All Team Members</h2>
+            <div className="admin-table-actions">
+              <button 
+                onClick={() => setShowFilters(!showFilters)}
+                className={`admin-btn admin-btn-outline admin-btn-sm ${showFilters ? 'active' : ''}`}
+              >
+                <FiFilter />
+                Filters
+              </button>
+              <button 
+                onClick={handleCreate} 
+                className="admin-btn admin-btn-primary"
+              >
+                <FiPlus className="mr-2" />
+                Add Team Member
+              </button>
+              <button 
+                onClick={fetchTeamMembers}
+                className="admin-btn admin-btn-outline admin-btn-sm"
+              >
+                <FiRefreshCw />
+                Refresh
+              </button>
+            </div>
+          </div>
+
+          {/* Filters */}
+          {showFilters && (
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--admin-border)', backgroundColor: 'var(--admin-bg-secondary)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                <div style={{ position: 'relative' }}>
+                  <FiSearch style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--admin-text-light)' }} />
+                  <input
+                    type="text"
+                    placeholder="Search team members..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="admin-form-input"
+                    style={{ paddingLeft: '2.5rem' }}
+                  />
+                </div>
+                
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="admin-form-select"
+                >
+                  <option value="all">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+
+                <select
+                  value={roleFilter}
+                  onChange={(e) => setRoleFilter(e.target.value)}
+                  className="admin-form-select"
+                >
+                  <option value="all">All Roles</option>
+                  {TEAM_ROLES.map(role => (
+                    <option key={role} value={role}>
+                      {role.charAt(0).toUpperCase() + role.slice(1).replace('-', ' ')}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={departmentFilter}
+                  onChange={(e) => setDepartmentFilter(e.target.value)}
+                  className="admin-form-select"
+                >
+                  <option value="all">All Departments</option>
+                  {TEAM_DEPARTMENTS.map(dept => (
+                    <option key={dept} value={dept}>
+                      {dept.charAt(0).toUpperCase() + dept.slice(1)}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={featuredFilter}
+                  onChange={(e) => setFeaturedFilter(e.target.value)}
+                  className="admin-form-select"
+                >
+                  <option value="all">All Featured</option>
+                  <option value="featured">Featured</option>
+                  <option value="not-featured">Not Featured</option>
+                </select>
+
+                <button
+                  onClick={resetFilters}
+                  className="admin-btn admin-btn-outline admin-btn-sm"
+                >
+                  Reset Filters
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Team Members Table */}
+          {teamMembers.length > 0 ? (
+            <div className="admin-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Order</th>
+                    <th>Updated</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {teamMembers.map((member) => (
+                    <tr key={member._id}>
+                      <td>
+                        <div style={{ width: '60px', height: '60px', borderRadius: '8px', overflow: 'hidden', backgroundColor: 'var(--admin-bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {member.imageUrl ? (
+                            <img 
+                              src={`${member.imageUrl}&t=${new Date(member.updatedAt).getTime()}`} 
+                              alt={safeStringify(member.name)} 
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                          ) : (
+                            <FiUser style={{ color: 'var(--admin-text-light)' }} />
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div>
+                          <div style={{ fontWeight: '600', color: 'var(--admin-text)' }}>{safeStringify(member.name)}</div>
+                          <div style={{ fontSize: '0.875rem', color: 'var(--admin-text-light)' }}>{member.name?.ta || ''}</div>
+                        </div>
+                      </td>
+                      <td>
+                        <div>
+                          <div style={{ fontWeight: '500', color: 'var(--admin-text)' }}>{safeStringify(member.position)}</div>
+                          <div style={{ fontSize: '0.875rem', color: 'var(--admin-text-light)' }}>{member.position?.ta || ''}</div>
+                        </div>
+                      </td>
+                      <td>
+                        <span style={{ 
+                          padding: '0.25rem 0.75rem', 
+                          borderRadius: '9999px', 
+                          fontSize: '0.75rem', 
+                          fontWeight: '500',
+                          backgroundColor: 'var(--admin-primary-light)',
+                          color: 'var(--admin-primary)'
+                        }}>
+                          {member.role}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                          <span style={{ 
+                            padding: '0.25rem 0.75rem', 
+                            borderRadius: '9999px', 
+                            fontSize: '0.75rem', 
+                            fontWeight: '500',
+                            backgroundColor: member.isActive ? 'var(--admin-success-light)' : 'var(--admin-warning-light)',
+                            color: member.isActive ? 'var(--admin-success)' : 'var(--admin-warning)'
+                          }}>
+                            {member.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                          {member.isFeatured && (
+                            <span style={{ 
+                              padding: '0.125rem 0.5rem', 
+                              borderRadius: '9999px', 
+                              fontSize: '0.625rem', 
+                              fontWeight: '500',
+                              backgroundColor: 'var(--admin-info-light)',
+                              color: 'var(--admin-info)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.25rem'
+                            }}>
+                              <FiStar size={10} /> Featured
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td>{member.hierarchy}</td>
+                      <td>{new Date(member.updatedAt).toLocaleDateString()}</td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button
+                            onClick={() => handleToggleStatus(member._id, member.isActive)}
+                            style={{
+                              padding: '0.5rem',
+                              borderRadius: '6px',
+                              border: 'none',
+                              backgroundColor: member.isActive ? 'var(--admin-warning)' : 'var(--admin-success)',
+                              color: 'white',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                            title={member.isActive ? 'Deactivate' : 'Activate'}
+                          >
+                            {member.isActive ? <FiToggleLeft size={14} /> : <FiToggleRight size={14} />}
+                          </button>
+                          <button
+                            onClick={() => handleEdit(member)}
+                            style={{
+                              padding: '0.5rem',
+                              borderRadius: '6px',
+                              border: 'none',
+                              backgroundColor: 'var(--admin-primary)',
+                              color: 'white',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                            title="Edit"
+                          >
+                            <FiEdit2 size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(member._id)}
+                            style={{
+                              padding: '0.5rem',
+                              borderRadius: '6px',
+                              border: 'none',
+                              backgroundColor: 'var(--admin-danger)',
+                              color: 'white',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                            title="Delete"
+                          >
+                            <FiTrash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="admin-empty-state">
+              <FiUser className="admin-empty-icon" />
+              <h3 className="admin-empty-title">No team members found</h3>
+              <p className="admin-empty-description">
+                Get started by adding your first team member to build your team directory.
+              </p>
+              <button onClick={handleCreate} className="admin-btn admin-btn-primary">
+                <FiPlus /> Add First Team Member
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Pagination */}
+        {filteredMembers.length > 0 && (
+          <div className="admin-pagination">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="admin-btn admin-btn-outline"
+            >
+              Previous
+            </button>
+            
+            <div className="admin-pagination-info">
+              <span>Page {currentPage} of {totalPages}</span>
+              <span>({stats.total} total members)</span>
+            </div>
+            
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="admin-btn admin-btn-outline"
+            >
+              Next
+            </button>
+          </div>
+        )}
+      </div>
+    </AdminLayout>
+
+    {/* Modals */}
+    {isCreateModalOpen && (
+      <TeamModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSave={handleModalSave}
+        member={null}
+      />
+    )}
+
+    {isEditModalOpen && selectedMember && (
+      <TeamModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleModalSave}
+        member={selectedMember}
+      />
+    )}
+    </>
+  );
+}

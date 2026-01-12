@@ -64,8 +64,8 @@ const NotificationSchema = new Schema<INotification>({
     type: String,
     required: [true, 'Notification type is required'],
     enum: {
-      values: ['info', 'warning', 'success', 'error', 'announcement'],
-      message: 'Type must be info, warning, success, error, or announcement'
+      values: ['info', 'warning', 'success', 'error', 'announcement', 'event', 'news', 'update', 'urgent', 'general'],
+      message: 'Type must be info, warning, success, error, announcement, event, news, update, urgent, or general'
     },
     default: 'info'
   },

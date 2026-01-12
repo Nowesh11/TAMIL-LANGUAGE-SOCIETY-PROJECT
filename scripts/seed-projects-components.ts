@@ -51,8 +51,8 @@ async function main() {
         { text: { en: 'Get Involved', ta: 'சேர்ந்து செயல்படுங்கள்' }, href: '/contacts', variant: 'secondary' }
       ],
       backgroundImages: [
-        { src: '/vercel.svg', alt: { en: 'Background', ta: 'பின்னணி' } },
-        { src: '/globe.svg', alt: { en: 'Global', ta: 'உலக' } }
+        { src: '/hero-bg-1.svg', alt: { en: 'Projects background', ta: 'திட்டங்கள் பின்னணி' } },
+        { src: '/hero-bg-2.svg', alt: { en: 'Innovation background', ta: 'புதுமை பின்னணி' } }
       ]
     },
     order: 1,
@@ -86,7 +86,7 @@ async function main() {
           { text: { en: 'Browse Items', ta: 'உருப்படிகளைப் பாருங்கள்' }, href: '/projects', variant: 'primary' }
         ],
         backgroundImages: [
-          { src: '/globe.svg', alt: { en: b.en, ta: b.ta } }
+          { src: '/hero-bg-3.svg', alt: { en: b.en, ta: b.ta } }
         ]
       },
       order: 1,

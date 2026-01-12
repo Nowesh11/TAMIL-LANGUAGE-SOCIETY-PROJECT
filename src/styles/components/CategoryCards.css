@@ -1,0 +1,182 @@
+/* ========================================
+   CATEGORY CARDS - Modern Component Styles
+   Beautiful Cards with Hover Effects
+   ======================================== */
+
+.category-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-xl);
+  padding: var(--space-xl) 0;
+  animation: fadeIn 0.8s ease-out;
+}
+
+.category-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.category-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+  transition: left 0.6s ease;
+}
+
+.category-card:hover::before {
+  left: 100%;
+}
+
+.category-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--primary);
+}
+
+.category-card-icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md);
+  background: var(--gradient-primary);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  transition: all var(--transition-normal);
+}
+
+.category-card:hover .category-card-icon {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: var(--shadow-lg);
+}
+
+.category-card-title {
+  font-family: var(--font-family-secondary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: var(--space-sm);
+  transition: color var(--transition-normal);
+}
+
+.category-card:hover .category-card-title {
+  color: var(--primary);
+}
+
+.category-card-description {
+  color: var(--foreground-muted);
+  line-height: 1.6;
+  margin-bottom: var(--space-lg);
+  font-size: 0.95rem;
+}
+
+.category-card-count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  background: var(--background-secondary);
+  color: var(--foreground-secondary);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.category-card-arrow {
+  margin-left: auto;
+  color: var(--primary);
+  transition: transform var(--transition-normal);
+}
+
+.category-card:hover .category-card-arrow {
+  transform: translateX(4px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .category-cards {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+    padding: var(--space-lg) 0;
+  }
+  
+  .category-card {
+    padding: var(--space-lg);
+  }
+  
+  .category-card-title {
+    font-size: 1.25rem;
+  }
+}
+
+/* Dark Theme Enhancements */
+.dark .category-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.dark .category-card:hover {
+  background: var(--surface-hover);
+  box-shadow: var(--shadow-xl);
+}
+
+.dark .category-card-count {
+  background: var(--background-tertiary);
+  color: var(--foreground-secondary);
+}
+
+/* Loading State */
+.category-cards-loading {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-xl);
+}
+
+.category-card-skeleton {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  animation: pulse 2s infinite;
+}
+
+.category-card-skeleton .skeleton-icon {
+  width: 64px;
+  height: 64px;
+  background: var(--background-secondary);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.category-card-skeleton .skeleton-title {
+  height: 24px;
+  background: var(--background-secondary);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-sm);
+  width: 70%;
+}
+
+.category-card-skeleton .skeleton-description {
+  height: 16px;
+  background: var(--background-secondary);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.category-card-skeleton .skeleton-description:last-child {
+  width: 60%;
+}

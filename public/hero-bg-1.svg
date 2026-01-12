@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" fill="none">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:0.8" />
+      <stop offset="50%" style="stop-color:#8B5CF6;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#10B981;stop-opacity:0.4" />
+    </linearGradient>
+    <radialGradient id="radial1" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1920" height="1080" fill="url(#grad1)"/>
+  
+  <!-- Decorative circles -->
+  <circle cx="300" cy="200" r="150" fill="url(#radial1)"/>
+  <circle cx="1600" cy="800" r="200" fill="url(#radial1)"/>
+  <circle cx="800" cy="900" r="100" fill="url(#radial1)"/>
+  
+  <!-- Tamil cultural patterns -->
+  <g opacity="0.1" fill="#FFFFFF">
+    <path d="M100 100 Q200 50 300 100 T500 100" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+    <path d="M1400 200 Q1500 150 1600 200 T1800 200" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+    <path d="M200 800 Q300 750 400 800 T600 800" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+  </g>
+  
+  <!-- Geometric shapes -->
+  <polygon points="1700,100 1750,150 1700,200 1650,150" fill="rgba(255,255,255,0.05)"/>
+  <polygon points="150,950 200,1000 150,1050 100,1000" fill="rgba(255,255,255,0.05)"/>
+</svg>

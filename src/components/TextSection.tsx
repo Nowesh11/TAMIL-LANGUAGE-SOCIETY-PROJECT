@@ -20,13 +20,21 @@ type ComponentRecord = {
   slug?: string;
 };
 
-export default function TextSection({ page = 'about', slug }: { page?: string; slug?: string }) {
+export default function TextSection({ page = 'about', slug, data: propData }: { page?: string; slug?: string; data?: any }) {
   const { lang } = useLanguage();
   const [data, setData] = useState<TextContent | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // If data is provided as prop, use it directly
+    if (propData) {
+      setData(propData as TextContent);
+      setLoading(false);
+      return;
+    }
+
+    // Fallback to API call if no data prop provided
     async function load() {
       try {
         const url = (() => {
@@ -48,24 +56,33 @@ export default function TextSection({ page = 'about', slug }: { page?: string; s
           if (bySlug) record = bySlug;
         }
         if (record?.content) setData(record.content);
-        else {
-          // No fallback content; render nothing when DB has no record
-          setData(null);
-          setError(null);
-        }
+        else setData(null);
       } catch (e) {
         console.error('Failed to load text section', e);
-        // No hardcoded fallback: just show error state or nothing
         setData(null);
-        setError('load_failed');
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, [page, slug]);
+  }, [page, slug, propData]);
 
   const content: TextContent | null = data;
+
+  if (loading) {
+    return (
+      <section className="mx-auto max-w-5xl px-6 py-10">
+        <div className="space-y-4 animate-pulse">
+          <div className="h-7 bg-slate-300/40 dark:bg-white/10 rounded w-1/3 mx-auto" />
+          <div className="h-4 bg-slate-300/40 dark:bg-white/10 rounded w-2/3 mx-auto" />
+          <div className="h-4 bg-slate-300/40 dark:bg-white/10 rounded w-2/3 mx-auto" />
+          <div className="h-4 bg-slate-300/40 dark:bg-white/10 rounded w-1/2 mx-auto" />
+        </div>
+      </section>
+    );
+  }
+
+  if (!content) return null;
 
     const Title = content?.title ? (
       <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">

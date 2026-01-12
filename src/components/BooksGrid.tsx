@@ -1,5 +1,6 @@
 "use client";
 import BookCard from './BookCard';
+import '../styles/components/BooksGrid.css';
 
 export default function BooksGrid({ books, loading, onAddToCart, onBuyNow, onLoadMore, hasMore }: {
   books: any[];

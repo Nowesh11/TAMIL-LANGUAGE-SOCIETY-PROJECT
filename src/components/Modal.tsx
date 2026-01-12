@@ -31,9 +31,9 @@ export default function Modal({
   if (!open) return null;
 
   const sizes: Record<string, string> = {
-    sm: 'max-w-md',
-    md: 'max-w-xl',
-    lg: 'max-w-2xl',
+    sm: '520px',
+    md: '720px',
+    lg: '980px',
   };
 
   function handleBackdropClick() {
@@ -42,28 +42,24 @@ export default function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="modern-modal-overlay"
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? titleId : undefined}
+      onClick={handleBackdropClick}
     >
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={handleBackdropClick}
-      />
-      <div
-        className={`relative w-full ${sizes[size]} mx-4`}
+        className="modern-modal-container"
+        style={{ maxWidth: sizes[size], width: 'min(100%, var(--modal-w, 100%))' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="layout-card shadow-2xl transition-all duration-200 ease-out translate-y-0 opacity-100">
-          {title && (
-            <div className="flex items-center justify-between mb-2">
-              <h3 id={titleId} className="section-title">{title}</h3>
-              <button aria-label="Close" className="btn btn-secondary" onClick={onClose}>Close</button>
-            </div>
-          )}
-          <div>{children}</div>
+        <div className="modern-modal-header">
+          <div className="modal-title-section">
+            {title && (<h2 id={titleId} className="modern-modal-title">{title}</h2>)}
+          </div>
+          <button aria-label="Close" className="modern-close-button" onClick={onClose}>✕</button>
         </div>
+        <div className="modern-modal-body">{children}</div>
       </div>
     </div>
   );

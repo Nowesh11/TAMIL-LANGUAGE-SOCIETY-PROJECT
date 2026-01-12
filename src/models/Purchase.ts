@@ -13,7 +13,7 @@ export interface IShippingAddress {
 }
 
 export interface IPaymentDetails {
-  method: 'epayum' | 'fbx' | 'cash' | 'card';
+  method: 'epayum' | 'fpx' | 'cash' | 'card';
   transactionId?: string;
   receiptPath?: string; // Path to uploaded receipt/slip
   amount: number;
@@ -96,7 +96,8 @@ const ShippingAddressSchema = new Schema<IShippingAddress>({
     validate: {
       validator: function(v: string) {
         if (!v) return true; // Optional field
-        return /^[\+]?[1-9][\d]{0,15}$/.test(v);
+        // Allow Malaysian phone numbers (01x-xxxxxxx, +60x-xxxxxxx) and international formats
+        return /^(\+?6?0?1[0-9]{8,9}|[\+]?[1-9][\d]{7,15})$/.test(v);
       },
       message: 'Please enter a valid phone number'
     }
@@ -109,8 +110,8 @@ const PaymentDetailsSchema = new Schema<IPaymentDetails>({
     type: String,
     required: [true, 'Payment method is required'],
     enum: {
-      values: ['epayum', 'fbx'],
-      message: 'Payment method must be epayum, fbx'
+      values: ['epayum', 'fpx', 'cash', 'card'],
+      message: 'Payment method must be epayum, fpx, cash, or card'
     }
   },
   transactionId: {

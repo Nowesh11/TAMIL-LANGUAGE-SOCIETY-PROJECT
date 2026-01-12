@@ -18,13 +18,7 @@ export interface ITeam extends Document {
   orderNum: number;
   isActive: boolean;
   imagePath?: string;
-  socialLinks?: {
-    linkedin?: string;
-    twitter?: string;
-    facebook?: string;
-    instagram?: string;
-    website?: string;
-  };
+
   department?: string;
   joinedDate?: Date;
   achievements?: string[];
@@ -48,64 +42,7 @@ const BilingualTextSchema = new Schema<IBilingualText>({
   }
 }, { _id: false });
 
-// Social links schema
-const SocialLinksSchema = new Schema({
-  linkedin: {
-    type: String,
-    trim: true,
-    validate: {
-      validator: function(v: string) {
-        if (!v) return true; // Optional field
-        return /^https?:\/\/(www\.)?linkedin\.com\//.test(v);
-      },
-      message: 'LinkedIn URL must be a valid LinkedIn profile URL'
-    }
-  },
-  twitter: {
-    type: String,
-    trim: true,
-    validate: {
-      validator: function(v: string) {
-        if (!v) return true; // Optional field
-        return /^https?:\/\/(www\.)?twitter\.com\//.test(v) || /^https?:\/\/(www\.)?x\.com\//.test(v);
-      },
-      message: 'Twitter URL must be a valid Twitter/X profile URL'
-    }
-  },
-  facebook: {
-    type: String,
-    trim: true,
-    validate: {
-      validator: function(v: string) {
-        if (!v) return true; // Optional field
-        return /^https?:\/\/(www\.)?facebook\.com\//.test(v);
-      },
-      message: 'Facebook URL must be a valid Facebook profile URL'
-    }
-  },
-  instagram: {
-    type: String,
-    trim: true,
-    validate: {
-      validator: function(v: string) {
-        if (!v) return true; // Optional field
-        return /^https?:\/\/(www\.)?instagram\.com\//.test(v);
-      },
-      message: 'Instagram URL must be a valid Instagram profile URL'
-    }
-  },
-  website: {
-    type: String,
-    trim: true,
-    validate: {
-      validator: function(v: string) {
-        if (!v) return true; // Optional field
-        return /^https?:\/\/.+/.test(v);
-      },
-      message: 'Website URL must be a valid URL'
-    }
-  }
-}, { _id: false });
+
 
 // Team schema definition
 const TeamSchema = new Schema<ITeam>({
@@ -124,28 +61,9 @@ const TeamSchema = new Schema<ITeam>({
         'Vice President',
         'Secretary',
         'Treasurer',
+        'Executive Committee',
         'Chief Auditor',
-        'Auditor',
-        'Media and Public Relations Committee Member',
-        'Sports and Leadership Committee Member',
-        'Education and Intellectual Committee Member',
-        'Arts & Culture Committee Member',
-        'Social Welfare & Voluntary Committee Member',
-        'Language and Literature Committee Member',
-        'Committee Member',
-        'Director',
-        'Assistant Director',
-        'Coordinator',
-        'Manager',
-        'Advisor',
-        'Cultural Director',
-        'Education Director',
-        'Events Manager',
-        'Media Manager',
-        'Technical Lead',
-        'Volunteer Coordinator',
-        'Research Head',
-        'Outreach Coordinator'
+        'Auditor'
       ],
       message: 'Please select a valid role'
     }
@@ -186,7 +104,8 @@ const TeamSchema = new Schema<ITeam>({
     validate: {
       validator: function(v: string) {
         if (!v) return true; // Optional field
-        return /^[\+]?[1-9][\d]{0,15}$/.test(v);
+        // Allow Malaysian phone numbers (01x-xxxxxxx, +60x-xxxxxxx) and international formats
+        return /^(\+?6?0?1[0-9]{8,9}|[\+]?[1-9][\d]{7,15})$/.test(v);
       },
       message: 'Please enter a valid phone number'
     }
@@ -217,17 +136,21 @@ const TeamSchema = new Schema<ITeam>({
       message: 'Image path must be a valid file path with image extension'
     }
   },
-  socialLinks: {
-    type: SocialLinksSchema
-  },
+
   department: {
     type: String,
     trim: true,
     maxlength: [100, 'Department cannot exceed 100 characters'],
     enum: {
       values: [
-        'Executive', 'Cultural Affairs', 'Education', 'Events', 'Media & Communications',
-        'Technical', 'Research', 'Outreach', 'Finance', 'Administration', 'Volunteers'
+        'High Committee',
+        'Media and Public Relations Committee Member',
+        'Sports and Leadership Committee Member',
+        'Education and Intellectual Committee Member',
+        'Arts & Culture Committee Member',
+        'Social Welfare & Voluntary Committee Member',
+        'Language and Literature Committee Member',
+        'Auditor'
       ],
       message: 'Please select a valid department'
     }
@@ -309,10 +232,7 @@ TeamSchema.virtual('yearsOfService').get(function(this: ITeam) {
 });
 
 // Virtual for social media count
-TeamSchema.virtual('socialMediaCount').get(function(this: ITeam) {
-  if (!this.socialLinks) return 0;
-  return Object.values(this.socialLinks).filter((link: string | undefined) => link && link.trim().length > 0).length;
-});
+
 
 // Virtual for role hierarchy (for sorting)
 TeamSchema.virtual('roleHierarchy').get(function(this: ITeam) {

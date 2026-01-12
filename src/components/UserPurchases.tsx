@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useState } from 'react';
+import { useLanguage } from '../hooks/LanguageContext';
 
 export default function UserPurchases() {
+  const { lang } = useLanguage();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState<boolean | null>(null);
@@ -10,10 +12,19 @@ export default function UserPurchases() {
 
   async function verifyAndFetch() {
     try {
-      const me = await fetch('/api/auth/me');
+      // Get the access token from localStorage
+      const token = localStorage.getItem('accessToken');
+      const headers: Record<string, string> = {};
+      
+      // Add Authorization header if token exists
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const me = await fetch('/api/auth/me', { headers });
       if (me.status !== 200) { setAuthorized(false); setLoading(false); return; }
       setAuthorized(true);
-      const res = await fetch('/api/purchases');
+      const res = await fetch('/api/purchases', { headers });
       const data = await res.json();
       if (data.success) setItems(data.items || []);
     } catch (e) { console.error('Failed to fetch purchases', e); }
@@ -50,7 +61,11 @@ export default function UserPurchases() {
           {items.map((it) => (
             <div key={it._id} className="py-3 grid grid-cols-1 md:grid-cols-4 gap-3 items-center">
               <div>
-                <div className="font-medium">{it.bookRef?.title?.en || 'Book'}</div>
+                <div className="font-medium">{
+                  typeof it.bookRef?.title === 'string' 
+                    ? it.bookRef.title 
+                    : it.bookRef?.title?.[lang] || it.bookRef?.title?.en || 'Book'
+                }</div>
                 <div className="text-sm text-gray-500">Qty: {it.quantity}</div>
               </div>
               <div>

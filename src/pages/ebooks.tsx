@@ -1,7 +1,4 @@
 import { useEffect, useState } from 'react';
-import NavBar from '../components/NavBar';
-import Footer from '../components/Footer';
-import SeoHead from '../components/SeoHead';
 import DynamicComponent from '../components/DynamicComponent';
 import EbooksSearchBar from '../components/EbooksSearchBar';
 import FeaturedEbooks from '../components/FeaturedEbooks';
@@ -19,6 +16,7 @@ export default function EbooksPage() {
   const [ebooks, setEbooks] = useState<IEBook[]>([]);
   const [featuredEbooks, setFeaturedEbooks] = useState<IEBook[]>([]);
   const [loading, setLoading] = useState(true);
+  const [componentsLoading, setComponentsLoading] = useState(true);
   const [filters, setFilters] = useState({
     search: '',
     category: 'all',
@@ -33,10 +31,18 @@ export default function EbooksPage() {
 
   async function fetchComponents() {
     try {
+      setComponentsLoading(true);
       const res = await fetch('/api/components/page?page=ebooks');
       const data = await res.json();
-      if (data.success) setComponents(data.components);
-    } catch (error) { console.error('Error fetching components:', error); }
+      if (data.success) {
+        setComponents(data.components || []);
+      }
+    } catch (error) { 
+      console.error('Error fetching components:', error);
+      setComponents([]);
+    } finally {
+      setComponentsLoading(false);
+    }
   }
 
   async function fetchEbooks() {
@@ -112,22 +118,67 @@ export default function EbooksPage() {
   function handleSearch(newFilters: any) { setFilters(newFilters); setPage(1); }
   function handleLoadMore() { setPage((prev) => prev + 1); }
 
-  const dynamicComponents = components
-    .filter((c: any) => c?.type !== 'nav' && c?.type !== 'footer' && c?.type !== 'seo' && c?.type !== 'text')
-    .map((component: any) => (
-      <DynamicComponent key={component._id} component={component} />
-    ));
+  if (componentsLoading) {
+    return (
+      <div className="font-sans min-h-screen aurora-gradient layout-page flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-600">Loading page components...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const sortedComponents = [...components].sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  // Filter components by type for organized rendering
+  const seoComponents = sortedComponents.filter(c => c.type === 'seo');
+  const navbarComponents = sortedComponents.filter(c => c.type === 'navbar');
+  const heroComponents = sortedComponents.filter(c => c.type === 'hero');
+  const contentComponents = sortedComponents.filter(c => 
+    c.type !== 'seo' && c.type !== 'navbar' && c.type !== 'hero' && c.type !== 'footer'
+  );
+  const footerComponents = sortedComponents.filter(c => c.type === 'footer');
 
   return (
     <>
-      <SeoHead page="ebooks" />
+      {/* SEO Components */}
+      {seoComponents.map((component) => (
+        <DynamicComponent key={component._id} component={component} />
+      ))}
+      
       <div className="font-sans min-h-screen aurora-gradient layout-page">
-        <NavBar page="ebooks" />
+        {/* Navbar Components */}
+        {navbarComponents.map((component) => (
+          <DynamicComponent key={component._id} component={component} />
+        ))}
+        
         <main className="space-y-12 layout-container">
-          {/* Hero and dynamic sections */}
+          {/* Hero Components */}
+          {heroComponents.length > 0 && (
+            <section className="-mt-10 hero-gradient">
+              <div className="layout-container">
+                {heroComponents.map((component) => (
+                  <div key={component._id} className="layout-card animate-fade-in">
+                    <DynamicComponent component={component} />
+                  </div>
+                ))}
+              </div>
+              <div className="divider-glow" />
+            </section>
+          )}
+
+          {/* Content Components */}
           <section className="layout-section">
-            {dynamicComponents}
-            <div className="divider-glow" />
+            <div className="layout-container">
+              <div className="section-stack">
+                {contentComponents.map((component) => (
+                  <div key={component._id} className="layout-card animate-slide-in-up">
+                    <DynamicComponent component={component} />
+                  </div>
+                ))}
+              </div>
+            </div>
           </section>
 
           {/* Search & Filters */}
@@ -185,9 +236,15 @@ export default function EbooksPage() {
             </div>
           </section>
         </main>
-        <footer className="mt-10">
-          <Footer page="ebooks" />
-        </footer>
+        
+        {/* Footer Components */}
+        {footerComponents.length > 0 && (
+          <footer className="mt-10">
+            {footerComponents.map((component) => (
+              <DynamicComponent key={component._id} component={component} />
+            ))}
+          </footer>
+        )}
       </div>
     </>
   );

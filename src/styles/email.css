@@ -1,0 +1,98 @@
+/* Email Template Styles */
+.email-container {
+    max-width: 600px;
+    margin: 0 auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+.email-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    border-radius: 8px 8px 0 0;
+}
+
+.email-header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.email-header p {
+    margin: 0.5rem 0 0 0;
+    opacity: 0.9;
+}
+
+.email-content {
+    background: white;
+    padding: 2rem;
+    border: 1px solid #e0e0e0;
+}
+
+.email-footer {
+    background: #f8f9fa;
+    padding: 1rem 2rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666;
+    border-radius: 0 0 8px 8px;
+}
+
+.priority-urgent {
+    border-left: 4px solid #dc3545;
+    padding-left: 1rem;
+}
+
+.priority-high {
+    border-left: 4px solid #fd7e14;
+    padding-left: 1rem;
+}
+
+.priority-medium {
+    border-left: 4px solid #ffc107;
+    padding-left: 1rem;
+}
+
+.priority-low {
+    border-left: 4px solid #28a745;
+    padding-left: 1rem;
+}
+
+.type-badge {
+    background: #007bff;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.email-meta {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.email-date {
+    color: #666;
+    font-size: 14px;
+}
+
+.email-button {
+    display: inline-block;
+    background: #007bff;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+.email-button:hover {
+    background: #0056b3;
+}

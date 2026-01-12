@@ -5,6 +5,8 @@ import { getUserFromAccessToken } from '../../../../../lib/auth';
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { NotificationService } from '../../../../../lib/notificationService';
+import { ActivityLogger } from '../../../../../lib/activityLogger';
 
 export const runtime = 'nodejs';
 
@@ -40,6 +42,33 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
     }
     if (!filePath || !fs.existsSync(filePath)) {
       return NextResponse.json({ success: false, error: 'File not found' }, { status: 404 });
+    }
+
+    // Log ebook download activity
+    await ActivityLogger.logEbookDownload(user._id, ebook._id, ebook.title?.en || 'Unknown Ebook');
+
+    // Send notification for ebook download
+    try {
+      await NotificationService.createNotification({
+        title: {
+          en: 'Ebook Downloaded Successfully!',
+          ta: 'மின்னூல் வெற்றிகரமாக பதிவிறக்கம் செய்யப்பட்டது!'
+        },
+        message: {
+          en: `You downloaded "${ebook.title?.en || ebook.title}". Enjoy reading!`,
+          ta: `நீங்கள் "${ebook.title?.ta || ebook.title?.en || 'மின்னூல்'}" பதிவிறக்கம் செய்துள்ளீர்கள். வாசிக்க மகிழுங்கள்!`
+        },
+        type: 'success',
+        priority: 'low',
+        userRef: user._id,
+        actionUrl: `/ebooks/${ebook._id}`,
+        sendEmail: true,
+        tags: ['ebook', 'download'],
+        createdBy: user._id
+      });
+    } catch (notificationError) {
+      console.error('Failed to send download notification:', notificationError);
+      // Don't fail the main request if notification fails
     }
 
     const stat = fs.statSync(filePath);

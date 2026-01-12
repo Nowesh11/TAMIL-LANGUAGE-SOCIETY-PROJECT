@@ -96,7 +96,8 @@ async function main() {
         { text: { en: 'Meet the Team', ta: 'எங்கள் குழுவை அறியுங்கள்' }, href: '#our-team', variant: 'secondary' }
       ],
       backgroundImages: images.length ? images.slice(0, 5) : [
-        { src: '/uploads/logo/image/logo.jpg', alt: { en: 'Tamil Language Society', ta: 'தமிழ் மொழி சங்கம்' } }
+        { src: '/hero-bg-1.svg', alt: { en: 'Tamil Language Society', ta: 'தமிழ் மொழி சங்கம்' } },
+        { src: '/hero-bg-2.svg', alt: { en: 'Cultural heritage', ta: 'கலாச்சார பாரம்பரியம்' } }
       ]
     },
     order: 1,

@@ -1,6 +1,7 @@
 "use client";
 import { useMemo } from 'react';
 import { useLanguage } from '../hooks/LanguageContext';
+import '../styles/components/EbookCard.css';
 
 type Bilingual = { en: string; ta: string };
 type Ebook = {
@@ -40,8 +41,8 @@ export default function EbookCard({ ebook, onDownload, onRate }: {
           <p>{description}</p>
           <div className="project-status">
             <div className="status-indicator" />
-            <span>Downloads: {ebook.downloadCount || 0}</span>
-            <span>Rating: {stars || 0}</span>
+            <span>{lang === 'ta' ? 'பதிவிறக்கங்கள்' : 'Downloads'}: {ebook.downloadCount || 0}</span>
+            <span>{lang === 'ta' ? 'மதிப்பீடு' : 'Rating'}: {stars || 0}</span>
           </div>
           <div className="project-actions">
             <RatingStars value={stars} onChange={(v) => onRate(ebook._id, v)} />
@@ -49,7 +50,9 @@ export default function EbookCard({ ebook, onDownload, onRate }: {
           </div>
         </div>
         <div className="project-content">
-          <button className="btn btn-primary" onClick={() => onDownload(ebook._id)}>Download</button>
+          <button className="btn btn-primary" onClick={() => onDownload(ebook._id)}>
+            {lang === 'ta' ? 'பதிவிறக்கம்' : 'Download'}
+          </button>
         </div>
       </div>
     </div>

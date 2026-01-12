@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useState } from 'react';
+import { useLanguage } from '../hooks/LanguageContext';
 
 export default function EbooksStats() {
+  const { lang } = useLanguage();
   const [stats, setStats] = useState<{ totalEbooks: number; totalDownloads: number; ratingCount: number; ratingAverage: number; languagesCount?: number; activeReaders?: number } | null>(null);
   useEffect(() => {
     (async () => {
@@ -15,10 +17,10 @@ export default function EbooksStats() {
   if (!stats) return null;
   return (
     <div className="stats grid grid-cols-2 md:grid-cols-4 gap-4">
-      <Stat label="Total books" value={String(stats.totalEbooks)} />
-      <Stat label="Total downloads" value={String(stats.totalDownloads)} />
-      <Stat label="Active readers" value={String(stats.activeReaders ?? 0)} />
-      <Stat label="Languages" value={String(stats.languagesCount ?? 1)} />
+      <Stat label={lang === 'ta' ? 'மொத்த நூல்கள்' : 'Total books'} value={String(stats.totalEbooks)} />
+      <Stat label={lang === 'ta' ? 'மொத்த பதிவிறக்கங்கள்' : 'Total downloads'} value={String(stats.totalDownloads)} />
+      <Stat label={lang === 'ta' ? 'செயலில் உள்ள வாசகர்கள்' : 'Active readers'} value={String(stats.activeReaders ?? 0)} />
+      <Stat label={lang === 'ta' ? 'மொழிகள்' : 'Languages'} value={String(stats.languagesCount ?? 1)} />
     </div>
   );
 }
