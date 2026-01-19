@@ -165,10 +165,15 @@ export async function POST(req: NextRequest) {
           orderId: created[0]._id.toString().slice(-6).toUpperCase(),
           items: bookDocs.map((b, i) => ({
             title: b.title?.en || 'Book',
-            quantity: items[i].quantity,
-            price: settings.currency + ' ' + perItemTotals[i].unit.toFixed(2)
+            qty: items[i].quantity,
+            price: perItemTotals[i].unit
           })),
-          total: settings.currency + ' ' + finalTotal.toFixed(2),
+          subtotal,
+          tax,
+          shipping: shippingFee,
+          total: finalTotal,
+          actionUrl: '/account/purchases',
+          actionText: 'View Order',
           shippingAddress: `${shippingAddress.fullName}, ${shippingAddress.addressLine1}, ${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.postalCode}, ${shippingAddress.country}`
         }
       });

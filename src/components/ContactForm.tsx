@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../hooks/LanguageContext';
 import { getPageContent } from '../lib/getPageContent';
+import toast from 'react-hot-toast';
 
 interface ContactFormProps {
   page: string;
@@ -65,12 +66,15 @@ export default function ContactForm({ page, slug = 'contact-form', data }: Conta
       if (response.ok) {
         setSubmitStatus('success');
         setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+        toast.success(lang === 'en' ? 'Message sent' : 'செய்தி அனுப்பப்பட்டது');
       } else {
         setSubmitStatus('error');
+        toast.error(lang === 'en' ? 'Failed to send message' : 'அனுப்புதல் தோல்வியடைந்தது');
       }
     } catch (error) {
       console.error('Contact form submission error:', error);
       setSubmitStatus('error');
+      toast.error(lang === 'en' ? 'Network error' : 'நெட்வொர்க் பிழை');
     } finally {
       setIsSubmitting(false);
     }

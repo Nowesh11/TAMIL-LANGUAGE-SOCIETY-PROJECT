@@ -49,12 +49,11 @@ export async function POST(req: NextRequest) {
     try {
       await sendEmail({
         to: user.email,
-        subject: 'Password Reset Verification Code - Tamil Language Society',
-        template: 'passwordReset',
+        subject: 'Password Reset Code - Tamil Language Society',
+        template: 'passwordForgot',
         data: {
           userName: user.name.en,
-          verificationCode,
-          expiresIn: '15 minutes'
+          token: verificationCode
         }
       });
     } catch (emailError) {

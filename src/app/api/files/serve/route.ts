@@ -10,21 +10,86 @@ export async function GET(req: NextRequest) {
     const storedPath = String(searchParams.get('path') || '');
     if (!storedPath) return NextResponse.json({ error: 'Missing path' }, { status: 400 });
 
-    const cleaned = storedPath.replace(/^[/\\]+/, '');
+    // Decode up to twice to handle double-encoded inputs like "uploads%252Fcomponents..."
+    function multiDecode(input: string) {
+      let out = input;
+      for (let i = 0; i < 2; i++) {
+        try {
+          const decoded = decodeURIComponent(out);
+          if (decoded === out) break;
+          out = decoded;
+        } catch {
+          break;
+        }
+      }
+      return out;
+    }
+
+    const cleanedRaw = storedPath.replace(/^[/\\]+/, '');
+    const cleaned = multiDecode(cleanedRaw).replace(/\\/g, '/');
     let filePath = path.isAbsolute(storedPath)
       ? storedPath
-      : path.join(process.cwd(), storedPath.startsWith('/') ? path.join('public', cleaned) : cleaned);
+      : path.join(process.cwd(), cleaned.startsWith('/') ? path.join('public', cleaned.replace(/^[/]+/, '')) : cleaned);
 
     let data: Buffer | null = null;
-    try {
-      data = await fs.readFile(filePath);
-    } catch {
+    async function tryRead(p: string) {
+      try {
+        return await fs.readFile(p);
+      } catch {
+        return null;
+      }
+    }
+    // Try direct read, with extension fallbacks when no extension provided
+    const baseExt = path.extname(filePath);
+    data = await tryRead(filePath);
+    if (!data && !baseExt) {
+      const candidates = ['.jpg', '.jpeg', '.png', '.webp', '.svg', '.pdf'];
+      for (const ext of candidates) {
+        const candidatePath = `${filePath}${ext}`;
+        data = await tryRead(candidatePath);
+        if (data) {
+          filePath = candidatePath;
+          break;
+        }
+      }
+    }
+    if (!data) {
       if (!path.isAbsolute(storedPath)) {
         const publicPath = path.join(process.cwd(), 'public', cleaned);
-        try {
-          data = await fs.readFile(publicPath);
-          filePath = publicPath;
-        } catch {}
+        data = await tryRead(publicPath);
+        if (!data && !path.extname(publicPath)) {
+          const candidates = ['.jpg', '.jpeg', '.png', '.webp', '.svg', '.pdf'];
+          for (const ext of candidates) {
+            const candidatePath = `${publicPath}${ext}`;
+            data = await tryRead(candidatePath);
+            if (data) {
+              filePath = candidatePath;
+              break;
+            }
+          }
+        }
+        if (data) {
+          filePath = path.extname(filePath) ? filePath : publicPath;
+        }
+        // Fallback: if path starts with uploads/ but not found under current cwd, try sibling project dir
+        if (!data && cleaned.toLowerCase().startsWith('uploads/')) {
+          const altPath = path.join(process.cwd(), '..', 'TAMIL-LANGUAGE-SOCIETY-PROJECT', cleaned);
+          data = await tryRead(altPath);
+          if (!data && !path.extname(altPath)) {
+            const candidates = ['.jpg', '.jpeg', '.png', '.webp', '.svg', '.pdf'];
+            for (const ext of candidates) {
+              const candidatePath = `${altPath}${ext}`;
+              data = await tryRead(candidatePath);
+              if (data) {
+                filePath = candidatePath;
+                break;
+              }
+            }
+          }
+          if (data) {
+            filePath = path.extname(filePath) ? filePath : altPath;
+          }
+        }
       }
       if (!data && /^https?:\/\//i.test(storedPath)) {
         try {

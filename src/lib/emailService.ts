@@ -1,409 +1,211 @@
-import nodemailer from 'nodemailer';
+import nodemailer from 'nodemailer'
 
-interface EmailData {
-  to: string;
-  subject: string;
-  template: string;
-  data: any;
+type EmailPayload = {
+  to: string
+  subject: string
+  template: string
+  data?: Record<string, any>
 }
 
-// Common styles for all templates
-const commonStyles = `
-  body { font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
-  .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-  .header { background: linear-gradient(135deg, #1a237e 0%, #4f46e5 100%); color: white; padding: 30px 20px; text-align: center; }
-  .header h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
-  .header p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; }
-  .content { padding: 30px; }
-  .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #6c757d; font-size: 12px; border-top: 1px solid #e9ecef; }
-  .button { display: inline-block; background: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; margin-top: 20px; }
-  .button:hover { background: #4338ca; }
-  .info-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-  .info-table th { text-align: left; padding: 10px; border-bottom: 1px solid #e9ecef; color: #6c757d; font-weight: 600; font-size: 13px; }
-  .info-table td { padding: 10px; border-bottom: 1px solid #e9ecef; font-size: 14px; }
-  .highlight { color: #4f46e5; font-weight: 600; }
-  .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; background: #e0e7ff; color: #4f46e5; }
-`;
-
-// Email templates
-const templates = {
-  notification: (data: any) => `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <title>${data.title}</title>
-        <style>${commonStyles}</style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>Tamil Language Society</h1>
-                <p>தமிழ் மொழி சங்கம்</p>
-            </div>
-            <div class="content">
-                <div style="margin-bottom: 15px;">
-                    <span class="badge">${data.type}</span>
-                    <span style="float: right; color: #6c757d; font-size: 12px;">${new Date().toLocaleDateString()}</span>
-                </div>
-                <h2 style="margin-top: 0; color: #1f2937;">${data.title}</h2>
-                <p style="color: #4b5563;">${data.message}</p>
-                ${data.actionUrl ? `<div style="text-align: center;"><a href="${process.env.NEXT_PUBLIC_BASE_URL}${data.actionUrl}" class="button">${data.actionText || 'View Details'}</a></div>` : ''}
-            </div>
-            <div class="footer">
-                <p>&copy; ${new Date().getFullYear()} Tamil Language Society. All rights reserved.</p>
-                <p>You received this email because you are a member of our community.</p>
-            </div>
-        </div>
-    </body>
-    </html>
-  `,
-  
-  passwordReset: (data: any) => `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Password Reset</title>
-        <style>${commonStyles}</style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>Password Reset</h1>
-                <p>Security Verification</p>
-            </div>
-            <div class="content">
-                <p>Hello ${data.userName},</p>
-                <p>We received a request to reset your password. Use the verification code below to proceed:</p>
-                
-                <div style="background: #f3f4f6; border: 2px dashed #e5e7eb; padding: 20px; text-align: center; margin: 25px 0; border-radius: 8px;">
-                    <span style="font-size: 32px; font-weight: 700; letter-spacing: 5px; color: #1f2937;">${data.verificationCode}</span>
-                </div>
-                
-                <p style="font-size: 13px; color: #6b7280; text-align: center;">This code expires in <strong>${data.expiresIn}</strong>.</p>
-                
-                <p style="margin-top: 20px; font-size: 13px; color: #dc2626;">If you didn't request this, please ignore this email or contact support if you have concerns.</p>
-            </div>
-            <div class="footer">
-                <p>This is an automated security message.</p>
-            </div>
-        </div>
-    </body>
-    </html>
-  `,
-
-  projectAlert: (data: any) => `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <title>New Project Alert</title>
-        <style>${commonStyles}</style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>New Project Launch</h1>
-                <p>புதிய திட்டம்</p>
-            </div>
-            <div class="content">
-                ${data.imageUrl ? `<img src="${process.env.NEXT_PUBLIC_BASE_URL}${data.imageUrl}" alt="Project" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 20px;">` : ''}
-                <h2 style="color: #1f2937;">${data.title}</h2>
-                <p style="color: #4b5563;">${data.message}</p>
-                
-                <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                    <h3 style="margin: 0 0 10px; font-size: 16px;">Project Highlights</h3>
-                    <ul style="margin: 0; padding-left: 20px; color: #4b5563;">
-                        <li>Status: <span class="highlight">${data.status || 'Active'}</span></li>
-                        <li>Type: ${data.type || 'General'}</li>
-                    </ul>
-                </div>
-
-                <div style="text-align: center;">
-                    <a href="${process.env.NEXT_PUBLIC_BASE_URL}${data.actionUrl}" class="button">View Project</a>
-                </div>
-            </div>
-            <div class="footer">
-                <p>Stay tuned for more updates from Tamil Language Society.</p>
-            </div>
-        </div>
-    </body>
-    </html>
-  `,
-
-  bookPurchaseReceipt: (data: any) => `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Purchase Receipt</title>
-        <style>${commonStyles}</style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>Order Confirmation</h1>
-                <p>Order #${data.orderId}</p>
-            </div>
-            <div class="content">
-                <p>Hello ${data.userName},</p>
-                <p>Thank you for your purchase! We're getting your order ready to be shipped.</p>
-                
-                <h3 style="border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; margin-top: 25px;">Order Summary</h3>
-                <table class="info-table">
-                    <tr>
-                        <th>Item</th>
-                        <th>Qty</th>
-                        <th>Price</th>
-                    </tr>
-                    ${data.items.map((item: any) => `
-                    <tr>
-                        <td>${item.title}</td>
-                        <td>${item.quantity}</td>
-                        <td>${item.price}</td>
-                    </tr>
-                    `).join('')}
-                    <tr style="border-top: 2px solid #e5e7eb;">
-                        <td colspan="2" style="text-align: right; font-weight: bold;">Total</td>
-                        <td style="font-weight: bold; color: #4f46e5;">${data.total}</td>
-                    </tr>
-                </table>
-
-                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 8px; margin-top: 20px;">
-                    <p style="margin: 0; color: #166534; font-size: 14px;"><strong>Shipping to:</strong><br/>${data.shippingAddress}</p>
-                </div>
-
-                <div style="text-align: center;">
-                    <a href="${process.env.NEXT_PUBLIC_BASE_URL}/account/purchases" class="button">Track Order</a>
-                </div>
-            </div>
-            <div class="footer">
-                <p>If you have any questions about your order, please reply to this email.</p>
-            </div>
-        </div>
-    </body>
-    </html>
-  `,
-
-  ebookDownload: (data: any) => `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Ebook Download</title>
-        <style>${commonStyles}</style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>Happy Reading!</h1>
-                <p>Ebook Downloaded</p>
-            </div>
-            <div class="content">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/3389/3389081.png" alt="Book" style="width: 80px; opacity: 0.8;">
-                </div>
-                <h2 style="text-align: center; margin-top: 0;">${data.bookTitle}</h2>
-                <p style="text-align: center; color: #4b5563;">You have successfully downloaded this ebook. We hope you enjoy reading it!</p>
-                
-                <div style="text-align: center; margin-top: 30px;">
-                    <a href="${process.env.NEXT_PUBLIC_BASE_URL}${data.actionUrl}" class="button">View Ebook Page</a>
-                </div>
-            </div>
-            <div class="footer">
-                <p>Explore more ebooks in our digital library.</p>
-            </div>
-        </div>
-    </body>
-    </html>
-  `,
-
-  teamAlert: (data: any) => `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <title>New Team Member</title>
-        <style>${commonStyles}</style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>Meet Our New Team Member</h1>
-                <p>Team Update</p>
-            </div>
-            <div class="content">
-                ${data.imageUrl ? `<div style="text-align: center;"><img src="${process.env.NEXT_PUBLIC_BASE_URL}${data.imageUrl}" alt="${data.name}" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px;"></div>` : ''}
-                <h2 style="text-align: center; margin: 0; color: #1f2937;">${data.name}</h2>
-                <p style="text-align: center; color: #4f46e5; font-weight: 600; margin: 5px 0 20px;">${data.position}</p>
-                
-                <p style="color: #4b5563; text-align: center;">We are thrilled to welcome ${data.name} to our team!</p>
-                
-                <div style="text-align: center;">
-                    <a href="${process.env.NEXT_PUBLIC_BASE_URL}/about" class="button">View Team</a>
-                </div>
-            </div>
-            <div class="footer">
-                <p>Building a stronger community together.</p>
-            </div>
-        </div>
-    </body>
-    </html>
-  `,
-
-  posterAlert: (data: any) => `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <title>New Poster Added</title>
-        <style>${commonStyles}</style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>New Gallery Update</h1>
-                <p>Latest Poster</p>
-            </div>
-            <div class="content">
-                ${data.imageUrl ? `<img src="${process.env.NEXT_PUBLIC_BASE_URL}${data.imageUrl}" alt="Poster" style="width: 100%; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">` : ''}
-                <h2 style="color: #1f2937;">${data.title}</h2>
-                <p style="color: #4b5563;">${data.message}</p>
-                
-                <div style="text-align: center;">
-                    <a href="${process.env.NEXT_PUBLIC_BASE_URL}${data.actionUrl}" class="button">View Gallery</a>
-                </div>
-            </div>
-            <div class="footer">
-                <p>Check out our gallery for more visual stories.</p>
-            </div>
-        </div>
-    </body>
-    </html>
-  `,
-
-  orderStatusUpdate: (data: any) => `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Order Status Update</title>
-        <style>${commonStyles}</style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>Order Update</h1>
-                <p>Order #${data.orderId}</p>
-            </div>
-            <div class="content">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <span class="badge" style="background: ${data.statusColor}; color: ${data.statusTextColor}; font-size: 14px; padding: 8px 16px;">
-                        ${data.status.toUpperCase()}
-                    </span>
-                </div>
-                
-                <p>Hello ${data.userName},</p>
-                <p>${data.message}</p>
-
-                ${data.trackingNumber ? `
-                <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4f46e5;">
-                    <p style="margin: 0; font-size: 12px; color: #6b7280; text-transform: uppercase; font-weight: bold;">Tracking Number</p>
-                    <p style="margin: 5px 0 0; font-size: 18px; font-weight: bold; color: #1f2937; letter-spacing: 1px;">${data.trackingNumber}</p>
-                    ${data.carrier ? `<p style="margin: 5px 0 0; font-size: 14px; color: #4b5563;">via ${data.carrier}</p>` : ''}
-                </div>
-                ` : ''}
-
-                <div style="text-align: center; margin-top: 30px;">
-                    <a href="${process.env.NEXT_PUBLIC_BASE_URL}/account/purchases" class="button">Track Order</a>
-                </div>
-            </div>
-            <div class="footer">
-                <p>Thank you for shopping with Tamil Language Society.</p>
-            </div>
-        </div>
-    </body>
-    </html>
+function baseLayout(inner: string, promo?: string) {
+  const styles = `
+    :root{color-scheme:light dark}
+    body{margin:0;background:#0a0a0f;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    .wrap{padding:24px}
+    .card{max-width:860px;margin:0 auto;background:#0f1117;border-radius:16px;overflow:hidden;border:1px solid #243244;box-shadow:0 10px 30px rgba(0,0,0,0.35)}
+    .bar{height:8px;background:linear-gradient(90deg,#4f46e5,#06b6d4,#22c55e,#f59e0b)}
+    .header{padding:24px 24px 12px 24px}
+    .title{margin:0;font-size:22px;line-height:1.25;color:#ffffff}
+    .muted{color:#94a3b8}
+    .grid{width:100%;border-collapse:collapse}
+    .left{vertical-align:top;padding:0}
+    .right{vertical-align:top;padding:0;width:280px;background:#0b1016;border-left:1px solid #243244}
+    .content{padding:20px}
+    .sidebar{padding:20px}
+    .promo{background:linear-gradient(135deg,rgba(79,70,229,0.15),rgba(6,182,212,0.12));border:1px solid #243244;border-radius:12px;padding:16px}
+    .promo h3{margin:0 0 8px 0;font-size:16px;color:#e5e7eb}
+    .promo p{margin:0 0 12px 0;color:#94a3b8;font-size:14px}
+    .promo img{max-width:100%;border-radius:10px;margin:8px 0}
+    .btn{display:inline-block;padding:10px 16px;border-radius:10px;background:#4f46e5;color:#fff;text-decoration:none}
+    .cta{display:inline-block;padding:10px 16px;border-radius:10px;background:linear-gradient(90deg,#4f46e5,#06b6d4);color:#fff;text-decoration:none}
+    .table{width:100%;border-collapse:collapse;margin:6px 0 10px}
+    .table th{background:#0b1016;color:#94a3b8;text-align:left;padding:10px;border-bottom:1px solid #243244;font-weight:600}
+    .table td{padding:10px;border-bottom:1px solid #243244;color:#e5e7eb}
+    .sum{margin-top:10px;color:#e5e7eb}
+    .footer{padding:18px 24px;border-top:1px solid #243244;color:#94a3b8;font-size:12px}
+    @media(max-width:720px){.right{display:block;width:auto;border-left:none}.grid,.left,.right{display:block}.sidebar{padding:0 20px 20px}}
   `
-};
+  const sidebar = promo ? `<div class="sidebar">${promo}</div>` : ''
+  return `
+    <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>${styles}</style></head>
+    <body><div class="wrap"><div class="card">
+      <div class="bar"></div>
+      <table class="grid"><tr>
+        <td class="left">${inner}</td>
+        <td class="right">${sidebar}</td>
+      </tr></table>
+      <div class="footer">Tamil Language Society • This is an automated message</div>
+    </div></div></body></html>
+  `
+}
 
-// Create transporter
-const createTransporter = async () => {
-  // Production or Explicit Configuration
-  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-    return nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+function renderPromo(data: Record<string, any>) {
+  const title = data.title || 'Featured'
+  const text = data.text || 'Explore the latest from our society'
+  const imageUrl = data.imageUrl || ''
+  const actionUrl = data.actionUrl || ''
+  const actionText = data.actionText || 'Learn More'
+  const img = imageUrl ? `<img src="${imageUrl}" alt="">` : ''
+  const cta = actionUrl ? `<a class="btn" href="${actionUrl}">${actionText}</a>` : ''
+  return `<div class="promo"><h3>${title}</h3><p>${text}</p>${img}${cta}</div>`
+}
+
+function renderNotification(data: Record<string, any>) {
+  const title = data.title || ''
+  const message = data.message || ''
+  const actionUrl = data.actionUrl || ''
+  const actionText = data.actionText || ''
+  const imageUrl = data.imageUrl || ''
+  const imgBlock = imageUrl ? `<div style="margin:16px 0"><img src="${imageUrl}" alt="" /></div>` : ''
+  const actionBlock = actionUrl && actionText ? `<p><a class="cta" href="${actionUrl}">${actionText}</a></p>` : ''
+  const inner = `
+    <div class="header"><h1 class="title">${title}</h1><div class="muted">Society Update</div></div>
+    <div class="content">
+      ${imgBlock}
+      <p>${message}</p>
+      ${actionBlock}
+    </div>
+  `
+  const promo = data.ad ? renderPromo(data.ad) : ''
+  return baseLayout(inner, promo)
+}
+
+function renderBookPurchaseReceipt(data: Record<string, any>) {
+  const orderId = data.orderId || ''
+  const userName = data.userName || 'Customer'
+  const items: Array<{ title: string; qty: number; price: number }> = data.items || []
+  const subtotal = data.subtotal ?? 0
+  const tax = data.tax ?? 0
+  const shipping = data.shipping ?? 0
+  const total = data.total ?? (subtotal + tax + shipping)
+  const rows = items.map(i => `
+    <tr><td>${i.title}</td><td class="muted">${i.qty}</td><td>RM ${(i.price || 0).toFixed(2)}</td></tr>
+  `).join('')
+  const actionUrl = data.actionUrl || ''
+  const actionText = data.actionText || 'View Order'
+  const ship = data.shippingAddress ? `<p class="muted">Ship To: ${data.shippingAddress}</p>` : ''
+  const inner = `
+    <div class="header"><h1 class="title">Order Confirmed</h1><div class="muted">Order #${orderId}</div></div>
+    <div class="content">
+      <p>Hello ${userName}, thank you for your purchase. Here is your receipt.</p>
+      ${ship}
+      <table class="table"><thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="sum">Subtotal: RM ${subtotal.toFixed(2)} • Tax: RM ${tax.toFixed(2)} • Shipping: RM ${shipping.toFixed(2)}</div>
+      <h3 class="sum">Total: RM ${total.toFixed(2)}</h3>
+      ${actionUrl ? `<p><a class="cta" href="${actionUrl}">${actionText}</a></p>` : ''}
+    </div>
+  `
+  const promo = data.ad ? renderPromo(data.ad) : ''
+  return baseLayout(inner, promo)
+}
+
+function renderOrderStatusUpdate(data: Record<string, any>) {
+  const title = data.title || 'Order Update'
+  const message = data.message || ''
+  const orderId = data.orderId || ''
+  const trackingNumber = data.trackingNumber || ''
+  const carrier = data.carrier || ''
+  const actionUrl = data.actionUrl || ''
+  const actionText = data.actionText || 'Track Order'
+  const trackingBlock = trackingNumber ? `<p>Tracking: <strong>${trackingNumber}</strong> ${carrier ? `via ${carrier}` : ''}</p>` : ''
+  const inner = `
+    <div class="header"><h1 class="title">${title}</h1><div class="muted">Order #${orderId}</div></div>
+    <div class="content">
+      <p>${message}</p>
+      ${trackingBlock}
+      ${actionUrl ? `<p><a class="cta" href="${actionUrl}">${actionText}</a></p>` : ''}
+    </div>
+  `
+  const promo = data.ad ? renderPromo(data.ad) : ''
+  return baseLayout(inner, promo)
+}
+
+function renderPasswordReset(data: Record<string, any>) {
+  const userName = data.userName || 'User'
+  const resetLink = data.resetLink || ''
+  const inner = `
+    <div class="header"><h1 class="title">Password Reset</h1><div class="muted">Security Notice</div></div>
+    <div class="content">
+      <p>Hello ${userName}, we received a request to reset your password.</p>
+      ${resetLink ? `<p><a class="cta" href="${resetLink}">Reset Password</a></p>` : ''}
+      <p class="muted">If you did not request this, you can ignore this email.</p>
+    </div>
+  `
+  const promo = data.ad ? renderPromo(data.ad) : ''
+  return baseLayout(inner, promo)
+}
+
+function renderPasswordForgot(data: Record<string, any>) {
+  const userName = data.userName || 'User'
+  const token = data.token || ''
+  const inner = `
+    <div class="header"><h1 class="title">Password Reset Code</h1><div class="muted">Use within 15 minutes</div></div>
+    <div class="content">
+      <p>Hello ${userName}, use the following code to reset your password:</p>
+      <h2 style="letter-spacing:2px;background:#0b1016;color:#e5e7eb;display:inline-block;padding:12px 18px;border-radius:12px;border:1px solid #243244">${token}</h2>
+      <p class="muted">If you did not request this, you can ignore this email.</p>
+    </div>
+  `
+  const promo = data.ad ? renderPromo(data.ad) : ''
+  return baseLayout(inner, promo)
+}
+
+function renderTemplate(name: string, data: Record<string, any> = {}) {
+  const title = data.title || ''
+  const message = data.message || ''
+  const actionUrl = data.actionUrl || ''
+  const actionText = data.actionText || ''
+  const imageUrl = data.imageUrl || ''
+  switch (name) {
+    case 'bookPurchaseReceipt':
+      return renderBookPurchaseReceipt(data)
+    case 'orderStatusUpdate':
+      return renderOrderStatusUpdate({ title, message, ...data })
+    case 'passwordReset':
+      return renderPasswordReset(data)
+    case 'passwordForgot':
+      return renderPasswordForgot(data)
+    default:
+      return renderNotification({ title, message, actionUrl, actionText, imageUrl, ad: data.ad })
   }
+}
 
-  // Development / Fallback (Ethereal Email)
-  console.log('⚠️ SMTP credentials not found. Using Ethereal (Dev) email service.');
-  const testAccount = await nodemailer.createTestAccount();
-  
-  return nodemailer.createTransport({
-    host: 'smtp.ethereal.email',
-    port: 587,
-    secure: false,
-    auth: {
-      user: testAccount.user,
-      pass: testAccount.pass,
+export async function sendEmail({ to, subject, template, data = {} }: EmailPayload) {
+  const user = process.env.SMTP_USER || process.env.EMAIL_USER
+  const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com'
+  const port = Number(process.env.SMTP_PORT || 465)
+
+  if (!user || !pass) throw new Error('SMTP credentials missing')
+
+  const transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: { user, pass }
+  })
+
+  const html = renderTemplate(template || 'notification', {
+    ad: data.ad || {
+      title: 'Support Our Mission',
+      text: 'Donate or volunteer to help us promote Tamil language and culture.',
+      actionUrl: 'https://example.org/support',
+      actionText: 'Support Now'
     },
-  });
-};
+    ...data
+  })
+  const from = process.env.EMAIL_FROM || `Tamil Language Society <${user}>`
 
-export const sendEmail = async ({ to, subject, template, data }: EmailData) => {
-  try {
-    const transporter = await createTransporter();
-    const templateFunction = templates[template as keyof typeof templates];
-    
-    if (!templateFunction) {
-      console.warn(`Template '${template}' not found, falling back to notification`);
-      // ... fallback logic ...
-    }
-
-    // Use fallback if template function is missing, otherwise use template
-    const html = templateFunction ? templateFunction(data) : templates.notification(data);
-
-    const mailOptions = {
-      from: process.env.SMTP_USER ? `"Tamil Language Society" <${process.env.SMTP_USER}>` : '"TLS Dev" <dev@tamilsociety.org>',
-      to,
-      subject,
-      html,
-    };
-
-    const result = await transporter.sendMail(mailOptions);
-    console.log(`✅ Email sent (${template}):`, result.messageId);
-    
-    // Log Preview URL for Ethereal
-    if (!process.env.SMTP_USER) {
-      console.log('📧 Preview URL:', nodemailer.getTestMessageUrl(result));
-    }
-    
-    return { success: true, messageId: result.messageId };
-  } catch (error: any) {
-    console.error('❌ Error sending email:', error);
-    return { success: false, error: error.message || String(error) };
-  }
-};
-
-export const sendBulkEmails = async (emails: EmailData[]) => {
-  const results = await Promise.allSettled(
-    emails.map(email => sendEmail(email))
-  );
-  
-  return results.map((result, index) => ({
-    email: emails[index].to,
-    success: result.status === 'fulfilled' && result.value.success,
-    error: result.status === 'rejected' ? result.reason : 
-           (result.status === 'fulfilled' && !result.value.success ? result.value.error : null)
-  }));
-};
-
-export default { sendEmail, sendBulkEmails };
+  await transporter.sendMail({ from, to, subject, html })
+  return true
+}

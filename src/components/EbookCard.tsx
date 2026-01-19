@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '../hooks/LanguageContext';
+import toast from 'react-hot-toast';
 
 interface Bilingual {
   en: string;
@@ -42,6 +43,36 @@ interface EbookCardProps {
   loading?: boolean;
 }
 
+function getFormatColor(format: Ebook['format']): string {
+  switch (format) {
+    case 'pdf':
+      return 'bg-red-500/90 text-white';
+    case 'epub':
+      return 'bg-emerald-500/90 text-white';
+    case 'mobi':
+      return 'bg-amber-500/90 text-white';
+    case 'audiobook':
+      return 'bg-indigo-500/90 text-white';
+    default:
+      return 'bg-primary/90 text-white';
+  }
+}
+
+function renderStars(value: number) {
+  const v = Math.max(0, Math.min(5, Math.round(value)));
+  const stars = [];
+  for (let i = 1; i <= 5; i++) {
+    const filled = i <= v;
+    stars.push(
+      <i
+        key={i}
+        className={`fa-solid fa-star ${filled ? 'text-amber-500' : 'text-foreground-muted'}`}
+      />
+    );
+  }
+  return stars;
+}
+
 export default function EbookCard({
   ebook,
   layout = 'grid',
@@ -80,7 +111,6 @@ export default function EbookCard({
     description,
     price,
     discountPrice,
-    coverImage,
     category,
     rating = 0,
     reviewCount = 0,
@@ -90,37 +120,93 @@ export default function EbookCard({
     isNew,
     isFeatured
   } = ebook;
+  const coverImage =
+    (ebook as any).coverImage ||
+    (ebook as any).coverPath ||
+    '';
 
   const displayPrice = discountPrice || price;
   const hasDiscount = !!discountPrice && discountPrice < price;
   const discountPercentage = hasDiscount ? Math.round(((price - discountPrice) / price) * 100) : 0;
-  const isFree = displayPrice === 0;
+
+  function resolveDownloadUrl(u?: string) {
+    try {
+      const s = (u || '').trim();
+      if (!s) return '';
+      if (s.startsWith('/api/')) return s;
+      const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+      const url = new URL(s, base);
+      const pathOnly = url.pathname.replace(/^[/]+/, '');
+      if (pathOnly.toLowerCase().startsWith('uploads/')) {
+        return `/api/files/serve?path=${encodeURIComponent(pathOnly)}`;
+      }
+      return s;
+    } catch {
+      const p = (u || '').replace(/^https?:\/\/[^/]+/, '').replace(/^[/]+/, '');
+      if (p.toLowerCase().startsWith('uploads/')) {
+        return `/api/files/serve?path=${encodeURIComponent(p)}`;
+      }
+      return u || '';
+    }
+  }
 
   const handleDownload = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onDownload) {
       onDownload(ebook._id);
+      toast.success(lang === 'en' ? 'Starting download...' : 'பதிவிறக்கம் தொடங்குகிறது...');
       return;
     }
     
-    if (ebook.downloadUrl) {
+    const filePath = (ebook as any).filePath || '';
+    const directUrl = (ebook as any).downloadUrl || '';
+    const href = directUrl ? resolveDownloadUrl(directUrl) : (filePath ? resolveDownloadUrl(filePath) : '');
+    if (href) {
+      const extFromPath = (() => {
+        try {
+          const u = new URL(href, typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+          const p = u.searchParams.get('path') || u.pathname;
+          const m = String(p).match(/\.(pdf|epub|mobi|txt)$/i);
+          return m ? m[1].toLowerCase() : format;
+        } catch {
+          const m = href.match(/\.(pdf|epub|mobi|txt)$/i);
+          return m ? m[1].toLowerCase() : format;
+        }
+      })();
       const link = document.createElement('a');
-      link.href = ebook.downloadUrl;
-      link.download = `${title?.en || 'ebook'}.${format}`;
+      link.href = href;
+      link.download = `${(typeof title === 'string' ? title : (title?.en || 'ebook'))}.${extFromPath}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      toast.success(lang === 'en' ? 'Download started' : 'பதிவிறக்கம் தொடங்கியது');
     } else {
       // Fallback or toast if no URL
       console.warn('No download URL available');
+       toast.error(lang === 'en' ? 'No file to download' : 'பதிவிறக்க கோப்பு இல்லை');
     }
   };
 
   const handleRate = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Trigger rating modal or callback
-    // For now we'll assume a callback or just log
-    console.log('Rate clicked');
+    const ratingValue = Math.max(1, Math.min(5, Math.round((rating || 0) || 5)));
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    fetch(`/api/ebooks/${ebook._id}/rate`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify({ rating: ratingValue })
+    }).then(res => {
+      if (res.ok) {
+        toast.success(lang === 'en' ? 'Thanks for your rating!' : 'உங்கள் மதிப்பீட்டுக்கு நன்றி!');
+      } else {
+        toast.error(lang === 'en' ? 'Rating failed' : 'மதிப்பீடு தோல்வியடைந்தது');
+      }
+    }).catch(() => {
+      toast.error(lang === 'en' ? 'Network error' : 'நெட்வொர்க் பிழை');
+    });
   };
 
   return (
@@ -143,21 +229,21 @@ export default function EbookCard({
         relative overflow-hidden bg-slate-100 dark:bg-slate-800
         ${layout === 'list' ? 'w-32 sm:w-48 aspect-[3/4] shrink-0' : layout === 'compact' ? 'hidden' : 'aspect-[3/4] w-full'}
       `}>
-        <Image
-          src={
-            !imageError && coverImage 
-              ? (coverImage.startsWith('/') || coverImage.startsWith('http') 
-                  ? coverImage 
-                  : `/api/files/serve?path=${encodeURIComponent(coverImage)}`)
-              : '/placeholder-book.jpg'
-          }
-          alt={typeof title === 'string' ? title : title?.[lang] || 'Book Cover'}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-110"
-          onError={() => setImageError(true)}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          unoptimized
-        />
+        {!!coverImage && !imageError && (
+          <Image
+            src={
+              coverImage.startsWith('/') || coverImage.startsWith('http')
+                ? coverImage
+                : `/api/files/serve?path=${encodeURIComponent(coverImage)}`
+            }
+            alt={typeof title === 'string' ? title : title?.[lang] || 'Book Cover'}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
+            onError={() => setImageError(true)}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            unoptimized
+          />
+        )}
         
         {/* Badges */}
         <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
@@ -224,39 +310,24 @@ export default function EbookCard({
             )}
           </div>
 
-          {/* Actions Row */}
-          <div className="flex items-center justify-between gap-3">
-             {/* Price Display */}
-            <div className="flex flex-col">
-              {hasDiscount && (
-                <span className="text-xs text-foreground-muted line-through font-medium">
-                  ₹{price}
-                </span>
-              )}
-              <span className={`text-xl font-black ${isFree ? 'text-emerald-500' : 'text-foreground'}`}>
-                {isFree ? (lang === 'en' ? 'Free' : 'இலவசம்') : `₹${displayPrice}`}
-              </span>
-            </div>
-
-            {/* Buttons: Rate & Download */}
-            <div className="flex gap-2">
-                <button
-                  onClick={handleRate}
-                  className="w-10 h-10 rounded-xl flex items-center justify-center bg-surface border border-border text-amber-500 hover:bg-amber-500/10 hover:border-amber-500 transition-all shadow-sm"
-                  title={lang === 'en' ? 'Rate this book' : 'மதிப்பிடவும்'}
-                >
-                  <i className="fa-solid fa-star"></i>
-                </button>
-                
-                <button
-                  onClick={handleDownload}
-                  className="btn-primary py-2 px-4 text-sm shadow-lg shadow-primary/20 hover:shadow-primary/40 flex items-center gap-2"
-                  title={lang === 'en' ? 'Download' : 'பதிவிறக்கம்'}
-                >
-                  <i className="fa-solid fa-download"></i>
-                  <span className="hidden sm:inline">{lang === 'en' ? 'Download' : 'பதிவிறக்கம்'}</span>
-                </button>
-            </div>
+          {/* Actions Row: Only Rate & Download */}
+          <div className="flex items-center justify-end gap-2">
+            <button
+              onClick={handleRate}
+              className="w-10 h-10 rounded-xl flex items-center justify-center bg-surface border border-border text-amber-500 hover:bg-amber-500/10 hover:border-amber-500 transition-all shadow-sm"
+              title={lang === 'en' ? 'Rate this book' : 'மதிப்பிடவும்'}
+            >
+              <i className="fa-solid fa-star"></i>
+            </button>
+            
+            <button
+              onClick={handleDownload}
+              className="btn-primary py-2 px-4 text-sm shadow-lg shadow-primary/20 hover:shadow-primary/40 flex items-center gap-2"
+              title={lang === 'en' ? 'Download' : 'பதிவிறக்கம்'}
+            >
+              <i className="fa-solid fa-download"></i>
+              <span className="hidden sm:inline">{lang === 'en' ? 'Download' : 'பதிவிறக்கம்'}</span>
+            </button>
           </div>
         </div>
       </div>

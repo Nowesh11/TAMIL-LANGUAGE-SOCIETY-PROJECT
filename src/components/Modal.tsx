@@ -1,5 +1,7 @@
 "use client";
-import { useEffect, useId } from 'react';
+import { useEffect, useId, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useTheme } from '../hooks/ThemeContext';
 
 export default function Modal({
   open,
@@ -17,6 +19,11 @@ export default function Modal({
   dismissOnBackdrop?: boolean;
 }) {
   const titleId = useId();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  const { isDark } = (() => {
+    try { return useTheme(); } catch { return { isDark: false } as any; }
+  })();
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -32,7 +39,7 @@ export default function Modal({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
   const sizeClasses = {
     sm: 'max-w-md',
@@ -42,26 +49,26 @@ export default function Modal({
     full: 'max-w-full m-4'
   };
 
-  return (
+  const overlay = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+      className={`fixed inset-0 z-[100000] flex items-center justify-center p-4 ${isDark ? 'bg-background/80' : 'bg-black/60'} backdrop-blur-md animate-fade-in`}
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? titleId : undefined}
       onClick={dismissOnBackdrop ? onClose : undefined}
     >
       <div
-        className={`w-full ${sizeClasses[size]} bg-[#0a0a0f]/95 border border-white/10 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-xl animate-slide-in-up flex flex-col max-h-[90vh]`}
+        className={`w-full ${sizeClasses[size]} bg-surface/95 border border-border/50 rounded-2xl shadow-2xl backdrop-blur-xl animate-slide-in-up flex flex-col max-h-[90vh]`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/10 bg-white/5">
-          <h2 id={titleId} className="text-xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+        <div className="flex items-center justify-between p-6 border-b border-border/50 bg-surface sticky top-0 z-10">
+          <h2 id={titleId} className="text-xl font-bold text-foreground">
             {title}
           </h2>
           <button 
             aria-label="Close" 
-            className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-surface-hover hover:bg-white/10 text-foreground-secondary hover:text-white transition-colors"
             onClick={onClose}
           >
             <i className="fa-solid fa-xmark"></i>
@@ -69,10 +76,11 @@ export default function Modal({
         </div>
 
         {/* Body */}
-        <div className="p-6 overflow-y-auto custom-scrollbar text-gray-300">
+        <div className="p-6 overflow-y-auto custom-scrollbar text-foreground-secondary">
           {children}
         </div>
       </div>
     </div>
   );
+  return createPortal(overlay, document.body);
 }

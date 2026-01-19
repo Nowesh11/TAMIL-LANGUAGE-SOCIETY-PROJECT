@@ -164,6 +164,20 @@ export class FileHandler {
       const buffer = Buffer.from(arrayBuffer);
       fs.writeFileSync(filePath, buffer);
 
+      // Remove previous files with the same logical base in the target directory
+      try {
+        const baseRoot = path.basename(fileName, path.extname(fileName));
+        const items = fs.readdirSync(targetDir);
+        for (const item of items) {
+          if (item === fileName) continue;
+          const itemBase = path.basename(item, path.extname(item));
+          if (itemBase === baseRoot) {
+            const p = path.join(targetDir, item);
+            try { fs.unlinkSync(p); } catch {}
+          }
+        }
+      } catch {}
+
       // Generate relative path for database storage
       const relativePath = path.relative(process.cwd(), filePath).replace(/\\/g, '/');
       

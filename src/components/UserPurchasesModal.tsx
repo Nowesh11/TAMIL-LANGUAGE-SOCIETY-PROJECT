@@ -1,5 +1,7 @@
 "use client";
 import { useEffect } from 'react';
+import { FaHistory, FaTimes } from 'react-icons/fa';
+import { useLanguage } from '../hooks/LanguageContext';
 import UserPurchases from './UserPurchases';
 
 interface UserPurchasesModalProps {
@@ -9,6 +11,7 @@ interface UserPurchasesModalProps {
 
 export default function UserPurchasesModal({ isOpen, onClose }: UserPurchasesModalProps) {
   // Handle escape key to close modal
+  const { lang } = useLanguage();
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {

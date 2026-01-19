@@ -25,6 +25,11 @@ type ComponentRecord = { _id: string; type: string; page: string; content: Foote
 function resolveUploadUrl(src: string) {
   try {
     const s = src || '';
+    const pos = s.toLowerCase().lastIndexOf('uploads');
+    if (pos >= 0) {
+      const rest = s.slice(pos).replace(/^[\\/]+/, '').replace(/\\/g, '/');
+      return `/api/files/serve?path=${encodeURIComponent(rest)}`;
+    }
     if (s.startsWith('/api/')) return s;
     const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
     const url = new URL(s, base);
@@ -34,11 +39,17 @@ function resolveUploadUrl(src: string) {
     }
     return s;
   } catch {
-    const p = (src || '').replace(/^https?:\/\/[^/]+/, '').replace(/^[/]+/, '');
+    const raw = src || '';
+    const pos = raw.toLowerCase().lastIndexOf('uploads');
+    if (pos >= 0) {
+      const rest = raw.slice(pos).replace(/^[\\/]+/, '').replace(/\\/g, '/');
+      return `/api/files/serve?path=${encodeURIComponent(rest)}`;
+    }
+    const p = raw.replace(/^https?:\/\/[^/]+/, '').replace(/^[/]+/, '');
     if (p.toLowerCase().startsWith('uploads/')) {
       return `/api/uploads/image?p=${encodeURIComponent(p)}`;
     }
-    return src;
+    return raw;
   }
 }
 
@@ -46,6 +57,7 @@ export default function Footer({ page = 'home', data: initialData }: { page?: st
   const { lang } = useLanguage();
   const [data, setData] = useState<FooterContent | null>(initialData || null);
   const [loading, setLoading] = useState(!initialData);
+  const [overrideLogoUrl, setOverrideLogoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialData) return;
@@ -70,7 +82,9 @@ export default function Footer({ page = 'home', data: initialData }: { page?: st
         async function fetchFor(p: string) {
           const json = await safeFetchJson<{ success?: boolean; components?: ComponentRecord[] }>(buildUrl(p));
           const list = Array.isArray(json?.components) ? (json.components as ComponentRecord[]) : [];
-          return list.find((c) => c.type === 'footer') || null;
+          const candidates = list.filter((c) => c.type === 'footer');
+          const withBureau = (candidates as any[]).find((c) => !!c.bureau);
+          return (withBureau || candidates[0] || null) as any;
         }
 
         const footer = await fetchFor(currentPage);
@@ -83,6 +97,24 @@ export default function Footer({ page = 'home', data: initialData }: { page?: st
     }
     load();
   }, []);
+
+  useEffect(() => {
+    async function resolveLatestFooterLogo() {
+      try {
+        const current = data?.logo?.image?.src || '';
+        const isDefault = current === '/globe.svg' || !current;
+        if (isDefault) {
+          const res = await fetch('/api/components/files?type=footer', { cache: 'no-store' });
+          if (res.ok) {
+            const json = await res.json();
+            const first = json.files?.[0]?.url;
+            if (first) setOverrideLogoUrl(first);
+          }
+        }
+      } catch {}
+    }
+    resolveLatestFooterLogo();
+  }, [data]);
 
   if (loading) {
     return (
@@ -115,7 +147,7 @@ export default function Footer({ page = 'home', data: initialData }: { page?: st
               {content.logo?.image ? (
                 <div className="relative w-12 h-12">
                   <Image 
-                    src={resolveUploadUrl(content.logo.image.src)} 
+                    src={overrideLogoUrl || resolveUploadUrl(content.logo.image.src)} 
                     alt={content.logo.image.alt?.[lang] || content.logo.image.alt?.en || ''} 
                     fill
                     className="object-contain" 

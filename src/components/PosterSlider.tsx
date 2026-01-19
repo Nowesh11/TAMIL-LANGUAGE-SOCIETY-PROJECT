@@ -64,25 +64,27 @@ export default function PosterSlider({ page, data }: { page?: string, data?: any
     <section className="py-12 relative bg-transparent overflow-hidden" id="poster">
       <div className="layout-container max-w-6xl mx-auto">
         <div className="relative h-[420px] sm:h-[480px] md:h-[560px] lg:h-[640px] rounded-3xl overflow-hidden shadow-2xl hover:shadow-primary/20 transition-all duration-500 border border-white/10 group card-morphism">
-          <Image 
-            src={
-              current.imagePath 
-                ? (current.imagePath.startsWith('/') || current.imagePath.startsWith('http') 
-                    ? current.imagePath 
-                    : `/api/files/serve?path=${encodeURIComponent(current.imagePath)}`)
-                : (current.imageUrl || '/placeholder-poster.jpg')
-            }
-            alt={
-              typeof current.title === 'string' 
-                ? current.title 
-                : current.title?.[lang] || current.title?.en || ''
-            } 
-            className="object-cover transition-transform duration-1000 group-hover:scale-105" 
-            fill 
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
-            priority 
-            unoptimized 
-          />
+          {(current.imageUrl || current.imagePath) && (
+            <Image 
+              src={
+                current.imageUrl
+                  ? current.imageUrl
+                  : current.imagePath && (current.imagePath.startsWith('/') || current.imagePath.startsWith('http') 
+                      ? current.imagePath 
+                      : `/api/files/serve?path=${encodeURIComponent(current.imagePath)}`)
+              }
+              alt={
+                typeof current.title === 'string' 
+                  ? current.title 
+                  : current.title?.[lang] || current.title?.en || ''
+              } 
+              className="object-cover transition-transform duration-1000 group-hover:scale-105" 
+              fill 
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+              priority 
+              unoptimized 
+            />
+          )}
           
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
           

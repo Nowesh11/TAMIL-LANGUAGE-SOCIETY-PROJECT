@@ -27,6 +27,7 @@ export default function Gallery({ page = 'about', slug, data: propData }: { page
   const [data, setData] = useState<GalleryContent | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [fallbackImages, setFallbackImages] = useState<{ url: string; alt?: Bilingual }[]>([]);
 
   useEffect(() => {
     // If data is provided as prop, use it directly
@@ -63,6 +64,23 @@ export default function Gallery({ page = 'about', slug, data: propData }: { page
   const cols = (content?.columns) || 3;
   const gridCols = cols === 2 ? 'grid-cols-2' : cols === 4 ? 'grid-cols-4' : cols === 5 ? 'grid-cols-5' : 'grid-cols-3';
 
+  useEffect(() => {
+    async function maybeLoadFallback() {
+      try {
+        const hasImages = Array.isArray(content?.images) && content!.images.length > 0;
+        if (!hasImages) {
+          const res = await fetch('/api/components/files?type=gallery', { cache: 'no-store' });
+          if (res.ok) {
+            const json = await res.json();
+            const files = (json.files || []).slice(0, 12).map((f: any) => ({ url: f.url }));
+            setFallbackImages(files);
+          }
+        }
+      } catch {}
+    }
+    maybeLoadFallback();
+  }, [content?.images]);
+
   return (
     <section className="mx-auto max-w-6xl px-6 py-16">
       {loading ? (
@@ -86,22 +104,28 @@ export default function Gallery({ page = 'about', slug, data: propData }: { page
             </h2>
           )}
           <div className={`grid ${gridCols} gap-6`}>
-            {content.images.map((img, idx) => (
+            {(content.images?.length ? content.images : fallbackImages).map((img: any, idx: number) => (
               <div key={idx} className="card-morphism rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border border-white/10 group">
                 <div className="relative h-56 md:h-64 lg:h-72 w-full overflow-hidden">
-                  <Image 
-                    src={
-                      img.src.startsWith('/') || img.src.startsWith('http') 
-                        ? img.src 
-                        : `/api/files/serve?path=${encodeURIComponent(img.src)}`
-                    } 
-                    alt={typeof img.alt === 'string' ? img.alt : (img.alt?.[lang] || img.alt?.en || '')} 
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110" 
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    unoptimized
-                  />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-300" />
+                  {(!!img?.src || !!(img as any)?.url) && (
+                    <Image 
+                      src={(function getSrc(i: any){
+                        const s = (i?.src || i?.url || '') as string;
+                        const pos = s.toLowerCase().lastIndexOf('uploads');
+                        if (pos >= 0) {
+                          const rest = s.slice(pos).replace(/^[\\/]+/, '').replace(/\\/g, '/');
+                          return `/api/files/serve?path=${encodeURIComponent(rest)}`;
+                        }
+                        if (s.startsWith('/') || s.startsWith('http')) return s;
+                         return `/api/files/serve?path=${encodeURIComponent(s)}`;
+                       })(img)} 
+                      alt={typeof img.alt === 'string' ? img.alt : (img.alt?.[lang] || img.alt?.en || 'Image')} 
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110" 
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      unoptimized
+                    />
+                  )}
                 </div>
               </div>
             ))}

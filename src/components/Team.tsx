@@ -70,17 +70,26 @@ export default function Team({ page, data }: { page?: string, data?: any }) {
   const MemberCard = ({ member, className = '' }: { member: TeamMember, className?: string }) => (
     <div className={`group relative w-72 h-96 card-morphism overflow-hidden hover-lift hover-glow ${className}`}>
       <div className="absolute inset-0 w-full h-full">
-        <Image
-          src={member.imagePath 
-            ? (member.imagePath.startsWith('/') || member.imagePath.startsWith('http') 
-                ? member.imagePath 
-                : `/api/files/serve?path=${encodeURIComponent(member.imagePath)}`)
-            : (member.imageUrl || '/placeholder-avatar.svg')}
-          alt={typeof member.name === 'string' ? member.name : (member.name?.[lang] || 'Team Member')}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-110"
-          unoptimized
-        />
+        {(member.imagePath || member.imageUrl) && (
+          <Image
+            src={
+              (function(){
+                const path = member.imagePath || member.imageUrl || '';
+                const s = String(path);
+                const pos = s.toLowerCase().lastIndexOf('uploads');
+                if (pos >= 0) {
+                  const rest = s.slice(pos).replace(/^[\\/]+/, '').replace(/\\/g, '/');
+                  return `/api/files/serve?path=${encodeURIComponent(rest)}`;
+                }
+                return s;
+              })()
+            }
+            alt={typeof member.name === 'string' ? member.name : (member.name?.[lang] || 'Team Member')}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
+            unoptimized
+          />
+        )}
         
         {/* Always visible name tag at bottom */}
         <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent text-white text-center transition-all duration-300 group-hover:opacity-0 translate-y-0 group-hover:translate-y-4">

@@ -333,7 +333,7 @@ const EBookModal: React.FC<EBookModalProps> = ({
                       <input
                         type="text"
                         className={`modern-input ${errors['title.en'] ? 'invalid' : ''}`}
-                        value={formData.title.en}
+                        value={formData.title.en || ''}
                         onChange={(e) => handleInputChange('title.en', e.target.value)}
                         placeholder="E-Book Title"
                       />
@@ -345,7 +345,7 @@ const EBookModal: React.FC<EBookModalProps> = ({
                       <input
                         type="text"
                         className={`modern-input ${errors['title.ta'] ? 'invalid' : ''}`}
-                        value={formData.title.ta}
+                        value={formData.title.ta || ''}
                         onChange={(e) => handleInputChange('title.ta', e.target.value)}
                         placeholder="மின்னூல் தலைப்பு"
                       />
@@ -361,7 +361,7 @@ const EBookModal: React.FC<EBookModalProps> = ({
                       <input
                         type="text"
                         className={`modern-input ${errors['author.en'] ? 'invalid' : ''}`}
-                        value={formData.author.en}
+                        value={formData.author.en || ''}
                         onChange={(e) => handleInputChange('author.en', e.target.value)}
                         placeholder="Author Name"
                       />
@@ -373,7 +373,7 @@ const EBookModal: React.FC<EBookModalProps> = ({
                       <input
                         type="text"
                         className={`modern-input ${errors['author.ta'] ? 'invalid' : ''}`}
-                        value={formData.author.ta}
+                        value={formData.author.ta || ''}
                         onChange={(e) => handleInputChange('author.ta', e.target.value)}
                         placeholder="ஆசிரியர் பெயர்"
                       />
@@ -388,7 +388,7 @@ const EBookModal: React.FC<EBookModalProps> = ({
                       <div className="language-tag">EN</div>
                       <textarea
                         className="modern-textarea"
-                        value={formData.description.en}
+                        value={formData.description.en || ''}
                         onChange={(e) => handleInputChange('description.en', e.target.value)}
                         rows={3}
                       />
@@ -398,7 +398,7 @@ const EBookModal: React.FC<EBookModalProps> = ({
                       <div className="language-tag tamil">TA</div>
                       <textarea
                         className="modern-textarea"
-                        value={formData.description.ta}
+                        value={formData.description.ta || ''}
                         onChange={(e) => handleInputChange('description.ta', e.target.value)}
                         rows={3}
                       />
@@ -522,7 +522,7 @@ const EBookModal: React.FC<EBookModalProps> = ({
                       <input
                         type="text"
                         className="modern-input"
-                        value={formData.isbn}
+                        value={formData.isbn || ''}
                         onChange={(e) => handleInputChange('isbn', e.target.value)}
                         placeholder="ISBN Number"
                       />
@@ -532,8 +532,11 @@ const EBookModal: React.FC<EBookModalProps> = ({
                       <input
                         type="number"
                         className="modern-input"
-                        value={formData.publishedYear}
-                        onChange={(e) => handleInputChange('publishedYear', parseInt(e.target.value))}
+                        value={Number.isFinite(formData.publishedYear) ? formData.publishedYear : new Date().getFullYear()}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          handleInputChange('publishedYear', val === '' ? new Date().getFullYear() : parseInt(val));
+                        }}
                         max={new Date().getFullYear()}
                       />
                     </div>
@@ -541,13 +544,16 @@ const EBookModal: React.FC<EBookModalProps> = ({
 
                   <div className="modern-field-group">
                     <label className="modern-label">Number of Pages</label>
-                    <input
-                      type="number"
-                      className="modern-input"
-                      value={formData.pages}
-                      onChange={(e) => handleInputChange('pages', parseInt(e.target.value))}
-                      min="0"
-                    />
+                      <input
+                        type="number"
+                        className="modern-input"
+                        value={Number.isFinite(formData.pages) ? formData.pages : 0}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          handleInputChange('pages', val === '' ? 0 : parseInt(val));
+                        }}
+                        min="0"
+                      />
                   </div>
                 </div>
               </div>

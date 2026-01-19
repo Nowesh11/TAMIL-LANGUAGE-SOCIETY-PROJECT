@@ -1,59 +1,62 @@
-import { NextRequest, NextResponse } from 'next/server';
-import path from 'path';
-import fs from 'fs/promises';
+import { NextRequest, NextResponse } from 'next/server'
+import path from 'path'
+import fs from 'fs'
 
-export const runtime = 'nodejs';
+export const runtime = 'nodejs'
+
+function tryRead(p: string) {
+  try {
+    if (fs.existsSync(p)) return fs.readFileSync(p)
+    return null
+  } catch { return null }
+}
+
+function guessMime(ext: string) {
+  const e = ext.toLowerCase()
+  return e === '.svg' ? 'image/svg+xml'
+    : e === '.png' ? 'image/png'
+    : e === '.gif' ? 'image/gif'
+    : e === '.webp' ? 'image/webp'
+    : e === '.jpg' || e === '.jpeg' ? 'image/jpeg'
+    : 'application/octet-stream'
+}
 
 export async function GET(req: NextRequest) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const p = searchParams.get('p');
-    if (!p) return NextResponse.json({ error: 'Missing p' }, { status: 400 });
-
-    // Prevent path traversal; only allow under uploads/
-    const decoded = decodeURIComponent(p).replace(/^[/\\]+/, '');
-    if (!decoded.toLowerCase().startsWith('uploads/')) {
-      return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
-    }
-
-    let filePath = path.join(process.cwd(), decoded);
-    let data: Buffer | null = null;
-    try {
-      data = await fs.readFile(filePath);
-    } catch (e) {
-      // Try common extensions if not provided
-      const tryExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
-      for (const ext of tryExts) {
-        const alt = filePath + ext;
-        try {
-          data = await fs.readFile(alt);
-          filePath = alt;
-          break;
-        } catch {}
-      }
-      if (!data) return NextResponse.json({ error: 'File not found', resolvedPath: filePath }, { status: 404 });
-    }
-
-    const ext = path.extname(filePath).toLowerCase();
-    const mime = ext === '.svg' ? 'image/svg+xml'
-      : ext === '.png' ? 'image/png'
-      : ext === '.gif' ? 'image/gif'
-      : ext === '.webp' ? 'image/webp'
-      : ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg'
-      : 'application/octet-stream';
-
-    const body = new Uint8Array(data);
-    return new NextResponse(body, {
-      status: 200,
-      headers: {
-        'Content-Type': mime,
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-      }
-    });
-  } catch (e: unknown) {
-    const error = e instanceof Error ? e.message : 'Failed to serve upload image';
-    return NextResponse.json({ error }, { status: 500 });
+  const url = new URL(req.url)
+  let p = url.searchParams.get('p') || ''
+  if (!p) return NextResponse.json({ error: 'Missing path' }, { status: 400 })
+  p = p.replace(/^https?:\/\/[^/]+/, '').replace(/^\/+/, '')
+  if (!p.toLowerCase().startsWith('uploads/')) {
+    return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
   }
+  const base = path.join(process.cwd(), p)
+  let buf = tryRead(base)
+  let resolved = base
+  if (!buf) {
+    const rootNoExt = base
+    const ext = path.extname(rootNoExt)
+    const candidates = ext ? [''] : ['', '.jpg', '.jpeg', '.png', '.webp', '.svg']
+    for (const c of candidates) {
+      const cp = c ? `${rootNoExt}${c}` : rootNoExt
+      buf = tryRead(cp)
+      if (buf) { resolved = cp; break }
+    }
+    // Fallback to sibling project directory if not found under current cwd
+    if (!buf) {
+      const altBase = path.join(process.cwd(), '..', 'TAMIL-LANGUAGE-SOCIETY-PROJECT', p)
+      buf = tryRead(altBase)
+      resolved = altBase
+      if (!buf) {
+        const altNoExt = altBase
+        for (const c of candidates) {
+          const cp = c ? `${altNoExt}${c}` : altNoExt
+          buf = tryRead(cp)
+          if (buf) { resolved = cp; break }
+        }
+      }
+    }
+  }
+  if (!buf) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  const mime = guessMime(path.extname(resolved))
+  return new NextResponse(buf, { status: 200, headers: { 'Content-Type': mime, 'Cache-Control': 'public, max-age=3600' } })
 }

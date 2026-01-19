@@ -126,6 +126,7 @@ PosterSchema.statics.getFeaturedPosters = function() {
 
 // Import notification triggers
 import { NotificationTriggers } from '../lib/notificationTriggers';
+import { FileHandler } from '../lib/fileHandler';
 
 // Post-save middleware for create/update notifications
 PosterSchema.post('save', async function(doc, next) {
@@ -148,6 +149,8 @@ PosterSchema.post('findOneAndDelete', async function(doc) {
   try {
     if (doc) {
       await NotificationTriggers.onPosterChange('deleted', doc, doc.createdBy);
+      const dir = `uploads/posters/${String(doc._id)}`;
+      FileHandler.deleteDirectory(dir);
     }
   } catch (error) {
     console.error('Error creating poster deletion notification:', error);

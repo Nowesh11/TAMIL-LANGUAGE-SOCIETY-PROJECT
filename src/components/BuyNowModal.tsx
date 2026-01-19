@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLanguage } from '../hooks/LanguageContext';
 import { FaTimes, FaShoppingCart, FaSpinner, FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa';
+import { useTheme } from '../hooks/ThemeContext';
 
 type Bilingual = { en: string; ta: string };
 type Book = { _id: string; title: Bilingual; price: number };
@@ -150,10 +151,13 @@ export default function BuyNowModal({ book, open, onClose, onPurchased }: {
   }
 
   if (!open || !book) return null;
+  const { isDark } = (() => {
+    try { return useTheme(); } catch { return { isDark: false } as any; }
+  })();
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+    <div className={`fixed inset-0 z-[100000] flex items-center justify-center p-4 ${isDark ? 'bg-background/80' : 'bg-black/60'} backdrop-blur-md animate-fade-in`} onClick={onClose}>
       <div 
-        className="w-full max-w-4xl bg-surface/95 backdrop-blur-xl rounded-2xl border border-border/50 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-scale-in"
+        className="w-full max-w-4xl bg-surface/95 backdrop-blur-xl rounded-2xl border border-border/50 shadow-2xl overflow-y-auto max-h-[90vh] flex flex-col animate-slide-in-up"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}

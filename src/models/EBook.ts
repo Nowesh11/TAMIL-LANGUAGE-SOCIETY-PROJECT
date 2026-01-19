@@ -219,6 +219,7 @@ EBookSchema.methods.incrementDownload = function() {
 
 // Import notification triggers
 import { NotificationTriggers } from '../lib/notificationTriggers';
+import { FileHandler } from '../lib/fileHandler';
 
 // Post-save middleware for create/update notifications
 EBookSchema.post('save', async function(doc, next) {
@@ -241,6 +242,8 @@ EBookSchema.post('findOneAndDelete', async function(doc) {
   try {
     if (doc) {
       await NotificationTriggers.onEBookChange('deleted', doc, doc.createdBy);
+      const dir = `uploads/ebooks/${String(doc._id)}`;
+      FileHandler.deleteDirectory(dir);
     }
   } catch (error) {
     console.error('Error creating ebook deletion notification:', error);

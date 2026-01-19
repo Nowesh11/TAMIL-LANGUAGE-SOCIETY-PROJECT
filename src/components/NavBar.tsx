@@ -77,6 +77,7 @@ export default function NavBar({ page = 'home', data: initialData }: { page?: st
   const [unreadCount, setUnreadCount] = useState(0);
   const [hasInitialized, setHasInitialized] = useState(!!initialData);
   const [scrolled, setScrolled] = useState(false);
+  const [overrideLogoUrl, setOverrideLogoUrl] = useState<string | null>(null);
 
   // Handle scroll effect
   useEffect(() => {
@@ -90,6 +91,11 @@ export default function NavBar({ page = 'home', data: initialData }: { page?: st
   function resolveUploadUrl(src: string) {
     try {
       const s = src || '';
+      const pos = s.toLowerCase().lastIndexOf('uploads');
+      if (pos >= 0) {
+        const rest = s.slice(pos).replace(/^[\\/]+/, '').replace(/\\/g, '/');
+        return `/api/files/serve?path=${encodeURIComponent(rest)}`;
+      }
       if (s.startsWith('/api/')) return s;
       const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
       const url = new URL(s, base);
@@ -99,11 +105,17 @@ export default function NavBar({ page = 'home', data: initialData }: { page?: st
       }
       return s;
     } catch {
-      const p = (src || '').replace(/^https?:\/\/[^/]+/, '').replace(/^[/]+/, '');
+      const raw = src || '';
+      const pos = raw.toLowerCase().lastIndexOf('uploads');
+      if (pos >= 0) {
+        const rest = raw.slice(pos).replace(/^[\\/]+/, '').replace(/\\/g, '/');
+        return `/api/files/serve?path=${encodeURIComponent(rest)}`;
+      }
+      const p = raw.replace(/^https?:\/\/[^/]+/, '').replace(/^[/]+/, '');
       if (p.toLowerCase().startsWith('uploads/')) {
         return `/api/uploads/image?p=${encodeURIComponent(p)}`;
       }
-      return src;
+      return raw;
     }
   }
 
@@ -149,7 +161,16 @@ export default function NavBar({ page = 'home', data: initialData }: { page?: st
           try {
             const json = await safeFetchJson<{ components?: ComponentRecord[] }>(buildUrl(p));
             const list = Array.isArray(json.components) ? (json.components as ComponentRecord[]) : [];
-            const navbar = list.find((c) => c.type === 'navbar') || null;
+            const candidates = list.filter((c) => c.type === 'navbar');
+            // Prefer one that has an uploaded logo image path, else bureau-specific, else first
+            const hasUploaded = (c: any) => {
+              const src = c?.content?.logo?.image?.src || '';
+              const s = String(src).toLowerCase();
+              return s.includes('/api/files/serve') || s.includes('uploads/');
+            };
+            const byUploaded = candidates.find(hasUploaded);
+            const withBureau = candidates.find((c: any) => !!c.bureau);
+            const navbar = byUploaded || withBureau || candidates[0] || null;
             return navbar;
           } catch (error) {
             console.error('NavBar: Error fetching data:', error);
@@ -174,6 +195,24 @@ export default function NavBar({ page = 'home', data: initialData }: { page?: st
     return () => clearInterval(interval);
   }, [hasInitialized]);
 
+  useEffect(() => {
+    async function resolveLatestLogo() {
+      try {
+        const current = data?.logo?.image?.src || '';
+        const isDefault = current === '/globe.svg' || !current;
+        if (isDefault) {
+          const res = await fetch('/api/components/files?type=navbar', { cache: 'no-store' });
+          if (res.ok) {
+            const json = await res.json();
+            const first = json.files?.[0]?.url;
+            if (first) setOverrideLogoUrl(first);
+          }
+        }
+      } catch {}
+    }
+    resolveLatestLogo();
+  }, [data]);
+
   if (loading) {
     return (
       <nav className="sticky top-0 z-50 bg-[#0a0a0f]/80 backdrop-blur-md border-b border-white/10 h-20">
@@ -192,7 +231,26 @@ export default function NavBar({ page = 'home', data: initialData }: { page?: st
     );
   }
 
-  if (!data) return null;
+  const fallbackData: NavbarContent = {
+    logo: { text: { en: 'Tamil Language Society', ta: 'தமிழ் மொழி சங்கம்' } },
+    menu: [
+      { label: { en: 'Home', ta: 'முகப்பு' }, href: '/' },
+      { label: { en: 'Books', ta: 'நூல்கள்' }, href: '/books' },
+      { label: { en: 'Ebooks', ta: 'மின் நூல்கள்' }, href: '/ebooks' },
+      { label: { en: 'Projects', ta: 'திட்டங்கள்' }, href: '/projects' },
+      { label: { en: 'Contacts', ta: 'தொடர்புகள்' }, href: '/contacts' },
+    ],
+    languageToggle: { enabled: true, languages: ['en', 'ta'], defaultLang: 'en' },
+    themeToggle: true,
+    hamburger: true,
+  };
+  const navData = data || fallbackData;
+  const displayTitle = (
+    (navData.logo?.text?.[lang]) ||
+    (navData.logo?.text?.en) ||
+    (typeof navData.logo?.image?.alt === 'string' ? navData.logo?.image?.alt : (navData.logo?.image?.alt?.[lang] || navData.logo?.image?.alt?.en)) ||
+    'Tamil Language Society'
+  );
 
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
 
@@ -222,31 +280,38 @@ export default function NavBar({ page = 'home', data: initialData }: { page?: st
         <div className="layout-container flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            {data.logo?.image ? (
+            {(typeof (navData as any)?.logo === 'string' || (navData as any)?.logo?.image || (navData as any)?.logo?.src) && (
               <div className="relative w-10 h-10 transition-transform duration-300 group-hover:rotate-12">
                 <Image
-                  src={resolveUploadUrl(data.logo.image.src)}
+                  src={
+                    overrideLogoUrl ||
+                    resolveUploadUrl(
+                      typeof (navData as any)?.logo === 'string'
+                        ? ((navData as any).logo as string)
+                        : ((navData as any)?.logo?.image?.src || (navData as any)?.logo?.src || '')
+                    )
+                  }
                   alt={
-                    typeof data.logo.image.alt === 'string' 
-                      ? data.logo.image.alt 
-                      : data.logo.image.alt?.[lang] || data.logo.image.alt?.en || ''
+                    typeof (navData as any)?.logo?.image?.alt === 'string'
+                      ? (navData as any)?.logo?.image?.alt
+                      : ((navData as any)?.logo?.image?.alt?.[lang] ||
+                         (navData as any)?.logo?.image?.alt?.en ||
+                         displayTitle)
                   }
                   fill
                   className="object-contain"
                   unoptimized
                 />
               </div>
-            ) : null}
-            {data.logo?.text ? (
-              <span className="text-xl font-bold gradient-title">
-                {data.logo.text?.[lang] || data.logo.text?.en || ''}
-              </span>
-            ) : null}
+            )}
+            <span className="text-xl font-bold gradient-title">
+              {displayTitle}
+            </span>
           </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-8">
-            {data.menu?.map((m, idx) => {
+            {navData.menu?.map((m, idx) => {
               if (user && (m.href === '/login' || m.href === '/signup' || m.href === '/sign' || m.href === '/auth/login' || m.href === '/auth/signup')) {
                 return null;
               }
@@ -321,7 +386,7 @@ export default function NavBar({ page = 'home', data: initialData }: { page?: st
              <i className="fa-solid fa-sliders"></i> Settings
            </span>
            
-           {data.languageToggle?.enabled && (
+           {navData.languageToggle?.enabled && (
               <button
                 onClick={() => setLang(lang === 'en' ? 'ta' : 'en')}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all ${
@@ -336,7 +401,7 @@ export default function NavBar({ page = 'home', data: initialData }: { page?: st
               </button>
             )}
 
-            {data.themeToggle && (
+            {navData.themeToggle && (
               <button
                 onClick={toggleTheme}
                 className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-gray-400 hover:bg-white/10 hover:text-white transition-all"
@@ -346,14 +411,13 @@ export default function NavBar({ page = 'home', data: initialData }: { page?: st
                 <span>{isDark ? 'Light' : 'Dark'}</span>
               </button>
             )}
+          </div>
         </div>
-      </div>
-
       {/* Mobile Menu Dropdown */}
       {menuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-[#0a0a0f]/95 backdrop-blur-xl border-t border-white/10 shadow-xl animate-slide-in-up z-40 m-0">
           <div className="p-4 space-y-2">
-            {data.menu?.map((m, idx) => {
+            {navData.menu?.map((m, idx) => {
               if (user && (m.href === '/login' || m.href === '/signup' || m.href === '/sign' || m.href === '/auth/login' || m.href === '/auth/signup')) return null;
               
               return (

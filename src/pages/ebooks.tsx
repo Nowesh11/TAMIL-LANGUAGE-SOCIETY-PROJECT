@@ -75,10 +75,29 @@ export default function EbooksPage() {
   async function handleDownload(ebookId: string) {
     try {
       const token = localStorage.getItem('accessToken') || localStorage.getItem('token') || '';
-      const res = await fetch(`/api/ebooks/${ebookId}/download`, { headers: { 'Authorization': `Bearer ${token}` } });
+      let res = await fetch(`/api/ebooks/${ebookId}/download`, { headers: { 'Authorization': `Bearer ${token}` } });
       if (res.status === 401) {
         alert('Please login to download ebooks.');
         return;
+      }
+      if (!res.ok) {
+        const meta = await fetch(`/api/ebooks/${ebookId}`).then(r => r.json()).catch(() => null);
+        const path = meta?.ebook?.filePath || '';
+        if (path) {
+          let serveUrl = '';
+          if (/^https?:\/\//i.test(path)) {
+            serveUrl = path;
+          } else if (path.includes('/api/files/serve')) {
+            serveUrl = path;
+          } else if (path.toLowerCase().startsWith('uploads/')) {
+            serveUrl = `/api/files/serve?path=${encodeURIComponent(path)}`;
+          } else if (path.startsWith('/uploads/')) {
+            serveUrl = `/api/files/serve?path=${encodeURIComponent(path.replace(/^\/+/, ''))}`;
+          } else {
+            serveUrl = path;
+          }
+          res = await fetch(serveUrl);
+        }
       }
       if (res.ok) {
         const blob = await res.blob();

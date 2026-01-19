@@ -1,6 +1,7 @@
 "use client";
 import { FaTimes, FaShoppingCart } from 'react-icons/fa';
 import CartCheckout from './CartCheckout';
+import { useTheme } from '../hooks/ThemeContext';
 
 type CartItem = { bookId: string; title: { en: string; ta?: string }; price: number; quantity: number };
 
@@ -19,20 +20,24 @@ export default function CheckoutModal({
 }) {
   if (!open) return null;
 
+  const { isDark } = (() => {
+    try { return useTheme(); } catch { return { isDark: false } as any; }
+  })();
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-      <div className="w-full max-w-5xl bg-[#0a0a0f]/95 border border-white/10 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] max-h-[90vh] overflow-y-auto card-morphism backdrop-blur-xl">
+    <div className={`fixed inset-0 z-[100000] flex items-center justify-center p-4 ${isDark ? 'bg-background/80' : 'bg-black/60'} backdrop-blur-md animate-fade-in`}>
+      <div className="w-full max-w-5xl bg-surface/95 border border-border/50 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto card-morphism backdrop-blur-xl">
         {/* Modern Modal Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-white/10 bg-[#0a0a0f]/95 backdrop-blur-md">
+        <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-border/50 bg-surface backdrop-blur-md">
           <div>
-            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-              <FaShoppingCart className="text-cyan-400" />
+            <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
+              <FaShoppingCart className="text-primary" />
               Checkout
             </h2>
-            <p className="text-gray-400 text-sm mt-1">Complete your purchase</p>
+            <p className="text-foreground-secondary text-sm mt-1">Complete your purchase</p>
           </div>
           <button 
-            className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition-all" 
+            className="p-2 text-foreground-secondary hover:text-foreground hover:bg-white/10 rounded-full transition-all" 
             onClick={onClose}
           >
             <FaTimes size={20} />

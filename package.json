@@ -21,7 +21,8 @@
     "seed:ebooks": "tsx scripts/seed-ebooks.ts",
     "seed:contacts-components": "tsx scripts/seed-contacts-components.ts",
     "cleanup:components": "tsx scripts/cleanup-duplicates.ts",
-    "fix:component-content": "tsx scripts/fix-component-content.ts"
+    "fix:component-content": "tsx scripts/fix-component-content.ts",
+    "cleanup:uploads": "tsx scripts/cleanup-orphan-uploads.ts"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",

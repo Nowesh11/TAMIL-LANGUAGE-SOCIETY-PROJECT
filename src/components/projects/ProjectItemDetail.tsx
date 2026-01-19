@@ -1,8 +1,11 @@
 "use client";
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useLanguage } from '../../hooks/LanguageContext';
+import { useTheme } from '../../hooks/ThemeContext';
 import { FaTimes, FaUser, FaEnvelope, FaPaperPlane, FaSpinner, FaCheckCircle, FaExclamationTriangle, FaUsers, FaCloudUploadAlt, FaChevronDown, FaFacebookF, FaTwitter, FaWhatsapp, FaLink } from 'react-icons/fa';
 import '../../styles/admin/modals.css'; // Import unified modal styles
+import toast from 'react-hot-toast';
 
 type Bilingual = { en: string; ta: string };
 type ItemDetail = {
@@ -58,6 +61,11 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitOk, setSubmitOk] = useState<boolean | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  const { isDark } = (() => {
+    try { return useTheme(); } catch { return { isDark: false } as any; }
+  })();
 
   useEffect(() => {
     let isMounted = true;
@@ -392,7 +400,26 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
     </div>
   );
 
-  const hero = item.heroImagePath || item.images?.[0];
+  function resolveUploadSrc(src?: string) {
+    if (!src) return '';
+    try {
+      const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+      const url = new URL(src, base);
+      const pathOnly = url.pathname.replace(/^[/]+/, '');
+      if (pathOnly.toLowerCase().startsWith('uploads/')) {
+        return `/api/files/serve?path=${encodeURIComponent(pathOnly)}`;
+      }
+      return src;
+    } catch {
+      const p = (src || '').replace(/^https?:\/\/[^/]+/, '').replace(/^[/]+/, '');
+      if (p.toLowerCase().startsWith('uploads/')) {
+        return `/api/files/serve?path=${encodeURIComponent(p)}`;
+      }
+      return src || '';
+    }
+  }
+
+  const hero = resolveUploadSrc(item.heroImagePath || item.images?.[0]);
   const gallery = (item.images || []).slice(0, 10);
   const pct = typeof item.progressPercent === 'number' ? Math.max(0, Math.min(100, item.progressPercent)) : undefined;
   const roundedPct = typeof pct === 'number' ? Math.max(0, Math.min(100, Math.round(pct / 5) * 5)) : undefined;
@@ -668,9 +695,9 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
                 </div>
               </div>
               
-              {showForm && form && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-0 md:p-4 bg-background/80 backdrop-blur-sm animate-fade-in" onClick={() => setShowForm(false)}>
-                  <div className="w-full h-full md:h-[90vh] md:max-w-7xl bg-surface/95 border border-border/50 md:rounded-2xl shadow-2xl backdrop-blur-xl animate-slide-in-up overflow-y-auto custom-scrollbar relative z-[10000] flex flex-col" onClick={(e) => e.stopPropagation()}>
+              {mounted && showForm && form && createPortal(
+                <div className={`fixed inset-0 z-[100000] flex items-center justify-center p-0 md:p-4 ${isDark ? 'bg-background/80' : 'bg-black/60'} backdrop-blur-md animate-fade-in`} onClick={() => setShowForm(false)}>
+                  <div className="w-full h-full md:h-[90vh] md:max-w-7xl bg-surface/95 border border-border/50 md:rounded-2xl shadow-2xl backdrop-blur-xl animate-slide-in-up overflow-y-auto custom-scrollbar relative z-[100001] flex flex-col" onClick={(e) => e.stopPropagation()}>
                     <div className="modern-modal-header sticky top-0 bg-surface/95 backdrop-blur z-20 border-b border-border/50 px-6 py-4 flex justify-between items-center shrink-0">
                       <div>
                         <h2 className="modern-modal-title flex items-center gap-3 text-2xl font-bold text-foreground">
@@ -795,8 +822,7 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
                       </button>
                     </div>
                   </div>
-                </div>
-              )}
+                </div>, document.body)}
             </div>
           </div>
         </div>
@@ -811,7 +837,7 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
               <div key={idx} className="card-morphism rounded-xl overflow-hidden group hover:shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all duration-300 border border-border/10 bg-surface/40">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
-                  src={src} 
+                  src={resolveUploadSrc(src)} 
                   alt={`${item.title?.[lang] || item.title?.en || item.title || ''} image ${idx + 1}`} 
                   className="w-full h-64 object-cover transform group-hover:scale-110 transition-transform duration-700" 
                 />

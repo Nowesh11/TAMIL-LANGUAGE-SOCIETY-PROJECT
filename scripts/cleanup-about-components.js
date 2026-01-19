@@ -21,12 +21,12 @@ async function cleanupAboutComponents() {
     
     // Define the components we want to keep
     const allowedTypes = [
-      'navbar', 'hero', 'mission', 'vision', 'gallery', 'text', 'timeline', 'stats', 'cta', 'footer'
+      'navbar', 'hero', 'mission', 'vision', 'gallery', 'text', 'team', 'footer'
     ];
     
     // Define specific slugs we want to keep for text components
     const allowedTextSlugs = [
-      'our-history-gallery', 'gallery-text', 'join-our-mission'
+      'vision', 'mission', 'our-history-text'
     ];
     
     // Find components to remove

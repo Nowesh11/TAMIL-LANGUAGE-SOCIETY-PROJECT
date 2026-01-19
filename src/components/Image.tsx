@@ -20,10 +20,34 @@ export default function Image({ page, data }: ImageProps) {
   const alignment = data.alignment || data.image?.alignment || 'center';
   const borderRadius = data.borderRadius || data.image?.borderRadius || 0;
 
-  // If the image URL is a component upload path, use the component image serving endpoint
-  if (imageUrl && imageUrl.includes('/uploads/component/')) {
-    const filename = imageUrl.split('/').pop();
-    imageUrl = `/api/components/image?filename=${filename}&t=${Date.now()}`;
+  // Normalize any value containing "uploads" (including Windows paths) to /api/files/serve
+  if (imageUrl) {
+    const s = String(imageUrl);
+    const idx = s.toLowerCase().lastIndexOf('uploads');
+    if (idx >= 0) {
+      const rest = s.slice(idx).replace(/^[\\/]+/, '').replace(/\\/g, '/');
+      imageUrl = `/api/files/serve?path=${encodeURIComponent(rest)}`;
+    } else {
+      try {
+        const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+        const url = new URL(s, base);
+        const pathOnly = url.pathname.replace(/^[/]+/, '');
+        if (pathOnly.toLowerCase().startsWith('uploads/')) {
+          imageUrl = `/api/files/serve?path=${encodeURIComponent(pathOnly)}`;
+        } else if (s.includes('/uploads/component/')) {
+          const filename = s.split('/').pop();
+          imageUrl = `/api/components/image?filename=${filename}&t=${Date.now()}`;
+        }
+      } catch {
+        const p = s.replace(/^https?:\/\/[^/]+/, '').replace(/^[/]+/, '');
+        if (p.toLowerCase().startsWith('uploads/')) {
+          imageUrl = `/api/files/serve?path=${encodeURIComponent(p)}`;
+        } else if (s.includes('/uploads/component/')) {
+          const filename = s.split('/').pop();
+          imageUrl = `/api/components/image?filename=${filename}&t=${Date.now()}`;
+        }
+      }
+    }
   }
 
   if (!imageUrl) {

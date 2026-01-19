@@ -8,15 +8,23 @@ export async function GET(req: NextRequest) {
   try {
     await dbConnect();
     const posters = await Poster.find({ isActive: true }).sort({ order: 1 });
-    const result = posters.map((p) => ({
-      _id: p._id,
-      title: p.title,
-      description: p.description,
-      order: p.order,
-      isActive: p.isActive,
-      imagePath: p.imagePath,
-      imageUrl: `/api/posters/image?id=${p._id}&t=${new Date(p.updatedAt).getTime()}`,
-    }));
+    const result = posters.map((p) => {
+      const path = String(p.imagePath || '');
+      const imageUrl = path
+        ? (path.startsWith('/') || /^https?:\/\//i.test(path)
+            ? path
+            : `/api/files/serve?path=${encodeURIComponent(path)}`)
+        : `/api/posters/image?id=${p._id}&t=${new Date(p.updatedAt).getTime()}`;
+      return {
+        _id: p._id,
+        title: p.title,
+        description: p.description,
+        order: p.order,
+        isActive: p.isActive,
+        imagePath: p.imagePath,
+        imageUrl,
+      };
+    });
     return NextResponse.json({ posters: result });
   } catch (e: unknown) {
     const error = e instanceof Error ? e.message : 'Failed to fetch posters';

@@ -107,6 +107,37 @@ export default function Hero({ page = 'home', bureau, data: propData }: { page?:
     return () => clearInterval(id);
   }, [allImages.length]);
 
+  function resolveUploadSrc(src: string) {
+    try {
+      const s = src || '';
+      const pos = s.toLowerCase().lastIndexOf('uploads');
+      if (pos >= 0) {
+        const rest = s.slice(pos).replace(/^[\\/]+/, '').replace(/\\/g, '/');
+        return `/api/files/serve?path=${encodeURIComponent(rest)}`;
+      }
+      if (s.startsWith('/api/')) return s;
+      const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+      const url = new URL(s, base);
+      const pathOnly = url.pathname.replace(/^[/]+/, '');
+      if (pathOnly.toLowerCase().startsWith('uploads/')) {
+        return `/api/files/serve?path=${encodeURIComponent(pathOnly)}`;
+      }
+      return s;
+    } catch {
+      const raw = src || '';
+      const pos = raw.toLowerCase().lastIndexOf('uploads');
+      if (pos >= 0) {
+        const rest = raw.slice(pos).replace(/^[\\/]+/, '').replace(/\\/g, '/');
+        return `/api/files/serve?path=${encodeURIComponent(rest)}`;
+      }
+      const p = raw.replace(/^https?:\/\/[^/]+/, '').replace(/^[/]+/, '');
+      if (p.toLowerCase().startsWith('uploads/')) {
+        return `/api/files/serve?path=${encodeURIComponent(p)}`;
+      }
+      return raw;
+    }
+  }
+
   // Don't render anything if there's no data
   if (!data && !loading) {
     return null;
@@ -125,7 +156,7 @@ export default function Hero({ page = 'home', bureau, data: propData }: { page?:
               }`}
             >
               <Image
-                src={img.src}
+                src={resolveUploadSrc(img.src)}
                 alt={typeof img.alt === 'string' ? img.alt : (img.alt?.[lang] || img.alt?.en || '')}
                 fill
                 className="object-cover"
@@ -137,9 +168,7 @@ export default function Hero({ page = 'home', bureau, data: propData }: { page?:
             </div>
           ))
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-dark/30 via-secondary-dark/30 to-background">
-             <div className="absolute inset-0 bg-[url('/patterns/grid.svg')] opacity-20"></div>
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-dark/30 via-secondary-dark/30 to-background" />
         )}
       </div>
       
