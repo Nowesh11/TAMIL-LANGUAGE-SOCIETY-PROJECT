@@ -90,7 +90,11 @@ export default function Gallery({ page = 'about', slug, data: propData }: { page
               <div key={idx} className="card-morphism rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border border-white/10 group">
                 <div className="relative h-56 md:h-64 lg:h-72 w-full overflow-hidden">
                   <Image 
-                    src={img.src} 
+                    src={
+                      img.src.startsWith('/') || img.src.startsWith('http') 
+                        ? img.src 
+                        : `/api/files/serve?path=${encodeURIComponent(img.src)}`
+                    } 
                     alt={typeof img.alt === 'string' ? img.alt : (img.alt?.[lang] || img.alt?.en || '')} 
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-110" 

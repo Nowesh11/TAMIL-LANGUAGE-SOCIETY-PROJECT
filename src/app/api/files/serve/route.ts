@@ -52,7 +52,12 @@ export async function GET(req: NextRequest) {
     const body = new Uint8Array(data);
     return new NextResponse(body, {
       status: 200,
-      headers: { 'Content-Type': mime, 'Cache-Control': 'public, max-age=3600' },
+      headers: { 
+        'Content-Type': mime, 
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
     });
   } catch (e: unknown) {
     const error = e instanceof Error ? e.message : 'Failed to serve file';

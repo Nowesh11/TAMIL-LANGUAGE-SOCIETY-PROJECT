@@ -115,6 +115,6 @@ export default function BookCard({ book, onAddToCart, onBuyNow }: {
 
 function getCoverUrl(coverPath?: string) {
   if (!coverPath) return '/assets/default-book-cover.svg';
-  if (coverPath.startsWith('http')) return coverPath;
-  return coverPath;
+  if (coverPath.startsWith('http') || coverPath.startsWith('/')) return coverPath;
+  return `/api/files/serve?path=${encodeURIComponent(coverPath)}`;
 }

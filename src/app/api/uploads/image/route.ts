@@ -43,7 +43,15 @@ export async function GET(req: NextRequest) {
       : 'application/octet-stream';
 
     const body = new Uint8Array(data);
-    return new NextResponse(body, { status: 200, headers: { 'Content-Type': mime } });
+    return new NextResponse(body, {
+      status: 200,
+      headers: {
+        'Content-Type': mime,
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      }
+    });
   } catch (e: unknown) {
     const error = e instanceof Error ? e.message : 'Failed to serve upload image';
     return NextResponse.json({ error }, { status: 500 });

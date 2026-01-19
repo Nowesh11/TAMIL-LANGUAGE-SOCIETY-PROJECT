@@ -144,12 +144,19 @@ export default function EbookCard({
         ${layout === 'list' ? 'w-32 sm:w-48 aspect-[3/4] shrink-0' : layout === 'compact' ? 'hidden' : 'aspect-[3/4] w-full'}
       `}>
         <Image
-          src={!imageError && coverImage ? coverImage : '/placeholder-book.jpg'}
+          src={
+            !imageError && coverImage 
+              ? (coverImage.startsWith('/') || coverImage.startsWith('http') 
+                  ? coverImage 
+                  : `/api/files/serve?path=${encodeURIComponent(coverImage)}`)
+              : '/placeholder-book.jpg'
+          }
           alt={typeof title === 'string' ? title : title?.[lang] || 'Book Cover'}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-110"
           onError={() => setImageError(true)}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          unoptimized
         />
         
         {/* Badges */}

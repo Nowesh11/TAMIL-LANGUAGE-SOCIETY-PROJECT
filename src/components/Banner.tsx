@@ -72,7 +72,13 @@ export default function Banner({ page, slug = 'banner', data }: BannerProps) {
     <section 
       className="relative py-20 px-4 overflow-hidden"
       style={{
-        backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
+        backgroundImage: backgroundImage 
+          ? `url(${
+              backgroundImage.startsWith('/') || backgroundImage.startsWith('http')
+                ? backgroundImage
+                : `/api/files/serve?path=${encodeURIComponent(backgroundImage)}`
+            })` 
+          : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
