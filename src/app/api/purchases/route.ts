@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
     const shippingAddress = body.shippingAddress || null;
     const method: 'epayum' | 'fpx' | 'cash' | 'card' = body.method;
     const notes: string | undefined = body.notes;
+    const receiptPath: string | undefined = body.receiptPath;
 
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ success: false, error: 'No items provided' }, { status: 400 });
@@ -109,7 +110,9 @@ export async function POST(req: NextRequest) {
           method,
           amount: finalAmount,
           currency: settings.currency,
-          notes
+          notes,
+          proofOfPayment: receiptPath || undefined,
+          receiptPath: receiptPath || undefined
         },
         shippingAddress
       });

@@ -9,15 +9,16 @@ export async function POST(req: NextRequest) {
     const cookie = req.cookies.get('refresh_token');
     const token = cookie?.value;
     if (!token) {
-      return NextResponse.json({ error: 'No refresh token' }, { status: 401 });
+      // Return 200 to avoid console error logs on frontend
+      return NextResponse.json({ error: 'No refresh token' }, { status: 200 });
     }
     const decoded = verifyRefreshToken(token);
     if (!decoded) {
-      return NextResponse.json({ error: 'Invalid refresh token' }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid refresh token' }, { status: 200 });
     }
     const valid = await findValidRefreshToken(token);
     if (!valid) {
-      return NextResponse.json({ error: 'Refresh token not found or expired' }, { status: 401 });
+      return NextResponse.json({ error: 'Refresh token not found or expired' }, { status: 200 });
     }
     const user = await User.findById(decoded.sub);
     if (!user) {

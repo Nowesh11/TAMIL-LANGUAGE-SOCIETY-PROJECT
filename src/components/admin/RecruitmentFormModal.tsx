@@ -1,20 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import '../../styles/admin/modals.css';
 import { 
-  FaTimes, 
-  FaSave, 
-  FaSpinner, 
-  FaCog, 
-  FaCode, 
-  FaList, 
-  FaPlus, 
-  FaTrash, 
-  FaArrowUp, 
-  FaArrowDown, 
-  FaCheckSquare, 
-  FaImage,
-} from 'react-icons/fa';
+  X, Save, Settings, Code, List, Plus, Trash2, ArrowUp, ArrowDown, 
+  CheckSquare, Image as ImageIcon, Calendar, Type, AlignLeft, 
+  ListOrdered, Phone, Mail, FileText, Grid
+} from 'lucide-react';
 import MediaUploader from './MediaUploader';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -74,17 +64,22 @@ const RecruitmentFormModal: React.FC<RecruitmentFormModalProps> = ({
   const [activeTab, setActiveTab] = useState<'content' | 'fields' | 'settings' | 'media'>('content');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [uploadingImage, setUploadingImage] = useState(false);
   const [projectItems, setProjectItems] = useState<any[]>([]);
-  const [mounted, setMounted] = useState(false);
+
+  const [formData, setFormData] = useState<Partial<RecruitmentForm>>({
+    title: { en: '', ta: '' },
+    description: { en: '', ta: '' },
+    role: 'participants',
+    fields: [],
+    isActive: true,
+    startDate: '',
+    endDate: '',
+    maxResponses: undefined,
+    image: '',
+    emailNotification: false
+  });
 
   useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
-  }, []);
-
-  useEffect(() => {
-    // Fetch project items
     const fetchProjects = async () => {
       try {
         const res = await fetch('/api/admin/project-items?limit=100', {
@@ -100,21 +95,7 @@ const RecruitmentFormModal: React.FC<RecruitmentFormModalProps> = ({
     };
     if (isOpen) fetchProjects();
   }, [isOpen, accessToken]);
-  
-  const [formData, setFormData] = useState<Partial<RecruitmentForm>>({
-    title: { en: '', ta: '' },
-    description: { en: '', ta: '' },
-    role: 'participants',
-    fields: [],
-    isActive: true,
-    startDate: '',
-    endDate: '',
-    maxResponses: undefined,
-    image: '',
-    emailNotification: false
-  });
 
-  // Initialize form data
   useEffect(() => {
     if (form && (mode === 'edit' || form._id)) {
       setFormData({
@@ -132,10 +113,10 @@ const RecruitmentFormModal: React.FC<RecruitmentFormModalProps> = ({
         endDate: form.endDate ? new Date(form.endDate).toISOString().split('T')[0] : '',
         maxResponses: form.maxResponses,
         image: form.image || '',
-        emailNotification: form.emailNotification || false
+        emailNotification: form.emailNotification || false,
+        projectItemId: form.projectItemId || ''
       });
     } else {
-      // Default fields for new form
       setFormData({
         title: { en: '', ta: '' },
         description: { en: '', ta: '' },
@@ -168,18 +149,12 @@ const RecruitmentFormModal: React.FC<RecruitmentFormModalProps> = ({
         endDate: '',
         maxResponses: undefined,
         image: '',
-        emailNotification: false
+        emailNotification: false,
+        projectItemId: ''
       });
     }
     setErrors({});
   }, [form, mode, isOpen]);
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      return () => { document.body.style.overflow = 'unset'; };
-    }
-  }, [isOpen]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -187,8 +162,7 @@ const RecruitmentFormModal: React.FC<RecruitmentFormModalProps> = ({
     if (!formData.title?.en?.trim()) newErrors['title.en'] = 'English title is required';
     if (!formData.title?.ta?.trim()) newErrors['title.ta'] = 'Tamil title is required';
     if (!formData.description?.en?.trim()) newErrors['description.en'] = 'English description is required';
-    if (!formData.description?.ta?.trim()) newErrors['description.ta'] = 'Tamil description is required';
-
+    
     if (!formData.fields || formData.fields.length === 0) {
       newErrors['fields'] = 'At least one field is required';
     } else {
@@ -261,7 +235,6 @@ const RecruitmentFormModal: React.FC<RecruitmentFormModalProps> = ({
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: '' }));
   };
 
-  // Field Management
   const addField = () => {
     setFormData(prev => ({
       ...prev,
@@ -303,521 +276,365 @@ const RecruitmentFormModal: React.FC<RecruitmentFormModalProps> = ({
       const targetIndex = direction === 'up' ? index - 1 : index + 1;
       newFields[index] = newFields[targetIndex];
       newFields[targetIndex] = temp;
-      
-      // Update order property
       newFields.forEach((f, i) => f.order = i + 1);
-      
       return { ...prev, fields: newFields };
     });
   };
 
-  if (!mounted || !isOpen) return null;
+  if (!isOpen) return null;
 
-  return createPortal(
-    <div className="component-modal-overlay modern-modal-overlay">
-      <div className="component-modal-container modern-modal-container" style={{ maxWidth: '1100px' }}>
-        <div className="modern-modal-header">
-          <div className="modal-title-section">
-            <h2 className="modern-modal-title">
+  const modalContent = (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+      <div 
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" 
+        onClick={onClose}
+      />
+      
+      <div className="relative w-full max-w-6xl bg-[#0a0a0f] border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-scaleIn">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-white/10 bg-white/5">
+          <div>
+            <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
               {mode === 'create' ? 'Create Recruitment Form' : 'Edit Recruitment Form'}
             </h2>
-            <p className="modal-subtitle">
-              Configure form details, dynamic fields, and settings
-            </p>
+            <p className="text-sm text-gray-400 mt-1">Configure form details, dynamic fields, and settings</p>
           </div>
-          <button 
-            onClick={onClose} 
-            className="modern-close-button"
-            disabled={isLoading}
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
           >
-            <FaTimes />
+            <X size={20} />
           </button>
         </div>
 
-        <div className="modern-modal-tabs">
-          {['content', 'fields', 'settings', 'media'].map((tab) => (
+        {/* Tabs */}
+        <div className="flex border-b border-white/10 px-6">
+          {[
+            { id: 'content', label: 'Basic Info', icon: Code },
+            { id: 'fields', label: 'Form Builder', icon: List },
+            { id: 'settings', label: 'Settings', icon: Settings },
+            { id: 'media', label: 'Media', icon: ImageIcon },
+          ].map((tab) => (
             <button
-              key={tab}
-              className={`tab-button ${activeTab === tab ? 'active' : ''}`}
-              onClick={() => setActiveTab(tab as any)}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === tab.id
+                  ? 'border-purple-500 text-purple-400'
+                  : 'border-transparent text-gray-400 hover:text-white'
+              }`}
             >
-              {tab === 'content' && <FaCode />}
-              {tab === 'fields' && <FaList />}
-              {tab === 'settings' && <FaCog />}
-              {tab === 'media' && <FaImage />}
-              <span className="capitalize">{tab}</span>
+              <tab.icon size={16} />
+              {tab.label}
             </button>
           ))}
         </div>
 
-        <form className="modern-modal-form" onSubmit={handleSubmit}>
-          <div className="modern-modal-body">
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+          <form id="recruitment-form" onSubmit={handleSubmit} className="space-y-6">
+            
             {activeTab === 'content' && (
-              <div className="tab-content">
-                <div className="modern-form-section">
-                  <h3 className="section-title">
-                    Basic Information
-                  </h3>
-                  
-                  {/* Title */}
-                  <div className="bilingual-inputs">
-                    <div className="modern-field-group bilingual-input-group">
-                      <label className="modern-label required">
-                        Title (English)
-                        {formData.title?.en && <FaCheckSquare className="text-emerald-500 ml-auto" />}
-                      </label>
-                      <div className="language-tag">EN</div>
-                      <input
-                        type="text"
-                        className={`modern-input ${errors['title.en'] ? 'invalid' : ''}`}
-                        value={formData.title?.en}
-                        onChange={(e) => handleInputChange('title.en', e.target.value)}
-                        placeholder="e.g., Annual Volunteer Recruitment"
-                      />
-                      {errors['title.en'] && <span className="error-message">{errors['title.en']}</span>}
-                    </div>
-                    <div className="modern-field-group bilingual-input-group">
-                      <label className="modern-label required">
-                        Title (Tamil)
-                        {formData.title?.ta && <FaCheckSquare className="text-emerald-500 ml-auto" />}
-                      </label>
-                      <div className="language-tag tamil">TA</div>
-                      <input
-                        type="text"
-                        className={`modern-input ${errors['title.ta'] ? 'invalid' : ''}`}
-                        value={formData.title?.ta}
-                        onChange={(e) => handleInputChange('title.ta', e.target.value)}
-                        placeholder="எ.கா., வருடாந்திர தன்னார்வலர் ஆட்சேர்ப்பு"
-                      />
-                      {errors['title.ta'] && <span className="error-message">{errors['title.ta']}</span>}
-                    </div>
+              <div className="space-y-6 max-w-4xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">Title (English) *</label>
+                    <input
+                      type="text"
+                      value={formData.title?.en}
+                      onChange={(e) => handleInputChange('title.en', e.target.value)}
+                      className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
+                      placeholder="e.g. Annual Volunteer Recruitment"
+                    />
+                    {errors['title.en'] && <p className="mt-1 text-xs text-red-500">{errors['title.en']}</p>}
                   </div>
-
-                  {/* Description */}
-                  <div className="bilingual-inputs">
-                    <div className="modern-field-group bilingual-input-group">
-                      <label className="modern-label required">
-                        Description (English)
-                      </label>
-                      <div className="language-tag">EN</div>
-                      <textarea
-                        className={`modern-textarea ${errors['description.en'] ? 'invalid' : ''}`}
-                        value={formData.description?.en}
-                        onChange={(e) => handleInputChange('description.en', e.target.value)}
-                        rows={3}
-                      />
-                      {errors['description.en'] && <span className="error-message">{errors['description.en']}</span>}
-                    </div>
-                    <div className="modern-field-group bilingual-input-group">
-                      <label className="modern-label required">
-                        Description (Tamil)
-                      </label>
-                      <div className="language-tag tamil">TA</div>
-                      <textarea
-                        className={`modern-textarea ${errors['description.ta'] ? 'invalid' : ''}`}
-                        value={formData.description?.ta}
-                        onChange={(e) => handleInputChange('description.ta', e.target.value)}
-                        rows={3}
-                      />
-                      {errors['description.ta'] && <span className="error-message">{errors['description.ta']}</span>}
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">Title (Tamil) *</label>
+                    <input
+                      type="text"
+                      value={formData.title?.ta}
+                      onChange={(e) => handleInputChange('title.ta', e.target.value)}
+                      className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
+                      placeholder="எ.கா. வருடாந்திர தன்னார்வலர் ஆட்சேர்ப்பு"
+                    />
+                    {errors['title.ta'] && <p className="mt-1 text-xs text-red-500">{errors['title.ta']}</p>}
                   </div>
+                </div>
 
-                  <div className="form-grid">
-                    <div className="modern-field-group">
-                      <label className="modern-label">Role Category</label>
-                      <select
-                        className="modern-select"
-                        value={formData.role}
-                        onChange={(e) => handleInputChange('role', e.target.value)}
-                      >
-                        <option value="participants">Participants</option>
-                        <option value="crew">Crew</option>
-                        <option value="volunteer">Volunteer</option>
-                      </select>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">Description (English) *</label>
+                    <textarea
+                      value={formData.description?.en}
+                      onChange={(e) => handleInputChange('description.en', e.target.value)}
+                      className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors h-32 resize-none"
+                    />
+                    {errors['description.en'] && <p className="mt-1 text-xs text-red-500">{errors['description.en']}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">Description (Tamil)</label>
+                    <textarea
+                      value={formData.description?.ta}
+                      onChange={(e) => handleInputChange('description.ta', e.target.value)}
+                      className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors h-32 resize-none"
+                    />
+                  </div>
+                </div>
 
-                    <div className="modern-field-group">
-                      <label className="modern-label required">
-                        Linked Project
-                      </label>
-                      <select
-                        className={`modern-select ${errors['projectItemId'] ? 'invalid' : ''}`}
-                        value={formData.projectItemId || ''}
-                        onChange={(e) => handleInputChange('projectItemId', e.target.value)}
-                      >
-                        <option value="">-- Select Project --</option>
-                        {typeof projectItems !== 'undefined' && projectItems.map(p => (
-                          <option key={p._id} value={p._id}>
-                            {p.title?.en || 'Untitled'} ({p.type})
-                          </option>
-                        ))}
-                      </select>
-                      {errors['projectItemId'] && <span className="error-message">{errors['projectItemId']}</span>}
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">Role Category</label>
+                    <select
+                      value={formData.role}
+                      onChange={(e) => handleInputChange('role', e.target.value)}
+                      className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors appearance-none"
+                    >
+                      <option value="participants" className="bg-[#0a0a0f]">Participants</option>
+                      <option value="crew" className="bg-[#0a0a0f]">Crew</option>
+                      <option value="volunteer" className="bg-[#0a0a0f]">Volunteer</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">Linked Project</label>
+                    <select
+                      value={formData.projectItemId || ''}
+                      onChange={(e) => handleInputChange('projectItemId', e.target.value)}
+                      className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors appearance-none"
+                    >
+                      <option value="" className="bg-[#0a0a0f]">-- Select Project --</option>
+                      {projectItems.map(p => (
+                        <option key={p._id} value={p._id} className="bg-[#0a0a0f]">
+                          {p.title?.en || 'Untitled'} ({p.type})
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
             )}
 
             {activeTab === 'fields' && (
-              <div className="tab-content">
-                <div className="modern-form-section">
-                  <div className="flex justify-between items-center mb-6 pb-2 border-b border-[var(--border)]">
-                    <h3 className="section-title" style={{ margin: 0, border: 'none' }}>
-                      Form Fields Builder
-                    </h3>
-                    <button type="button" onClick={addField} className="modern-btn modern-btn-secondary">
-                      <FaPlus /> Add Field
-                    </button>
+              <div className="space-y-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-lg font-medium text-white">Form Fields</h3>
+                  <button
+                    type="button"
+                    onClick={addField}
+                    className="flex items-center gap-2 px-4 py-2 bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 rounded-lg text-sm font-medium transition-colors border border-purple-500/30"
+                  >
+                    <Plus size={16} />
+                    Add Field
+                  </button>
+                </div>
+
+                {formData.fields?.length === 0 && (
+                  <div className="text-center py-12 border-2 border-dashed border-white/10 rounded-xl bg-white/5">
+                    <List className="mx-auto text-gray-500 mb-3" size={32} />
+                    <p className="text-gray-400">No fields added yet. Click "Add Field" to start building your form.</p>
                   </div>
+                )}
 
-                  {formData.fields?.length === 0 && (
-                    <div className="text-center py-12 bg-[var(--background-secondary)] rounded-2xl border-2 border-dashed border-[var(--border)]">
-                      <FaList className="text-4xl text-[var(--foreground-muted)] mx-auto mb-3 opacity-50" />
-                      <p className="text-[var(--foreground-muted)] font-medium">No fields added yet</p>
-                      <p className="text-xs text-[var(--foreground-muted)] mt-1">Click "Add Field" to start building your form</p>
-                    </div>
-                  )}
-
-                  <div className="space-y-4">
-                    {formData.fields?.map((field, index) => (
-                      <div key={field.id} className="form-builder-item">
-                        <div className="form-builder-header">
-                          <div className="form-builder-controls">
-                            <span className="form-builder-index">#{index + 1}</span>
-                            <select
-                              value={field.type}
-                              onChange={(e) => updateField(index, { type: e.target.value as any })}
-                              className="modern-select compact-select"
-                            >
-                              <optgroup label="Basic">
-                                <option value="text">Short Answer</option>
-                                <option value="textarea">Paragraph</option>
-                              </optgroup>
-                              <optgroup label="Choice">
-                                <option value="radio">Multiple Choice</option>
-                                <option value="checkbox">Checkboxes</option>
-                                <option value="select">Dropdown</option>
-                              </optgroup>
-                              <optgroup label="Advanced">
-                                <option value="file">File Upload</option>
-                                <option value="scale">Linear Scale</option>
-                                <option value="grid_radio">Multiple Choice Grid</option>
-                                <option value="grid_checkbox">Checkbox Grid</option>
-                              </optgroup>
-                              <optgroup label="Date & Time">
-                                <option value="date">Date</option>
-                                <option value="time">Time</option>
-                              </optgroup>
-                              <optgroup label="Contact Info">
-                                <option value="email">Email</option>
-                                <option value="phone">Phone</option>
-                                <option value="number">Number</option>
-                              </optgroup>
-                            </select>
-                            
-                            <label className="modern-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={field.required}
-                                onChange={(e) => updateField(index, { required: e.target.checked })}
-                                className="modern-checkbox"
-                              />
-                              <span className="checkbox-text" style={{ fontSize: '0.875rem' }}>Required</span>
-                            </label>
-                          </div>
-
-                          <div className="form-builder-actions">
-                            <button type="button" onClick={() => moveField(index, 'up')} disabled={index === 0} className="modern-btn modern-btn-secondary compact-btn">
-                              <FaArrowUp />
-                            </button>
-                            <button type="button" onClick={() => moveField(index, 'down')} disabled={index === (formData.fields?.length || 0) - 1} className="modern-btn modern-btn-secondary compact-btn">
-                              <FaArrowDown />
-                            </button>
-                            <button type="button" onClick={() => removeField(index)} className="modern-btn modern-btn-danger compact-btn">
-                              <FaTrash />
-                            </button>
-                          </div>
+                <div className="space-y-4">
+                  {formData.fields?.map((field, index) => (
+                    <div key={field.id} className="bg-white/5 border border-white/10 rounded-xl p-4 transition-all hover:border-purple-500/30">
+                      <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
+                        <div className="flex items-center gap-3">
+                          <span className="bg-white/10 text-white text-xs font-bold px-2 py-1 rounded">#{index + 1}</span>
+                          <select
+                            value={field.type}
+                            onChange={(e) => updateField(index, { type: e.target.value as any })}
+                            className="bg-black/50 border border-white/10 rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-purple-500"
+                          >
+                            <optgroup label="Basic" className="bg-[#0a0a0f]">
+                              <option value="text">Short Text</option>
+                              <option value="textarea">Paragraph</option>
+                              <option value="number">Number</option>
+                              <option value="email">Email</option>
+                              <option value="phone">Phone</option>
+                            </optgroup>
+                            <optgroup label="Choices" className="bg-[#0a0a0f]">
+                              <option value="select">Dropdown</option>
+                              <option value="radio">Radio Buttons</option>
+                              <option value="checkbox">Checkboxes</option>
+                            </optgroup>
+                            <optgroup label="Advanced" className="bg-[#0a0a0f]">
+                              <option value="file">File Upload</option>
+                              <option value="date">Date</option>
+                              <option value="scale">Linear Scale</option>
+                            </optgroup>
+                          </select>
+                          
+                          <label className="flex items-center gap-2 cursor-pointer ml-4">
+                            <input
+                              type="checkbox"
+                              checked={field.required}
+                              onChange={(e) => updateField(index, { required: e.target.checked })}
+                              className="rounded border-gray-600 text-purple-600 focus:ring-purple-500 bg-gray-700 w-4 h-4"
+                            />
+                            <span className="text-sm text-gray-300">Required</span>
+                          </label>
                         </div>
 
-                        <div className="bilingual-inputs">
-                          <div className="modern-field-group bilingual-input-group">
-                            <div className="language-tag">EN</div>
-                            <input
-                              type="text"
-                              className="modern-input"
-                              value={field.label.en}
-                              onChange={(e) => updateField(index, { label: { ...field.label, en: e.target.value } })}
-                              placeholder="Field Label (English)"
-                            />
-                            {errors[`field.${index}.label.en`] && <span className="error-message">{errors[`field.${index}.label.en`]}</span>}
-                          </div>
-                          <div className="modern-field-group bilingual-input-group">
-                            <div className="language-tag tamil">TA</div>
-                            <input
-                              type="text"
-                              className="modern-input"
-                              value={field.label.ta}
-                              onChange={(e) => updateField(index, { label: { ...field.label, ta: e.target.value } })}
-                              placeholder="புலத்தின் பெயர் (தமிழ்)"
-                            />
-                            {errors[`field.${index}.label.ta`] && <span className="error-message">{errors[`field.${index}.label.ta`]}</span>}
-                          </div>
+                        <div className="flex items-center gap-1">
+                          <button type="button" onClick={() => moveField(index, 'up')} disabled={index === 0} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors disabled:opacity-30">
+                            <ArrowUp size={16} />
+                          </button>
+                          <button type="button" onClick={() => moveField(index, 'down')} disabled={index === (formData.fields?.length || 0) - 1} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors disabled:opacity-30">
+                            <ArrowDown size={16} />
+                          </button>
+                          <button type="button" onClick={() => removeField(index)} className="p-1.5 text-red-400 hover:bg-red-500/10 rounded transition-colors ml-2">
+                            <Trash2 size={16} />
+                          </button>
                         </div>
-
-                        {/* Configuration for different field types */}
-                        {field.type === 'scale' && (
-                          <div className="p-4 bg-[var(--surface)] rounded-xl border border-[var(--border)] mt-4">
-                            <div className="grid grid-cols-2 gap-4 mb-4">
-                              <div>
-                                <label className="modern-label">Min Value</label>
-                                <select 
-                                  className="modern-select"
-                                  value={field.validation?.min || 1}
-                                  onChange={(e) => updateField(index, { validation: { ...field.validation, min: parseInt(e.target.value) } })}
-                                >
-                                  <option value="0">0</option>
-                                  <option value="1">1</option>
-                                </select>
-                              </div>
-                              <div>
-                                <label className="modern-label">Max Value</label>
-                                <select 
-                                  className="modern-select"
-                                  value={field.validation?.max || 5}
-                                  onChange={(e) => updateField(index, { validation: { ...field.validation, max: parseInt(e.target.value) } })}
-                                >
-                                  {[...Array(9)].map((_, i) => (
-                                    <option key={i} value={i + 2}>{i + 2}</option>
-                                  ))}
-                                </select>
-                              </div>
-                            </div>
-                            
-                            <div className="space-y-3">
-                              <div>
-                                <label className="modern-label">Min Label (Optional)</label>
-                                <div className="grid grid-cols-2 gap-2">
-                                  <input
-                                    type="text"
-                                    className="modern-input"
-                                    value={field.options?.[0]?.en || ''}
-                                    onChange={(e) => {
-                                      const newOpts = [...(field.options || [])];
-                                      if (!newOpts[0]) newOpts[0] = { en: '', ta: '', value: 'min_label' };
-                                      newOpts[0] = { ...newOpts[0], en: e.target.value, value: 'min_label' };
-                                      updateField(index, { options: newOpts });
-                                    }}
-                                    placeholder="English"
-                                  />
-                                  <input
-                                    type="text"
-                                    className="modern-input"
-                                    value={field.options?.[0]?.ta || ''}
-                                    onChange={(e) => {
-                                      const newOpts = [...(field.options || [])];
-                                      if (!newOpts[0]) newOpts[0] = { en: '', ta: '', value: 'min_label' };
-                                      newOpts[0] = { ...newOpts[0], ta: e.target.value };
-                                      updateField(index, { options: newOpts });
-                                    }}
-                                    placeholder="தமிழ்"
-                                  />
-                                </div>
-                              </div>
-                              <div>
-                                <label className="modern-label">Max Label (Optional)</label>
-                                <div className="grid grid-cols-2 gap-2">
-                                  <input
-                                    type="text"
-                                    className="modern-input"
-                                    value={field.options?.[1]?.en || ''}
-                                    onChange={(e) => {
-                                      const newOpts = [...(field.options || [])];
-                                      if (!newOpts[1]) newOpts[1] = { en: '', ta: '', value: 'max_label' };
-                                      newOpts[1] = { ...newOpts[1], en: e.target.value, value: 'max_label' };
-                                      updateField(index, { options: newOpts });
-                                    }}
-                                    placeholder="English"
-                                  />
-                                  <input
-                                    type="text"
-                                    className="modern-input"
-                                    value={field.options?.[1]?.ta || ''}
-                                    onChange={(e) => {
-                                      const newOpts = [...(field.options || [])];
-                                      if (!newOpts[1]) newOpts[1] = { en: '', ta: '', value: 'max_label' };
-                                      newOpts[1] = { ...newOpts[1], ta: e.target.value };
-                                      updateField(index, { options: newOpts });
-                                    }}
-                                    placeholder="தமிழ்"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {['select', 'radio', 'checkbox', 'grid_radio', 'grid_checkbox'].includes(field.type) && (
-                          <div className="p-4 bg-[var(--surface)] rounded-xl border border-[var(--border)] mt-4">
-                            <label className="modern-label">
-                              {field.type.includes('grid') ? 'Row Labels' : 'Options'} (Comma separated)
-                            </label>
-                            <div className="relative mb-3">
-                              <span className="absolute top-2.5 left-3 text-[var(--foreground-muted)]">
-                                <FaPlus />
-                              </span>
-                              <input
-                                type="text"
-                                className="modern-input"
-                                style={{ paddingLeft: '2.25rem' }}
-                                placeholder="Type option and press comma or enter..."
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    const val = e.currentTarget.value;
-                                    if (!val) return;
-                                    const opts = val.split(',').map(s => s.trim()).filter(Boolean);
-                                    if (opts.length) {
-                                      const currentOpts = field.options || [];
-                                      const newOpts = opts.map(o => ({ en: o, ta: o, value: o.toLowerCase().replace(/\s+/g, '_') }));
-                                      updateField(index, { options: [...currentOpts, ...newOpts] });
-                                      e.currentTarget.value = '';
-                                    }
-                                  }
-                                }}
-                                onBlur={(e) => {
-                                  if (!e.target.value) return;
-                                  const opts = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
-                                  if (opts.length) {
-                                    const currentOpts = field.options || [];
-                                    const newOpts = opts.map(o => ({ en: o, ta: o, value: o.toLowerCase().replace(/\s+/g, '_') }));
-                                    updateField(index, { options: [...currentOpts, ...newOpts] });
-                                    e.target.value = '';
-                                  }
-                                }}
-                              />
-                            </div>
-                            
-                            {field.options && field.options.length > 0 && (
-                              <div className="flex flex-wrap gap-2">
-                                {field.options.map((opt, optIdx) => (
-                                  <div key={optIdx} className="flex items-center gap-2 px-3 py-1.5 bg-[var(--background)] rounded-full border border-[var(--border)] text-sm font-medium text-[var(--foreground)]">
-                                    <span>{opt.en}</span>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        const newOpts = field.options?.filter((_, i) => i !== optIdx);
-                                        updateField(index, { options: newOpts });
-                                      }}
-                                      className="text-[var(--foreground-muted)] hover:text-rose-500"
-                                    >
-                                      &times;
-                                    </button>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                            {errors[`field.${index}.options`] && <span className="error-message">{errors[`field.${index}.options`]}</span>}
-                          </div>
-                        )}
                       </div>
-                    ))}
-                  </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-500 mb-1">Label (English)</label>
+                          <input
+                            type="text"
+                            value={field.label.en}
+                            onChange={(e) => updateField(index, { label: { ...field.label, en: e.target.value } })}
+                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm focus:border-purple-500 focus:outline-none"
+                            placeholder="e.g. Full Name"
+                          />
+                          {errors[`field.${index}.label.en`] && <p className="mt-1 text-[10px] text-red-500">{errors[`field.${index}.label.en`]}</p>}
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-500 mb-1">Label (Tamil)</label>
+                          <input
+                            type="text"
+                            value={field.label.ta}
+                            onChange={(e) => updateField(index, { label: { ...field.label, ta: e.target.value } })}
+                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm focus:border-purple-500 focus:outline-none"
+                            placeholder="எ.கா. முழு பெயர்"
+                          />
+                        </div>
+                      </div>
+
+                      {['select', 'radio', 'checkbox'].includes(field.type) && (
+                        <div className="mt-4 p-3 bg-black/30 rounded-lg border border-white/5">
+                          <label className="block text-xs font-medium text-gray-400 mb-2">Options (comma separated)</label>
+                          <input
+                            type="text"
+                            placeholder="Option 1, Option 2, Option 3..."
+                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm focus:border-purple-500 focus:outline-none"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const val = e.currentTarget.value;
+                                if (!val) return;
+                                const newOpts = val.split(',').map(s => s.trim()).filter(Boolean).map(s => ({ en: s, ta: s, value: s.toLowerCase().replace(/\s+/g, '_') }));
+                                updateField(index, { options: [...(field.options || []), ...newOpts] });
+                                e.currentTarget.value = '';
+                              }
+                            }}
+                          />
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {field.options?.map((opt, optIdx) => (
+                              <div key={optIdx} className="flex items-center gap-1 bg-purple-500/20 text-purple-300 px-2 py-1 rounded text-xs border border-purple-500/30">
+                                <span>{opt.en}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => updateField(index, { options: field.options?.filter((_, i) => i !== optIdx) })}
+                                  className="hover:text-white"
+                                >
+                                  &times;
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                          {errors[`field.${index}.options`] && <p className="mt-1 text-[10px] text-red-500">{errors[`field.${index}.options`]}</p>}
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
             {activeTab === 'settings' && (
-              <div className="tab-content">
-                <div className="modern-form-section">
-                  <h3 className="section-title">
-                    Form Settings
-                  </h3>
-                  
-                  <div className="form-grid">
-                    <div className="modern-field-group">
-                      <label className="modern-label">Start Date</label>
-                      <input
-                        type="date"
-                        className="modern-input"
-                        value={formData.startDate}
-                        onChange={(e) => handleInputChange('startDate', e.target.value)}
-                      />
-                    </div>
-                    <div className="modern-field-group">
-                      <label className="modern-label">End Date</label>
-                      <input
-                        type="date"
-                        className="modern-input"
-                        value={formData.endDate}
-                        onChange={(e) => handleInputChange('endDate', e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="modern-field-group">
-                    <label className="modern-label">Max Responses (Optional)</label>
+              <div className="space-y-6 max-w-2xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">Start Date</label>
                     <input
-                      type="number"
-                      className="modern-input"
-                      value={formData.maxResponses || ''}
-                      onChange={(e) => handleInputChange('maxResponses', e.target.value)}
-                      placeholder="Unlimited if left blank"
+                      type="date"
+                      value={formData.startDate}
+                      onChange={(e) => handleInputChange('startDate', e.target.value)}
+                      className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
                     />
                   </div>
-
-                  <div className="modern-field-group">
-                    <div className="modern-checkbox-group">
-                      <label className="modern-checkbox-label">
-                        <input
-                          type="checkbox"
-                          className="modern-checkbox"
-                          checked={formData.emailNotification}
-                          onChange={(e) => handleInputChange('emailNotification', e.target.checked)}
-                        />
-                        <div>
-                          <span className="checkbox-text">Email Notifications</span>
-                          <span className="checkbox-description">Receive email notifications for new submissions</span>
-                        </div>
-                      </label>
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">End Date</label>
+                    <input
+                      type="date"
+                      value={formData.endDate}
+                      onChange={(e) => handleInputChange('endDate', e.target.value)}
+                      className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
+                    />
                   </div>
-                    
-                  <div className="modern-field-group">
-                    <div className="modern-checkbox-group">
-                      <label className="modern-checkbox-label">
-                        <input
-                          type="checkbox"
-                          className="modern-checkbox"
-                          checked={formData.isActive}
-                          onChange={(e) => handleInputChange('isActive', e.target.checked)}
-                        />
-                        <div>
-                          <span className="checkbox-text">Active Status</span>
-                          <span className="checkbox-description">Form is active and accepting responses</span>
-                        </div>
-                      </label>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Max Responses</label>
+                  <input
+                    type="number"
+                    value={formData.maxResponses || ''}
+                    onChange={(e) => handleInputChange('maxResponses', e.target.value)}
+                    className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
+                    placeholder="Leave blank for unlimited"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 p-4 bg-white/5 rounded-lg border border-white/10">
+                    <div className="flex-1">
+                      <h4 className="text-white font-medium">Email Notifications</h4>
+                      <p className="text-sm text-gray-400">Receive an email when someone submits this form</p>
                     </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.emailNotification}
+                        onChange={(e) => handleInputChange('emailNotification', e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                    </label>
+                  </div>
+
+                  <div className="flex items-center gap-3 p-4 bg-white/5 rounded-lg border border-white/10">
+                    <div className="flex-1">
+                      <h4 className="text-white font-medium">Active Status</h4>
+                      <p className="text-sm text-gray-400">Form is live and accepting submissions</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.isActive}
+                        onChange={(e) => handleInputChange('isActive', e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                    </label>
                   </div>
                 </div>
               </div>
             )}
 
             {activeTab === 'media' && (
-              <div className="tab-content">
-                <div className="modern-form-section">
-                  <h3 className="section-title">
-                    Form Media
-                  </h3>
-                  
-                  <div className="modern-field-group">
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-4">Form Banner Image</label>
+                  <div className="flex justify-center">
                     <MediaUploader
                       category="recruitment"
                       subCategory="banners"
                       accept="image/*"
                       previewType="image"
-                      label="Form Image"
+                      label="Upload Banner"
+                      initialUrl={formData.image}
                       onUploaded={(r) => {
                         const url = r.url || (r.filePath ? `/api/files/serve?path=${encodeURIComponent(r.filePath)}` : '');
                         handleInputChange('image', url);
@@ -827,39 +644,43 @@ const RecruitmentFormModal: React.FC<RecruitmentFormModalProps> = ({
                 </div>
               </div>
             )}
-          </div>
 
-          <div className="modern-modal-footer">
-            <div className="modal-footer-left">
-              {errors.submit && (
-                <div className="modal-error">
-                  <FaTimes /> {errors.submit}
-                </div>
-              )}
-            </div>
-            <div className="modal-footer-right">
-              <button 
-                type="button" 
-                className="modern-btn modern-btn-secondary"
-                onClick={onClose} 
-                disabled={isLoading}
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit" 
-                className="modern-btn modern-btn-primary"
-                disabled={isLoading}
-              >
-                {isLoading ? (<><FaSpinner className="spinner" /> Saving...</>) : (<><FaSave /> Save Form</>)}
-              </button>
-            </div>
-          </div>
-        </form>
+            {errors.submit && (
+              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm text-center">
+                {errors.submit}
+              </div>
+            )}
+          </form>
+        </div>
+
+        {/* Footer */}
+        <div className="p-6 border-t border-white/10 bg-white/5 flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-6 py-2 rounded-lg border border-white/10 text-white hover:bg-white/5 transition-colors font-medium"
+            disabled={isLoading}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="recruitment-form"
+            className="px-6 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/20 flex items-center gap-2"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Saving...' : (
+              <>
+                <Save size={18} />
+                Save Form
+              </>
+            )}
+          </button>
+        </div>
       </div>
-    </div>,
-    document.body
+    </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default RecruitmentFormModal;

@@ -722,7 +722,10 @@ const EBooksPage = () => {
       <EBookModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        onSuccess={refetch}
+        onSuccess={() => {
+          refetch();
+          notifyAdminSuccess('Success', editingEbook ? 'E-Book updated successfully' : 'E-Book created successfully');
+        }}
         ebook={editingEbook as any}
         mode={editingEbook ? 'edit' : 'create'}
       />

@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build --turbopack",
+    "dev": "next dev --turbo",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "reset-db": "tsx scripts/reset-db.ts",
@@ -46,10 +46,12 @@
     "puppeteer": "^24.34.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
     "react-window": "^2.2.3",
     "recharts": "^3.3.0",
     "sharp": "^0.34.4",
+    "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
     "swr": "^2.3.7",
     "use-debounce": "^10.0.6"

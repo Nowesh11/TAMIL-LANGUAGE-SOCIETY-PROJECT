@@ -1,7 +1,6 @@
 "use client";
 import { FaTimes, FaShoppingCart } from 'react-icons/fa';
 import CartCheckout from './CartCheckout';
-// Using unified modern modal styles (imported globally in layout)
 
 type CartItem = { bookId: string; title: { en: string; ta?: string }; price: number; quantity: number };
 
@@ -21,24 +20,27 @@ export default function CheckoutModal({
   if (!open) return null;
 
   return (
-    <div className="component-modal-overlay modern-modal-overlay">
-      <div className="component-modal-container modern-modal-container" style={{ maxWidth: '900px' }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+      <div className="w-full max-w-5xl bg-[#0a0a0f]/95 border border-white/10 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] max-h-[90vh] overflow-y-auto card-morphism backdrop-blur-xl">
         {/* Modern Modal Header */}
-        <div className="modern-modal-header">
-          <div className="modal-title-section">
-            <h2 className="modern-modal-title">
-              <FaShoppingCart className="inline mr-3" />
+        <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-white/10 bg-[#0a0a0f]/95 backdrop-blur-md">
+          <div>
+            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+              <FaShoppingCart className="text-cyan-400" />
               Checkout
             </h2>
-            <p className="modal-subtitle">Complete your purchase</p>
+            <p className="text-gray-400 text-sm mt-1">Complete your purchase</p>
           </div>
-          <button className="modern-close-button" onClick={onClose}>
-            <FaTimes />
+          <button 
+            className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition-all" 
+            onClick={onClose}
+          >
+            <FaTimes size={20} />
           </button>
         </div>
         
         {/* Modal Body */}
-        <div className="modern-modal-body">
+        <div className="p-6">
           <CartCheckout 
             items={items} 
             onItemsChange={onItemsChange}

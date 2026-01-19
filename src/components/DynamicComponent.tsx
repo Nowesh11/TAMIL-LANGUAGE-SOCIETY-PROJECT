@@ -1,26 +1,30 @@
 "use client";
-import Hero from './Hero';
-import Features from './Features';
-import Stats from './Stats';
-import Gallery from './Gallery';
-import TextSection from './TextSection';
-import CTA from './CTA';
-import Timeline from './Timeline';
-import FAQ from './FAQ';
-import SocialLinks from './SocialLinks';
-import Banner from './Banner';
-import Image from './Image';
-import Testimonials from './Testimonials';
-import ContactForm from './ContactForm';
-import Newsletter from './Newsletter';
-import Video from './Video';
-import NavBar from './NavBar';
-import Footer from './Footer';
-import SeoHead from './SeoHead';
-import PosterSlider from './PosterSlider';
-import Countdown from './Countdown';
-import Team from './Team';
-import TeamHierarchyLayout from './TeamHierarchyLayout';
+import dynamic from 'next/dynamic';
+
+const Hero = dynamic(() => import('./Hero'));
+const Features = dynamic(() => import('./Features'));
+const Stats = dynamic(() => import('./Stats'));
+const Gallery = dynamic(() => import('./Gallery'));
+const TextSection = dynamic(() => import('./TextSection'));
+const CTA = dynamic(() => import('./CTA'));
+const Timeline = dynamic(() => import('./Timeline'));
+const FAQ = dynamic(() => import('./FAQ'));
+const SocialLinks = dynamic(() => import('./SocialLinks'));
+const Banner = dynamic(() => import('./Banner'));
+const Image = dynamic(() => import('./Image'));
+const Testimonials = dynamic(() => import('./Testimonials'));
+const ContactForm = dynamic(() => import('./ContactForm'));
+const Newsletter = dynamic(() => import('./Newsletter'));
+const Video = dynamic(() => import('./Video'));
+const NavBar = dynamic(() => import('./NavBar'));
+const Footer = dynamic(() => import('./Footer'));
+const SeoHead = dynamic(() => import('./SeoHead'));
+const PosterSlider = dynamic(() => import('./PosterSlider'));
+const Countdown = dynamic(() => import('./Countdown'));
+const Team = dynamic(() => import('./Team'));
+const TeamHierarchyLayout = dynamic(() => import('./TeamHierarchyLayout'));
+const Mission = dynamic(() => import('./Mission'));
+const Vision = dynamic(() => import('./Vision'));
 
 // (unused type removed)
 type Component = {
@@ -29,10 +33,11 @@ type Component = {
   page: string;
   content: Record<string, unknown>;
   order: number;
+  slug?: string;
 };
 
 export default function DynamicComponent({ component }: { component: Component }) {
-  const { type, page, content } = component;
+  const { type, page, content, slug } = component;
   switch (type) {
     case 'seo':
       return <SeoHead page={page} data={content} />;
@@ -55,7 +60,9 @@ export default function DynamicComponent({ component }: { component: Component }
     case 'image':
       return <Image page={page} data={content} />;
     case 'text':
-      return <TextSection page={page} data={content} />;
+      if (slug === 'mission') return <Mission page={page} data={content} />;
+      if (slug === 'vision') return <Vision page={page} data={content} />;
+      return <TextSection page={page} slug={slug} data={content} />;
     case 'cta':
       return <CTA page={page} data={content} />;
     case 'timeline':

@@ -2,257 +2,196 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '../hooks/LanguageContext';
-import '../styles/components/Team.css';
+import { FaLinkedin, FaEnvelope, FaPhone } from 'react-icons/fa';
 
-type Bilingual = { en: string; ta: string };
+interface Bilingual { en: string; ta: string }
 
 interface TeamMember {
   _id: string;
   name: Bilingual;
   role: string;
-  bio: Bilingual;
-  email: string;
-  phone?: string;
   imagePath?: string;
-  imageUrl?: string | null;
-  department?: string;
-  isActive?: boolean;
-  socialLinks?: {
-    linkedin?: string;
-    twitter?: string;
-    facebook?: string;
-    instagram?: string;
-    github?: string;
-    website?: string;
-  };
+  imageUrl?: string;
+  bio?: Bilingual;
+  email?: string;
+  phone?: string;
+  orderNum: number;
 }
 
-interface TeamProps {
-  page?: string;
-  data?: {
-    title?: Bilingual;
-    subtitle?: Bilingual;
-    limit?: number;
-  };
-  title?: Bilingual;
-  subtitle?: Bilingual;
-  limit?: number;
-}
-
-export default function Team({ page, data, title, subtitle, limit = 6 }: TeamProps) {
-  // Use data props if available (from DynamicComponent), otherwise use direct props
-  const componentTitle = data?.title || title;
-  const componentSubtitle = data?.subtitle || subtitle;
-  const componentLimit = data?.limit || limit;
-  const { lang } = useLanguage();
+import { safeFetchJson } from '../lib/safeFetch';
+// ...
+export default function Team({ page, data }: { page?: string, data?: any }) {
   const [members, setMembers] = useState<TeamMember[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { lang } = useLanguage();
 
   useEffect(() => {
-    async function loadTeamMembers() {
+    async function loadTeam() {
       try {
-        const response = await fetch(`/api/team?limit=${componentLimit}&active=true`);
-        const data = await response.json();
-        
-        if (data.success && Array.isArray(data.members)) {
-          setMembers(data.members);
-        } else {
-          setError('Failed to load team members');
+        const json = await safeFetchJson<{ members?: TeamMember[] }>('/api/team');
+        if (json.members) {
+           setMembers(json.members);
         }
-      } catch (err) {
-        console.error('Error loading team members:', err);
-        setError('Failed to load team members');
-      } finally {
-        setLoading(false);
+      } catch (e) {
+        console.error('Failed to load team', e);
       }
     }
+    loadTeam();
+  }, []);
 
-    loadTeamMembers();
-  }, [componentLimit]);
+  if (!members.length) return null;
 
-  const getImageSrc = (member: TeamMember) => {
-    // Priority: imagePath (from upload) > imageUrl (external) > default
-    if (member.imagePath) {
-      return `/api/files/serve?path=${encodeURIComponent(member.imagePath)}`;
-    }
-    
-    if (member.imageUrl) {
-      // Handle full URLs (external images)
-      if (member.imageUrl.startsWith('http')) {
-        return member.imageUrl;
-      }
-      // Handle relative paths
-      return member.imageUrl.startsWith('/') ? member.imageUrl : `/${member.imageUrl}`;
-    }
-    
-    return '/images/default-avatar.png';
-  };
+  // Filter members by role
+  const president = members.find(m => m.role === 'President');
+  
+  // Leadership: Vice President, Secretary, Treasurer
+  const leadership = members.filter(m => ['Vice President', 'Secretary', 'Treasurer'].includes(m.role))
+    .sort((a, b) => {
+      const order = ['Vice President', 'Secretary', 'Treasurer'];
+      return order.indexOf(a.role) - order.indexOf(b.role);
+    });
+  
+  // Executive Committee
+  // Exclude President, VP, Secretary, Treasurer, and Auditors
+  const allExecutives = members.filter(m => 
+    !['President', 'Vice President', 'Secretary', 'Treasurer', 'Auditor', 'Chief Auditor'].includes(m.role)
+  ).sort((a, b) => a.orderNum - b.orderNum);
+  
+  const topExecutives = allExecutives.slice(0, 3);
+  const midExecutives = allExecutives.slice(3, 6);
+  const remainingExecutives = allExecutives.slice(6); // Any extras
+  
+  // Auditors
+  const allAuditors = members.filter(m => ['Auditor', 'Chief Auditor'].includes(m.role))
+    .sort((a, b) => (m.role === 'Chief Auditor' ? -1 : 1)); // Chief first if exists
+  
+  const mainAuditors = allAuditors.slice(0, 3);
+  const remainingAuditors = allAuditors.slice(3); // Any extras
 
-  const defaultTitle = { en: "Meet Our Team", ta: "எங்கள் குழுவை சந்திக்கவும்" };
-  const defaultSubtitle = { en: "Dedicated individuals working together to preserve and promote Tamil heritage", ta: "தமிழ் பாரம்பரியத்தைப் பாதுகாத்து மேம்படுத்த ஒன்றாக பணியாற்றும் அர்ப்பணிப்புள்ள நபர்கள்" };
-
-  if (loading) {
-    return (
-      <section className="py-16 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-12">
-            <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded-lg w-64 mx-auto mb-4 animate-pulse"></div>
-            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg w-96 mx-auto animate-pulse"></div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg animate-pulse">
-                <div className="w-32 h-32 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-4"></div>
-                <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded-lg mb-2"></div>
-                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg mb-4"></div>
-                <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
-              </div>
-            ))}
-          </div>
+  const MemberCard = ({ member, className = '' }: { member: TeamMember, className?: string }) => (
+    <div className={`group relative w-72 h-96 card-morphism overflow-hidden hover-lift hover-glow ${className}`}>
+      <div className="absolute inset-0 w-full h-full">
+        <Image
+          src={member.imagePath 
+            ? (member.imagePath.startsWith('/') || member.imagePath.startsWith('http') 
+                ? member.imagePath 
+                : `/api/files/serve?path=${encodeURIComponent(member.imagePath)}`)
+            : (member.imageUrl || '/placeholder-avatar.svg')}
+          alt={typeof member.name === 'string' ? member.name : (member.name?.[lang] || 'Team Member')}
+          fill
+          className="object-cover transition-transform duration-700 group-hover:scale-110"
+          unoptimized
+        />
+        
+        {/* Always visible name tag at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent text-white text-center transition-all duration-300 group-hover:opacity-0 translate-y-0 group-hover:translate-y-4">
+            <h3 className="text-xl font-bold mb-1 drop-shadow-md">
+              {typeof member.name === 'string' ? member.name : member.name?.[lang]}
+            </h3>
+            <p className="text-sm font-medium text-white/90 drop-shadow-sm uppercase tracking-wider">
+              {typeof member.role === 'string' ? member.role : (member.role as any)?.[lang]}
+            </p>
         </div>
-      </section>
-    );
-  }
 
-  if (error) {
-    return (
-      <section className="py-16 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
-        <div className="container mx-auto px-6">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-4">
-              {(title || defaultTitle)[lang]}
-            </h2>
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 max-w-md mx-auto">
-              <p className="text-red-700 dark:text-red-300">
-                {lang === 'en' ? 'Unable to load team members.' : 'குழு உறுப்பினர்களை ஏற்ற முடியவில்லை.'}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  return (
-    <section className="py-16 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
-      <div className="container mx-auto px-6">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-slate-800 dark:text-white mb-4">
-            {(componentTitle || defaultTitle)[lang]}
-          </h2>
-          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-            {(componentSubtitle || defaultSubtitle)[lang]}
+        {/* Overlay on hover */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-dark/95 to-secondary-dark/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-6 text-center transform scale-95 group-hover:scale-100 transition-transform backdrop-blur-sm">
+          <h3 className="text-2xl font-bold text-white mb-2">
+            {typeof member.name === 'string' ? member.name : member.name?.[lang]}
+          </h3>
+          <p className="text-sm font-semibold text-primary-light uppercase tracking-widest mb-4">
+            {typeof member.role === 'string' ? member.role : (member.role as any)?.[lang]}
           </p>
-        </div>
-
-        {/* Team Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {members.map((member) => (
-            <div
-              key={member._id}
-              className="group bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-slate-200 dark:border-slate-700"
-            >
-              {/* Profile Image */}
-              <div className="relative mb-6">
-                <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-blue-400 shadow-xl group-hover:shadow-2xl transition-all duration-300">
-                  <Image
-                    src={getImageSrc(member)}
-                    alt={member.name[lang] || member.name.en}
-                    width={128}
-                    height={128}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                  />
-                </div>
-                {/* Status indicator */}
-                {member.isActive && (
-                  <div className="absolute top-2 right-2 w-4 h-4 bg-green-500 border-2 border-white dark:border-slate-800 rounded-full shadow-lg"></div>
-                )}
-              </div>
-
-              {/* Member Info */}
-              <div className="text-center">
-                <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
-                  {member.name[lang] || member.name.en}
-                </h3>
-                <p className="text-blue-600 dark:text-blue-400 font-semibold mb-3">
-                  {member.role}
-                </p>
-                <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
-                  {member.bio[lang] || member.bio.en}
-                </p>
-
-                {/* Social Links */}
-                {member.socialLinks && (
-                  <div className="flex justify-center gap-3 mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {member.socialLinks.linkedin && (
-                      <a
-                        href={member.socialLinks.linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors duration-200"
-                      >
-                        <i className="fab fa-linkedin-in text-sm"></i>
-                      </a>
-                    )}
-                    {member.socialLinks.twitter && (
-                      <a
-                        href={member.socialLinks.twitter}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-8 h-8 bg-sky-500 text-white rounded-full flex items-center justify-center hover:bg-sky-600 transition-colors duration-200"
-                      >
-                        <i className="fab fa-twitter text-sm"></i>
-                      </a>
-                    )}
-                    {member.socialLinks.facebook && (
-                      <a
-                        href={member.socialLinks.facebook}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-8 h-8 bg-blue-800 text-white rounded-full flex items-center justify-center hover:bg-blue-900 transition-colors duration-200"
-                      >
-                        <i className="fab fa-facebook-f text-sm"></i>
-                      </a>
-                    )}
-                    {member.socialLinks.instagram && (
-                      <a
-                        href={member.socialLinks.instagram}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full flex items-center justify-center hover:from-purple-600 hover:to-pink-600 transition-all duration-200"
-                      >
-                        <i className="fab fa-instagram text-sm"></i>
-                      </a>
-                    )}
-                    {member.email && (
-                      <a
-                        href={`mailto:${member.email}`}
-                        className="w-8 h-8 bg-slate-600 text-white rounded-full flex items-center justify-center hover:bg-slate-700 transition-colors duration-200"
-                      >
-                        <i className="fas fa-envelope text-sm"></i>
-                      </a>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* View All Button */}
-        {members.length >= componentLimit && (
-          <div className="text-center mt-12">
-            <a
-              href="/about#team"
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-            >
-              {lang === 'en' ? 'View All Team Members' : 'அனைத்து குழு உறுப்பினர்களையும் பார்க்கவும்'}
-              <i className="fas fa-arrow-right text-sm"></i>
+          
+          {member.bio && (
+            <p className="text-white/80 text-sm mb-6 line-clamp-4 leading-relaxed">
+              {typeof member.bio === 'string' ? member.bio : member.bio?.[lang]}
+            </p>
+          )}
+          
+          <div className="flex gap-4 mt-auto">
+            {member.email && (
+              <a href={`mailto:${member.email}`} className="w-10 h-10 rounded-full bg-white/10 hover:bg-white text-white hover:text-primary flex items-center justify-center transition-all duration-300" title="Email">
+                <FaEnvelope />
+              </a>
+            )}
+            {member.phone && (
+              <a href={`tel:${member.phone}`} className="w-10 h-10 rounded-full bg-white/10 hover:bg-white text-white hover:text-primary flex items-center justify-center transition-all duration-300" title="Phone">
+                <FaPhone />
+              </a>
+            )}
+            <a href="#" className="w-10 h-10 rounded-full bg-white/10 hover:bg-white text-white hover:text-primary flex items-center justify-center transition-all duration-300" title="LinkedIn">
+              <FaLinkedin />
             </a>
           </div>
-        )}
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <section className="py-20 bg-background relative overflow-hidden aurora-bg">
+      <div className="layout-container relative z-10">
+        <div className="text-center mb-16 animate-slide-in-up">
+           <h2 className="text-4xl md:text-5xl font-bold mb-4 gradient-title inline-block">
+             <span className="animate-text-glow">{data?.title?.[lang] || 'Our Leadership'}</span>
+           </h2>
+           <p className="text-xl text-foreground-muted max-w-2xl mx-auto">
+             {data?.subtitle?.[lang] || 'Meet the dedicated team behind our success'}
+           </p>
+        </div>
+
+        <div className="flex flex-col items-center gap-12">
+          {/* Level 1: President */}
+          {president && (
+            <div className="flex justify-center w-full animate-slide-in-up">
+              <MemberCard member={president} className="scale-110 shadow-2xl border-2 border-primary/20 shadow-primary/20" />
+            </div>
+          )}
+
+          {/* Level 2: VP, Secretary, Treasurer */}
+          {leadership.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-8 md:gap-12 w-full animate-slide-in-up" style={{ animationDelay: '0.1s' }}>
+              {leadership.map(member => (
+                <MemberCard key={member._id} member={member} />
+              ))}
+            </div>
+          )}
+
+          {/* Level 3: First 3 Executives */}
+          {topExecutives.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-8 w-full animate-slide-in-up" style={{ animationDelay: '0.2s' }}>
+              {topExecutives.map(member => (
+                <MemberCard key={member._id} member={member} />
+              ))}
+            </div>
+          )}
+
+          {/* Level 4: Next 3 Executives */}
+          {midExecutives.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-8 w-full animate-slide-in-up" style={{ animationDelay: '0.3s' }}>
+              {midExecutives.map(member => (
+                <MemberCard key={member._id} member={member} />
+              ))}
+            </div>
+          )}
+
+          {/* Level 5: Auditors (Max 3) */}
+          {mainAuditors.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-8 w-full border-t border-border pt-12 mt-4 animate-slide-in-up" style={{ animationDelay: '0.4s' }}>
+              {mainAuditors.map(member => (
+                <MemberCard key={member._id} member={member} />
+              ))}
+            </div>
+          )}
+          
+          {/* Remaining Members (if any) */}
+          {(remainingExecutives.length > 0 || remainingAuditors.length > 0) && (
+             <div className="flex flex-wrap justify-center gap-8 w-full pt-8 animate-slide-in-up" style={{ animationDelay: '0.5s' }}>
+               {[...remainingExecutives, ...remainingAuditors].map(member => (
+                 <MemberCard key={member._id} member={member} />
+               ))}
+             </div>
+          )}
+        </div>
       </div>
     </section>
   );

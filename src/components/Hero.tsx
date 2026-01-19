@@ -3,10 +3,9 @@ import { useEffect, useState } from "react";
 import Image from 'next/image';
 import { useLanguage } from "../hooks/LanguageContext";
 import { safeFetchJson } from '../lib/safeFetch';
-import '../styles/components/Hero.css';
 
 type Bilingual = { en: string; ta: string };
- type ImageContent = { src: string; alt: Bilingual; width?: number; height?: number };
+type ImageContent = { src: string; alt: Bilingual; width?: number; height?: number };
 
 type HeroContent = {
   title?: Bilingual;
@@ -114,69 +113,102 @@ export default function Hero({ page = 'home', bureau, data: propData }: { page?:
   }
 
   return (
-    <section className="relative w-full h-screen overflow-hidden">
+    <section className="relative w-full min-h-[90vh] flex items-center justify-center overflow-hidden bg-background">
+      {/* Dynamic Background Slider */}
       <div className="absolute inset-0 z-0 w-full h-full">
-        {allImages.length > 0 && (
+        {allImages.length > 0 ? (
           allImages.map((img, i) => (
-            <Image
+            <div 
               key={i}
-              src={img.src}
-              alt={typeof img.alt === 'string' ? img.alt : (img.alt?.[lang] || img.alt?.en || '')}
-              fill
-              className={`object-cover hero-slide ${i === index ? 'hero-slide--active' : ''}`}
-              priority={i === 0}
-              unoptimized
-            />
+              className={`absolute inset-0 w-full h-full transition-all duration-[2000ms] ease-in-out transform ${
+                i === index ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
+              }`}
+            >
+              <Image
+                src={img.src}
+                alt={typeof img.alt === 'string' ? img.alt : (img.alt?.[lang] || img.alt?.en || '')}
+                fill
+                className="object-cover"
+                priority={i === 0}
+                unoptimized
+              />
+              {/* Image Overlay Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/40 to-background/90" />
+            </div>
           ))
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-dark/30 via-secondary-dark/30 to-background">
+             <div className="absolute inset-0 bg-[url('/patterns/grid.svg')] opacity-20"></div>
+          </div>
         )}
-        <div className="absolute inset-0 bg-black/60" />
       </div>
-      <div className="relative z-10 mx-auto max-w-6xl px-6 py-24 sm:py-28 md:py-32 text-white">
-        <div className="text-center">
-          {loading ? (
-            <div className="animate-pulse space-y-4">
-              <div className="mx-auto h-10 sm:h-12 md:h-14 bg-white/30 rounded w-2/3" />
-              <div className="mx-auto h-6 sm:h-7 md:h-8 bg-white/20 rounded w-1/2" />
-              <div className="mx-auto h-11 bg-white/20 rounded w-40" />
+      
+      {/* Content Container */}
+      <div className="relative z-10 layout-container px-6 flex flex-col justify-center items-center text-center">
+        {loading ? (
+          <div className="animate-pulse space-y-6 w-full max-w-4xl flex flex-col items-center">
+            <div className="h-20 bg-surface/30 rounded-2xl w-3/4 backdrop-blur-sm" />
+            <div className="h-8 bg-surface/30 rounded-xl w-1/2 backdrop-blur-sm" />
+            <div className="flex gap-4 mt-8">
+               <div className="h-14 w-40 bg-surface/30 rounded-xl backdrop-blur-sm" />
+               <div className="h-14 w-40 bg-surface/30 rounded-xl backdrop-blur-sm" />
             </div>
-          ) : error ? (
-            <div className="mx-auto max-w-xl bg-black/40 border border-white/20 rounded-xl p-5">
-              <p className="text-lg">{lang === 'en' ? 'Unable to load hero.' : 'ஹீரோ பகுதியை ஏற்ற முடியவில்லை.'}</p>
-            </div>
-          ) : (
-            <>
-              {title && (
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white whitespace-nowrap">
+          </div>
+        ) : error ? (
+          <div className="mx-auto max-w-xl bg-surface/10 border border-border/20 rounded-2xl p-8 backdrop-blur-md">
+            <p className="text-lg text-foreground/80">{lang === 'en' ? 'Unable to load hero content.' : 'ஹீரோ பகுதியை ஏற்ற முடியவில்லை.'}</p>
+          </div>
+        ) : (
+          <div className="max-w-5xl mx-auto">
+            {/* Animated Title */}
+            {title && (
+              <h1 className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tight text-foreground mb-8 leading-tight drop-shadow-2xl">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-foreground via-primary-light to-foreground animate-text-glow">
                   {typeof title === 'string' ? title : (title?.[lang] || title?.en || '')}
-                </h1>
-              )}
-              {subtitle && (
-                <p className="mt-4 text-lg sm:text-xl md:text-2xl opacity-90">
-                  {typeof subtitle === 'string' ? subtitle : (subtitle?.[lang] || subtitle?.en || '')}
-                </p>
-              )}
-              {ctas.length > 0 && (
-                <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-                  {ctas.map((cta, i) => (
-                    <a
-                      key={i}
-                      href={cta.href}
-                      className={cta.variant === "secondary" ?
-                        "px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all btn-gradient-secondary hover:scale-[1.02] text-white" :
-                        "px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all btn-gradient-primary hover:scale-[1.02] text-white"}
-                    >
-                      {cta.text?.[lang] || cta.text?.en || ''}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* Decorative line to enhance hero visuals */}
-        <div className="mt-12 mx-auto w-24 h-1 rounded-full bg-white/60" />
+                </span>
+              </h1>
+            )}
+            
+            {/* Subtitle */}
+            {subtitle && (
+              <p className="text-xl sm:text-2xl md:text-3xl text-foreground-secondary max-w-3xl mx-auto leading-relaxed mb-12 font-light tracking-wide drop-shadow-lg backdrop-blur-sm py-2 rounded-lg">
+                {typeof subtitle === 'string' ? subtitle : (subtitle?.[lang] || subtitle?.en || '')}
+              </p>
+            )}
+            
+            {/* CTAs */}
+            {ctas.length > 0 && (
+              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                {ctas.map((cta, i) => (
+                  <a
+                    key={i}
+                    href={cta.href}
+                    className={`px-10 py-5 rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl active:scale-95 flex items-center gap-3 group ${
+                      cta.variant === "secondary" ?
+                        "bg-surface/10 backdrop-blur-md border border-border/20 text-foreground hover:bg-surface/20 hover:border-border/40" :
+                        "bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/30 hover:shadow-primary/50"
+                    }`}
+                  >
+                    <span>{cta.text?.[lang] || cta.text?.en || ''}</span>
+                    <i className={`fa-solid fa-arrow-right transition-transform group-hover:translate-x-1 ${cta.variant === 'secondary' ? 'opacity-70' : ''}`}></i>
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce z-10 hidden md:block">
+         <div className="w-8 h-12 rounded-full border-2 border-foreground/30 flex justify-center p-2 backdrop-blur-sm bg-surface/5">
+            <div className="w-1.5 h-3 bg-foreground/80 rounded-full animate-scroll-indicator"></div>
+         </div>
+      </div>
+      
+      {/* Decorative Overlay Elements */}
+      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-background/80 to-transparent z-1 pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-background to-transparent z-1 pointer-events-none"></div>
     </section>
   );
 }

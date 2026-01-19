@@ -1,578 +1,147 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { GetServerSideProps } from 'next';
-import DynamicComponent from '../components/DynamicComponent';
-import { useLanguage } from '../hooks/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
-import { getAuthContent, getPageSEO } from '../lib/getPageContent';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight } from 'react-icons/fi';
+import Head from 'next/head';
+import { toast } from 'react-hot-toast';
 
-interface LoginFormData {
-  email: string;
-  password: string;
-}
-
-interface ForgotPasswordData {
-  email: string;
-  verificationCode: string;
-  newPassword: string;
-  confirmPassword: string;
-}
-
-interface LoginPageProps {
-  authContent: {
-    login: any;
-    messages: any;
-  };
-  seoData: {
-    title: string;
-    description: string;
-  } | null;
-}
-
-const Login: React.FC<LoginPageProps> = ({ authContent, seoData }) => {
-  const { lang } = useLanguage();
-  const { login, user } = useAuth();
+export default function LoginPage() {
+  const { login, loading: authLoading } = useAuth();
   const router = useRouter();
   
-  const [components, setComponents] = useState<any[]>([]);
-  const [componentsLoading, setComponentsLoading] = useState(true);
-  const [formData, setFormData] = useState<LoginFormData>({
+  const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-  
-  const [forgotPasswordData, setForgotPasswordData] = useState<ForgotPasswordData>({
-    email: '',
-    verificationCode: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
-  
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [showResetForm, setShowResetForm] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
-  // Fetch components
-  useEffect(() => {
-    fetchComponents();
-  }, []);
-
-  async function fetchComponents() {
-    try {
-      setComponentsLoading(true);
-      const res = await fetch('/api/components/page?page=login');
-      const data = await res.json();
-      if (data.success) {
-        setComponents(data.components || []);
-      }
-    } catch (error) { 
-      console.error('Error fetching components:', error);
-      setComponents([]);
-    } finally {
-      setComponentsLoading(false);
-    }
-  }
-
-  // Redirect if already logged in based on role
-  useEffect(() => {
-    if (user) {
-      if (user.role === 'admin') {
-        router.push('/admin/dashboard');
-      } else {
-        router.push('/');
-      }
-    }
-  }, [user, router]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    setError('');
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleForgotPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForgotPasswordData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    setError('');
-  };
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
 
     try {
       const result = await login(formData.email, formData.password);
-      // Role-based navigation after successful login
-      if (result.user.role === 'admin') {
-        router.push('/admin/dashboard');
+      
+      if (result.success) {
+        toast.success('Welcome back!');
+        if (result.user.role === 'admin') {
+          router.push('/admin/dashboard');
+        } else {
+          const redirect = router.query.redirect as string;
+          router.push(redirect || '/');
+        }
       } else {
-        router.push('/');
+        toast.error(result.error || 'Login failed');
       }
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      toast.error(err.message || 'An unexpected error occurred');
     } finally {
       setLoading(false);
     }
   };
-
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess('');
-
-    try {
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: forgotPasswordData.email }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send verification code');
-      }
-
-      setSuccess(data.message);
-      setShowResetForm(true);
-    } catch (err: any) {
-      setError(err.message || 'Failed to send verification code');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess('');
-
-    if (forgotPasswordData.newPassword !== forgotPasswordData.confirmPassword) {
-      setError('Passwords do not match');
-      setLoading(false);
-      return;
-    }
-
-    if (forgotPasswordData.newPassword.length < 8) {
-      setError('Password must be at least 8 characters long');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/auth/verify-reset-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: forgotPasswordData.email,
-          verificationCode: forgotPasswordData.verificationCode,
-          newPassword: forgotPasswordData.newPassword,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to reset password');
-      }
-
-      setSuccess(data.message);
-      setTimeout(() => {
-        setShowForgotPassword(false);
-        setShowResetForm(false);
-        setForgotPasswordData({
-          email: '',
-          verificationCode: '',
-          newPassword: '',
-          confirmPassword: ''
-        });
-      }, 2000);
-    } catch (err: any) {
-      setError(err.message || 'Failed to reset password');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const text = {
-    en: {
-      title: seoData?.title || 'Login - Tamil Language Society',
-      heading: authContent.login.heading || 'Welcome Back',
-      subheading: authContent.login.subheading || 'Sign in to your account',
-      email: authContent.login.email || 'Email Address',
-      password: authContent.login.password || 'Password',
-      loginButton: authContent.login.loginButton || 'Sign In',
-      forgotPassword: authContent.login.forgotPassword || 'Forgot your password?',
-      noAccount: authContent.login.noAccount || "Don't have an account?",
-      signUp: authContent.login.signUp || 'Sign up here',
-      forgotPasswordTitle: authContent.login.forgotPasswordTitle || 'Reset Your Password',
-      forgotPasswordSubtitle: authContent.login.forgotPasswordSubtitle || 'Enter your email to receive a verification code',
-      sendCode: authContent.login.sendCode || 'Send Verification Code',
-      verificationCode: authContent.login.verificationCode || 'Verification Code',
-      newPassword: authContent.login.newPassword || 'New Password',
-      confirmPassword: authContent.login.confirmPassword || 'Confirm Password',
-      resetPassword: authContent.login.resetPassword || 'Reset Password',
-      backToLogin: authContent.login.backToLogin || 'Back to Login',
-      enterCode: authContent.login.enterCode || 'Enter the 6-digit code sent to your email'
-    },
-    ta: {
-      title: seoData?.title || 'உள்நுழைவு - தமிழ் மொழி சங்கம்',
-      heading: authContent.login.heading || 'மீண்டும் வரவேற்கிறோம்',
-      subheading: authContent.login.subheading || 'உங்கள் கணக்கில் உள்நுழையுங்கள்',
-      email: authContent.login.email || 'மின்னஞ்சல் முகவரி',
-      password: authContent.login.password || 'கடவுச்சொல்',
-      loginButton: authContent.login.loginButton || 'உள்நுழையுங்கள்',
-      forgotPassword: authContent.login.forgotPassword || 'கடவுச்சொல் மறந்துவிட்டதா?',
-      noAccount: authContent.login.noAccount || 'கணக்கு இல்லையா?',
-      signUp: authContent.login.signUp || 'இங்கே பதிவு செய்யுங்கள்',
-      forgotPasswordTitle: authContent.login.forgotPasswordTitle || 'உங்கள் கடவுச்சொல்லை மீட்டமைக்கவும்',
-      forgotPasswordSubtitle: authContent.login.forgotPasswordSubtitle || 'சரிபார்ப்பு குறியீட்டைப் பெற உங்கள் மின்னஞ்சலை உள்ளிடவும்',
-      sendCode: authContent.login.sendCode || 'சரிபார்ப்பு குறியீட்டை அனுப்பவும்',
-      verificationCode: authContent.login.verificationCode || 'சரிபார்ப்பு குறியீடு',
-      newPassword: authContent.login.newPassword || 'புதிய கடவுச்சொல்',
-      confirmPassword: authContent.login.confirmPassword || 'கடவுச்சொல்லை உறுதிப்படுத்தவும்',
-      resetPassword: authContent.login.resetPassword || 'கடவுச்சொல்லை மீட்டமைக்கவும்',
-      backToLogin: authContent.login.backToLogin || 'உள்நுழைவுக்குத் திரும்பவும்',
-      enterCode: authContent.login.enterCode || 'உங்கள் மின்னஞ்சலுக்கு அனுப்பப்பட்ட 6-இலக்க குறியீட்டை உள்ளிடவும்'
-    }
-  };
-
-  const currentText = text[lang];
-
-  if (componentsLoading) {
-    return (
-      <div className="font-sans min-h-screen aurora-gradient layout-page flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-lg text-gray-600">Loading page components...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const sortedComponents = [...components].sort((a, b) => (a.order || 0) - (b.order || 0));
-
-  // Filter components by type for organized rendering
-  const seoComponents = sortedComponents.filter(c => c.type === 'seo');
-  const navbarComponents = sortedComponents.filter(c => c.type === 'navbar');
-  const heroComponents = sortedComponents.filter(c => c.type === 'hero');
-  const contentComponents = sortedComponents.filter(c => 
-    c.type !== 'seo' && c.type !== 'navbar' && c.type !== 'hero' && c.type !== 'footer'
-  );
-  const footerComponents = sortedComponents.filter(c => c.type === 'footer');
 
   return (
     <>
-      {/* SEO Components */}
-      {seoComponents.map((component) => (
-        <DynamicComponent key={component._id} component={component} />
-      ))}
-      
-      <div className="font-sans min-h-screen aurora-gradient layout-page">
-        {/* Navbar Components */}
-        {navbarComponents.map((component) => (
-          <DynamicComponent key={component._id} component={component} />
-        ))}
-        
-        {/* Hero Components */}
-        {heroComponents.length > 0 && (
-          <section className="-mt-10 hero-gradient">
-            <div className="layout-container">
-              {heroComponents.map((component) => (
-                <div key={component._id} className="layout-card animate-fade-in">
-                  <DynamicComponent component={component} />
-                </div>
-              ))}
-            </div>
-            <div className="divider-glow" />
-          </section>
-        )}
+      <Head>
+        <title>Login - Tamil Language Society</title>
+      </Head>
+      <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[100px] animate-pulse"></div>
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/10 blur-[100px] animate-pulse delay-1000"></div>
+        </div>
 
-        {/* Content Components */}
-        <section className="layout-section">
-          <div className="layout-container">
-            <div className="section-stack">
-              {contentComponents.map((component) => (
-                <div key={component._id} className="layout-card animate-slide-in-up">
-                  <DynamicComponent component={component} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      
-        <main className="auth-page">
-        <div className="auth-container">
-          {!showForgotPassword ? (
-            // Login Form
-            <>
-              <div className="auth-header">
-                <h1 className="auth-title">
-                  {currentText.heading}
-                </h1>
-                <p className="auth-subtitle">
-                  {currentText.subheading}
-                </p>
+        <div className="w-full max-w-md relative z-10">
+          <div className="bg-surface/60 backdrop-blur-md border border-border rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden">
+            <div className="p-8 sm:p-10">
+              <div className="text-center mb-10">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 tracking-tight">Welcome Back</h1>
+                <p className="text-foreground-secondary">Sign in to continue to TLS</p>
               </div>
 
-              {error && (
-                <div className="auth-message error">
-                  <p>{error}</p>
-                </div>
-              )}
-
-              <form onSubmit={handleLogin} className="auth-form">
-                <div className="form-group">
-                  <label htmlFor="email" className="form-label">
-                    {currentText.email}
-                  </label>
-                  <div className="input-icon">📧</div>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                    className="form-input"
-                    placeholder="your@email.com"
-                  />
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground-secondary ml-1">Email Address</label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FiMail className="text-foreground-muted group-focus-within:text-primary transition-colors" />
+                    </div>
+                    <input
+                      type="email"
+                      name="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full pl-10 pr-4 py-3 bg-surface/50 border border-border rounded-xl text-foreground placeholder-foreground-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                      placeholder="you@example.com"
+                    />
+                  </div>
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="password" className="form-label">
-                    {currentText.password}
-                  </label>
-                  <div className="input-icon">🔒</div>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    required
-                    className="form-input"
-                    placeholder="••••••••"
-                  />
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center ml-1">
+                    <label className="text-sm font-medium text-foreground-secondary">Password</label>
+                    <Link href="/forgot-password" className="text-xs text-primary hover:text-primary-dark transition-colors">
+                      Forgot password?
+                    </Link>
+                  </div>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FiLock className="text-foreground-muted group-focus-within:text-primary transition-colors" />
+                    </div>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      required
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="w-full pl-10 pr-10 py-3 bg-surface/50 border border-border rounded-xl text-foreground placeholder-foreground-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-foreground-muted hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <FiEyeOff /> : <FiEye />}
+                    </button>
+                  </div>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={loading}
-                  className={`auth-submit ${loading ? 'loading' : ''}`}
+                  disabled={loading || authLoading}
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:from-primary-dark hover:to-secondary-dark transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  {loading ? '' : currentText.loginButton}
+                  {loading ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      Sign In <FiArrowRight />
+                    </>
+                  )}
                 </button>
               </form>
 
-              <div className="auth-links">
-                <button
-                  onClick={() => setShowForgotPassword(true)}
-                  className="auth-link"
-                >
-                  {currentText.forgotPassword}
-                </button>
-                
-                <div className="auth-footer-text">
-                  {currentText.noAccount}{' '}
-                  <Link href="/sign" className="auth-link">
-                    {currentText.signUp}
+              <div className="mt-8 text-center">
+                <p className="text-foreground-secondary text-sm">
+                  Don't have an account?{' '}
+                  <Link href="/sign" className="text-primary font-medium hover:underline decoration-primary decoration-2 underline-offset-4">
+                    Sign up
                   </Link>
-                </div>
-              </div>
-            </>
-          ) : (
-            // Forgot Password Form
-            <div className="forgot-password-form">
-              <div className="auth-header">
-                <h1 className="auth-title">
-                  {currentText.forgotPasswordTitle}
-                </h1>
-                <p className="auth-subtitle">
-                  {!showResetForm ? currentText.forgotPasswordSubtitle : currentText.enterCode}
                 </p>
               </div>
-
-              {error && (
-                <div className="auth-message error">
-                  <p>{error}</p>
-                </div>
-              )}
-
-              {success && (
-                <div className="auth-message success">
-                  <p>{success}</p>
-                </div>
-              )}
-
-              {!showResetForm ? (
-                // Email Form
-                <form onSubmit={handleForgotPassword} className="auth-form">
-                  <div className="form-group">
-                    <label htmlFor="forgot-email" className="form-label">
-                      {currentText.email}
-                    </label>
-                    <div className="input-icon">📧</div>
-                    <input
-                      type="email"
-                      id="forgot-email"
-                      name="email"
-                      value={forgotPasswordData.email}
-                      onChange={handleForgotPasswordChange}
-                      required
-                      className="form-input"
-                      placeholder="your@email.com"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className={`auth-submit ${loading ? 'loading' : ''}`}
-                  >
-                    {loading ? '' : currentText.sendCode}
-                  </button>
-                </form>
-              ) : (
-                // Reset Form
-                <form onSubmit={handleResetPassword} className="auth-form">
-                  <div className="form-group">
-                    <label htmlFor="verification-code" className="form-label">
-                      {currentText.verificationCode}
-                    </label>
-                    <div className="input-icon">🔑</div>
-                    <input
-                      type="text"
-                      id="verification-code"
-                      name="verificationCode"
-                      value={forgotPasswordData.verificationCode}
-                      onChange={handleForgotPasswordChange}
-                      required
-                      maxLength={6}
-                      className="form-input"
-                      placeholder="123456"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="new-password" className="form-label">
-                      {currentText.newPassword}
-                    </label>
-                    <div className="input-icon">🔒</div>
-                    <input
-                      type="password"
-                      id="new-password"
-                      name="newPassword"
-                      value={forgotPasswordData.newPassword}
-                      onChange={handleForgotPasswordChange}
-                      required
-                      minLength={8}
-                      className="form-input"
-                      placeholder="••••••••"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="confirm-password" className="form-label">
-                      {currentText.confirmPassword}
-                    </label>
-                    <div className="input-icon">🔒</div>
-                    <input
-                      type="password"
-                      id="confirm-password"
-                      name="confirmPassword"
-                      value={forgotPasswordData.confirmPassword}
-                      onChange={handleForgotPasswordChange}
-                      required
-                      minLength={8}
-                      className="form-input"
-                      placeholder="••••••••"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className={`auth-submit ${loading ? 'loading' : ''}`}
-                  >
-                    {loading ? '' : currentText.resetPassword}
-                  </button>
-                </form>
-              )}
-
-              <div className="auth-links">
-                <button
-                  onClick={() => {
-                    setShowForgotPassword(false);
-                    setShowResetForm(false);
-                    setError('');
-                    setSuccess('');
-                    setForgotPasswordData({
-                      email: '',
-                      verificationCode: '',
-                      newPassword: '',
-                      confirmPassword: ''
-                    });
-                  }}
-                  className="back-to-login"
-                >
-                  ← {currentText.backToLogin}
-                </button>
-              </div>
             </div>
-          )}
+          </div>
         </div>
-      </main>
-      
-      {/* Footer Components */}
-      {footerComponents.length > 0 && (
-        <footer className="layout-footer">
-          {footerComponents.map((component) => (
-            <DynamicComponent key={component._id} component={component} />
-          ))}
-        </footer>
-      )}
-    </div>
+      </div>
     </>
   );
-};
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  try {
-    const authContent = await getAuthContent();
-    const seoData = await getPageSEO('login');
-    
-    return {
-      props: {
-        authContent,
-        seoData
-      }
-    };
-  } catch (error) {
-    console.error('Error fetching login page data:', error);
-    return {
-      props: {
-        authContent: { login: {}, messages: {} },
-        seoData: { title: 'Login - Tamil Language Society', description: 'Sign in to your account' }
-      }
-    };
-  }
-};
-
-export default Login;
+}

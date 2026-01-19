@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../hooks/LanguageContext';
 import { getPageContent } from '../lib/getPageContent';
-import '../styles/components/Newsletter.css';
 
 interface NewsletterProps {
   page: string;
@@ -67,107 +66,100 @@ export default function Newsletter({ page, slug = 'newsletter', data }: Newslett
   const placeholder = content.placeholder?.[lang] || content.placeholder?.en || 'Enter your email address';
   const buttonText = content.buttonText?.[lang] || content.buttonText?.en || 'Subscribe';
   const backgroundImage = content.backgroundImage || '';
-  const backgroundColor = content.backgroundColor || '#2563eb';
-  const textColor = content.textColor || '#ffffff';
+  const backgroundColor = content.backgroundColor || ''; // Removed default color to prefer Tailwind classes
+  const textColor = content.textColor || '';
   const style = content.style || 'default';
 
+  // Tailwind style mapping
   const getStyleClasses = (style: string) => {
     switch (style) {
       case 'minimal':
         return {
-          section: 'py-12 px-4',
-          container: 'max-w-2xl mx-auto text-center',
-          form: 'max-w-sm mx-auto'
+          section: 'py-16 bg-transparent',
+          container: 'max-w-3xl mx-auto text-center px-4',
+          form: 'max-w-md mx-auto mt-8'
         };
       case 'card':
         return {
-          section: 'py-16 px-4',
-          container: 'max-w-lg mx-auto bg-white rounded-lg shadow-lg p-8 text-center',
-          form: 'max-w-full mx-auto'
+          section: 'py-20 px-4',
+          container: 'max-w-4xl mx-auto card-morphism p-10 text-center rounded-3xl border border-white/10 shadow-2xl',
+          form: 'max-w-lg mx-auto mt-8'
         };
       case 'inline':
         return {
-          section: 'py-8 px-4',
-          container: 'max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6',
-          form: 'flex-shrink-0'
+          section: 'py-12 bg-white/5 border-y border-white/10 backdrop-blur-sm',
+          container: 'max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-8',
+          form: 'flex-shrink-0 w-full md:w-auto md:min-w-[400px]'
         };
       default: // default
         return {
-          section: 'py-16 px-4',
-          container: 'max-w-4xl mx-auto text-center',
-          form: 'max-w-md mx-auto'
+          section: 'py-24 relative overflow-hidden aurora-bg',
+          container: 'max-w-4xl mx-auto text-center px-4 relative z-10',
+          form: 'max-w-lg mx-auto mt-10'
         };
     }
   };
 
   const styleClasses = getStyleClasses(style);
+  const isDefault = style === 'default' || !style;
   const isCard = style === 'card';
-  const isInline = style === 'inline';
 
   return (
     <section 
-      className={`newsletter-section ${styleClasses.section} relative overflow-hidden`}
-      style={{
-        backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
-        backgroundColor: backgroundImage ? 'transparent' : (isCard ? '#f9fafb' : backgroundColor),
-        color: isCard ? '#1f2937' : textColor
-      }}
+      className={`${styleClasses.section}`}
+      style={backgroundImage ? { backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
     >
-      {backgroundImage && (
-        <div className="absolute inset-0 bg-black bg-opacity-40 z-0" />
+      {/* Overlay for background images */}
+      {(backgroundImage) && (
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-none" />
       )}
       
-      <div className={`newsletter-container ${styleClasses.container} relative z-10`}>
-        <div className={isInline ? 'flex-1' : ''}>
+      <div className={styleClasses.container}>
+        <div className={style === 'inline' ? 'flex-1 text-left' : ''}>
           {title && (
-            <h2 className={`newsletter-title text-3xl md:text-4xl font-bold mb-4 ${
-              isCard ? 'text-gray-900' : backgroundImage ? 'text-white' : ''
-            }`}>
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-lg`}>
               {title}
             </h2>
           )}
           {description && (
-            <p className={`newsletter-description text-lg mb-8 max-w-2xl ${
-              isInline ? 'mx-0' : 'mx-auto'
-            } ${
-              isCard ? 'text-gray-600' : backgroundImage ? 'text-gray-200' : 'opacity-90'
-            }`}>
+            <p className={`text-lg leading-relaxed text-gray-300 drop-shadow-md`}>
               {description}
             </p>
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className={`newsletter-form ${styleClasses.form}`}>
-          <div className={`form-group flex gap-4 ${isInline ? 'flex-row' : 'flex-col sm:flex-row'}`}>
+        <form onSubmit={handleSubmit} className={styleClasses.form}>
+          <div className={`flex flex-col sm:flex-row gap-3 ${style === 'inline' ? 'w-full' : ''}`}>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={placeholder}
               required
-              className="newsletter-input flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              className={`flex-1 px-5 py-3 rounded-xl border border-white/20 bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all shadow-inner`}
             />
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`newsletter-button font-semibold py-3 px-6 rounded-lg transition-colors duration-300 ${
-                isCard 
-                  ? 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-400'
-                  : 'bg-white text-gray-900 hover:bg-gray-100 disabled:bg-gray-300'
-              }`}
+              className={`font-semibold py-3 px-8 rounded-xl transition-all duration-300 transform hover:-translate-y-1 shadow-lg bg-primary text-white hover:bg-primary/90 disabled:opacity-70 disabled:cursor-not-allowed`}
             >
-              {isSubmitting ? 'Subscribing...' : buttonText}
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>...</span>
+                </span>
+              ) : buttonText}
             </button>
           </div>
 
           {submitStatus === 'success' && (
-            <div className="success-message mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+            <div className="mt-4 p-3 rounded-lg text-sm font-medium bg-green-500/20 text-green-300 border border-green-500/30 animate-fade-in">
               Thank you for subscribing to our newsletter!
             </div>
           )}
 
           {submitStatus === 'error' && (
-            <div className="error-message mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            <div className="mt-4 p-3 rounded-lg text-sm font-medium bg-red-500/20 text-red-300 border border-red-500/30 animate-fade-in">
               Sorry, there was an error subscribing. Please try again.
             </div>
           )}

@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../hooks/LanguageContext';
 import { safeFetchJson } from '../lib/safeFetch';
-import '../styles/components/FAQ.css';
 
 type Bilingual = { en: string; ta: string };
 type FAQItem = { question: Bilingual; answer: Bilingual; category?: string };
@@ -55,12 +54,12 @@ export default function FAQ({ page = 'contacts', data: propData }: { page?: stri
 
   if (loading) {
     return (
-      <section className="faq-section">
-        <div className="faq-container">
-          <div className="faq-loading">
+      <section className="py-20 relative overflow-hidden aurora-bg">
+        <div className="max-w-3xl mx-auto px-4 relative z-10">
+          <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="faq-item-skeleton">
-                <div className="faq-skeleton-question"></div>
+              <div key={i} className="card-morphism p-6 animate-pulse rounded-2xl border border-white/10">
+                <div className="h-6 bg-white/10 rounded w-3/4"></div>
               </div>
             ))}
           </div>
@@ -72,26 +71,26 @@ export default function FAQ({ page = 'contacts', data: propData }: { page?: stri
   if (!data) return null;
 
   return (
-    <section className="faq-section">
-      <div className="faq-container">
-        <div className="faq-header">
+    <section className="py-20 relative overflow-hidden aurora-bg">
+      <div className="max-w-3xl mx-auto px-4 relative z-10">
+        <div className="text-center mb-12">
           {data.title && (
-            <h2 className="faq-title">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-lg inline-block">
               {data.title?.[lang] || data.title?.en || 'Frequently Asked Questions'}
             </h2>
           )}
-          <p className="faq-subtitle">
+          <p className="text-lg text-gray-300 max-w-2xl mx-auto drop-shadow-md">
             Find answers to common questions about our services and platform.
           </p>
         </div>
 
         {data.searchable && (
-          <div className="faq-search">
-            <div className="faq-search-icon">🔍</div>
+          <div className="mb-8 relative max-w-2xl mx-auto">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</div>
             <input
               type="text"
               placeholder="Search questions..."
-              className="faq-search-input"
+              className="w-full pl-12 pr-4 py-4 rounded-2xl border border-white/10 bg-white/5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all shadow-lg backdrop-blur-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -99,34 +98,38 @@ export default function FAQ({ page = 'contacts', data: propData }: { page?: stri
         )}
 
         {filteredFAQs.length === 0 ? (
-          <div className="faq-no-results">
-            <div className="faq-no-results-icon">❓</div>
-            <div className="faq-no-results-text">
+          <div className="text-center py-12 text-gray-400 card-morphism rounded-2xl border border-white/10">
+            <div className="text-4xl mb-4">❓</div>
+            <div className="text-lg font-medium">
               No questions found matching your search.
             </div>
           </div>
         ) : (
-          <div className="faq-list">
+          <div className="space-y-4">
             {filteredFAQs.map((f, idx) => (
               <div 
                 key={idx} 
-                className={`faq-item ${activeIndex === idx ? 'active' : ''}`}
+                className={`card-morphism overflow-hidden transition-all duration-300 rounded-2xl border border-white/10 ${activeIndex === idx ? 'ring-2 ring-primary/50 shadow-lg shadow-primary/10' : 'hover:shadow-lg hover:border-white/20'}`}
               >
                 <button 
-                  className="faq-question"
+                  className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none group"
                   onClick={() => toggleFAQ(idx)}
                   aria-expanded={activeIndex === idx}
                 >
-                  <span className="faq-question-text">
+                  <span className={`font-semibold text-lg transition-colors pr-4 ${activeIndex === idx ? 'text-primary' : 'text-white group-hover:text-primary'}`}>
                     {f.question?.[lang] || f.question?.en || ''}
                   </span>
-                  <span className="faq-icon">
-                    {activeIndex === idx ? '−' : '+'}
+                  <span className={`text-primary transform transition-transform duration-300 flex-shrink-0 ${activeIndex === idx ? 'rotate-180' : ''}`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                   </span>
                 </button>
-                <div className="faq-answer">
-                  <div className="faq-answer-content">
-                    <p>{f.answer?.[lang] || f.answer?.en || ''}</p>
+                <div 
+                  className={`overflow-hidden transition-all duration-300 ease-in-out ${activeIndex === idx ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}
+                >
+                  <div className="px-6 pb-6 pt-0 text-gray-300 leading-relaxed border-t border-white/5 mt-2">
+                    <p className="pt-4">{f.answer?.[lang] || f.answer?.en || ''}</p>
                   </div>
                 </div>
               </div>

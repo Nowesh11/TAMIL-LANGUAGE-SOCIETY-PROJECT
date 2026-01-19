@@ -1,4 +1,3 @@
-"use client";
 import React from 'react';
 import { useLanguage } from '@/hooks/LanguageContext';
 
@@ -49,14 +48,17 @@ export default function FilterBar({ value, onChange }: FilterBarProps) {
   const { lang } = useLanguage();
 
   return (
-    <div className="layout-container filter-bar">
-      <button className="btn-primary filter-btn" onClick={() => onChange(undefined)}>
+    <div className="container mx-auto px-4 py-8 flex flex-wrap gap-3 justify-center">
+      <button 
+        className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border ${!value ? 'bg-cyan-600 text-white border-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-white'}`} 
+        onClick={() => onChange(undefined)}
+      >
         {lang === 'ta' ? 'அனைத்து பணியகங்கள்' : 'All Bureaus'}
       </button>
       {options.map((opt) => (
         <button
           key={opt.value}
-          className={`btn-primary filter-btn ${value === opt.value ? 'filter-btn--active' : ''}`}
+          className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border ${value === opt.value ? 'bg-cyan-600 text-white border-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-white'}`}
           onClick={() => onChange(opt.value)}
         >
           {typeof opt.label === 'string' 

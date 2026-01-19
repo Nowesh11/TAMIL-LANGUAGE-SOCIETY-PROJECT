@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import DynamicComponent from '../components/DynamicComponent';
+import Team from '../components/Team';
 import { safeFetchJson } from '../lib/safeFetch';
 
 export default function AboutPage() {
@@ -28,10 +29,10 @@ export default function AboutPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center aurora-gradient">
+      <div className="min-h-screen flex items-center justify-center aurora-bg">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4 shadow-lg shadow-primary/25"></div>
+          <p className="text-gray-400 font-medium animate-pulse">Loading...</p>
         </div>
       </div>
     );
@@ -44,8 +45,10 @@ export default function AboutPage() {
   const seoComponents = sortedComponents.filter(c => c.type === 'seo');
   const navbarComponents = sortedComponents.filter(c => c.type === 'navbar');
   const heroComponents = sortedComponents.filter(c => c.type === 'hero');
+  
+  // Exclude 'team' type from dynamic content if we are hardcoding it, to avoid duplication
   const contentComponents = sortedComponents.filter(c => 
-    c.type !== 'seo' && c.type !== 'navbar' && c.type !== 'hero' && c.type !== 'footer'
+    c.type !== 'seo' && c.type !== 'navbar' && c.type !== 'hero' && c.type !== 'footer' && c.type !== 'team'
   );
   const footerComponents = sortedComponents.filter(c => c.type === 'footer');
 
@@ -56,7 +59,7 @@ export default function AboutPage() {
         <DynamicComponent key={component._id} component={component} />
       ))}
       
-      <div className="font-sans min-h-screen aurora-gradient layout-page">
+      <div className="font-sans min-h-screen aurora-bg layout-page">
         {/* Navbar Components */}
         {navbarComponents.map((component) => (
           <DynamicComponent key={component._id} component={component} />
@@ -89,15 +92,18 @@ export default function AboutPage() {
               </div>
             </div>
           </section>
+
+          {/* Hardcoded Team Component */}
+          <Team />
         </main>
         
         {/* Footer Components */}
         {footerComponents.length > 0 && (
-          <footer className="mt-10">
+          <>
             {footerComponents.map((component) => (
               <DynamicComponent key={component._id} component={component} />
             ))}
-          </footer>
+          </>
         )}
       </div>
     </>

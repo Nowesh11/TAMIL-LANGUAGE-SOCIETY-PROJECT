@@ -290,6 +290,96 @@ export class NotificationService {
   }
 
   /**
+   * Create notification for purchase status updates
+   */
+  static async createPurchaseStatusNotification(
+    order: any, 
+    status: string, 
+    trackingNumber: string | undefined,
+    createdBy: mongoose.Types.ObjectId
+  ) {
+    const statusMessages: Record<string, { title: BilingualText, message: BilingualText, color: string, textColor: string }> = {
+      approved: {
+        title: { en: 'Order Approved', ta: 'ஆர்டர் அங்கீகரிக்கப்பட்டது' },
+        message: { 
+          en: `Your order #${order.orderId} has been approved and is being prepared.`, 
+          ta: `உங்கள் ஆர்டர் #${order.orderId} அங்கீகரிக்கப்பட்டு தயார் செய்யப்படுகிறது.` 
+        },
+        color: '#d1fae5', textColor: '#065f46' // emerald-100/700
+      },
+      shipped: {
+        title: { en: 'Order Shipped', ta: 'ஆர்டர் அனுப்பப்பட்டது' },
+        message: { 
+          en: `Your order #${order.orderId} has been shipped!`, 
+          ta: `உங்கள் ஆர்டர் #${order.orderId} அனுப்பப்பட்டது!` 
+        },
+        color: '#e0e7ff', textColor: '#3730a3' // indigo-100/700
+      },
+      delivered: {
+        title: { en: 'Order Delivered', ta: 'ஆர்டர் டெலிவரி செய்யப்பட்டது' },
+        message: { 
+          en: `Your order #${order.orderId} has been delivered. Enjoy your books!`, 
+          ta: `உங்கள் ஆர்டர் #${order.orderId} டெலிவரி செய்யப்பட்டது. உங்கள் புத்தகங்களை மகிழுங்கள்!` 
+        },
+        color: '#dcfce7', textColor: '#14532d' // green-100/700
+      },
+      cancelled: {
+        title: { en: 'Order Cancelled', ta: 'ஆர்டர் ரத்து செய்யப்பட்டது' },
+        message: { 
+          en: `Your order #${order.orderId} has been cancelled.`, 
+          ta: `உங்கள் ஆர்டர் #${order.orderId} ரத்து செய்யப்பட்டது.` 
+        },
+        color: '#fee2e2', textColor: '#991b1b' // red-100/700
+      }
+    };
+
+    const config = statusMessages[status] || {
+      title: { en: 'Order Updated', ta: 'ஆர்டர் புதுப்பிக்கப்பட்டது' },
+      message: { en: `Your order #${order.orderId} status is now ${status}.`, ta: `உங்கள் ஆர்டர் #${order.orderId} நிலை இப்போது ${status}.` },
+      color: '#f3f4f6', textColor: '#1f2937'
+    };
+
+    // 1. Create In-App Notification
+    const notification = await this.createNotification({
+      title: config.title,
+      message: config.message,
+      type: status === 'cancelled' ? 'warning' : 'success',
+      priority: 'high',
+      targetAudience: 'specific',
+      userRef: order.userRef._id || order.userRef, // Handle populated or ID
+      actionUrl: `/account/purchases`,
+      actionText: { en: 'Track Order', ta: 'ஆர்டரை கண்காணிக்க' },
+      tags: ['purchase', 'status_update', status],
+      sendEmail: false, // We send manually below for rich content
+      createdBy
+    });
+
+    // 2. Send Rich Email
+    // Fetch user to get email
+    const user = await User.findById(order.userRef);
+    if (user && user.notificationPreferences?.email !== false) {
+       await sendEmail({
+         to: user.email,
+         subject: config.title.en,
+         template: 'orderStatusUpdate',
+         data: {
+           userName: user.name.en || user.name,
+           orderId: order.orderId,
+           status: status,
+           statusColor: config.color,
+           statusTextColor: config.textColor,
+           message: config.message.en,
+           trackingNumber: trackingNumber,
+           carrier: order.shippingCarrier
+         }
+       });
+       await notification.markEmailSent();
+    }
+
+    return notification;
+  }
+
+  /**
    * Send notification emails to users
    */
   private static async sendNotificationEmails(notification: any) {

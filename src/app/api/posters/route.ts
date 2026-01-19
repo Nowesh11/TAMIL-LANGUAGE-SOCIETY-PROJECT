@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
       description: p.description,
       order: p.order,
       isActive: p.isActive,
+      imagePath: p.imagePath,
       imageUrl: `/api/posters/image?id=${p._id}&t=${new Date(p.updatedAt).getTime()}`,
     }));
     return NextResponse.json({ posters: result });

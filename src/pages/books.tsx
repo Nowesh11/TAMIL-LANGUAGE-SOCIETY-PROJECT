@@ -23,6 +23,16 @@ export default function BooksPage() {
   const [cartModalOpen, setCartModalOpen] = useState(false);
   const [purchasesModalOpen, setPurchasesModalOpen] = useState(false);
 
+  useEffect(() => {
+    // Check for query param to open modal
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('modal') === 'purchases') {
+      setPurchasesModalOpen(true);
+      // Clean up URL without reload
+      window.history.replaceState({}, '', '/books');
+    }
+  }, []);
+
   useEffect(() => { fetchComponents(); }, []);
   useEffect(() => { fetchBooks(); }, [filters, page]);
 
@@ -114,10 +124,10 @@ export default function BooksPage() {
 
   if (loading) {
     return (
-      <div className="font-sans min-h-screen aurora-gradient layout-page flex items-center justify-center">
+      <div className="font-sans min-h-screen aurora-bg layout-page flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-lg text-gray-600">{lang === 'en' ? 'Loading...' : 'ஏற்றுகிறது...'}</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-primary mx-auto shadow-xl shadow-primary/20"></div>
+          <p className="mt-6 text-lg text-gray-400 font-medium animate-pulse">{lang === 'en' ? 'Loading...' : 'ஏற்றுகிறது...'}</p>
         </div>
       </div>
     );
@@ -142,7 +152,7 @@ export default function BooksPage() {
         <DynamicComponent key={component._id} component={component} />
       ))}
       
-      <div className="font-sans min-h-screen aurora-gradient layout-page">
+      <div className="font-sans min-h-screen aurora-bg layout-page">
         {/* Navbar Components */}
         {navbarComponents.map((component) => (
           <DynamicComponent key={component._id} component={component} />
@@ -195,46 +205,15 @@ export default function BooksPage() {
             </div>
           </section>
 
-          {/* Action Buttons */}
-          <section className="layout-section">
-            <div className="layout-container">
-              <div className="flex flex-wrap gap-4 justify-center">
-                <button
-                  onClick={() => setCartModalOpen(true)}
-                  className="btn btn-primary btn-lg flex items-center gap-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z" />
-                  </svg>
-                  {lang === 'en' ? 'View Cart & Checkout' : 'வண்டி மற்றும் செலுத்துதல்'}
-                  {cart.length > 0 && (
-                    <span className="bg-red-500 text-white rounded-full px-2 py-1 text-xs">
-                      {cart.reduce((sum, item) => sum + item.quantity, 0)}
-                    </span>
-                  )}
-                </button>
-                
-                <button
-                  onClick={() => setPurchasesModalOpen(true)}
-                  className="btn btn-secondary btn-lg flex items-center gap-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                  </svg>
-                  {lang === 'en' ? 'My Purchases' : 'எனது வாங்கல்கள்'}
-                </button>
-              </div>
-            </div>
-          </section>
         </main>
         
         {/* Footer Components */}
         {footerComponents.length > 0 && (
-          <footer className="mt-10">
+          <>
             {footerComponents.map((component) => (
               <DynamicComponent key={component._id} component={component} />
             ))}
-          </footer>
+          </>
         )}
       </div>
       {/* Compact floating mini-cart */}
@@ -242,6 +221,7 @@ export default function BooksPage() {
         items={cart}
         onItemsChange={setCart}
         onGoToCheckout={() => setCartModalOpen(true)}
+        onOpenPurchases={() => setPurchasesModalOpen(true)}
       />
       
       {/* Modals */}

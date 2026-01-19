@@ -3,6 +3,7 @@ import dbConnect from '../../../lib/mongodb';
 import Team from '../../../models/Team';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
@@ -45,6 +46,8 @@ export async function GET(req: NextRequest) {
       specializations: m.specializations || [],
       languages: m.languages || [],
       socialLinks: m.socialLinks || {},
+      // Return raw imagePath for frontend to handle, plus a helper imageUrl if needed
+      imagePath: m.imagePath,
       imageUrl: m.imagePath ? `/api/team/image?id=${m._id}` : null,
     }));
 

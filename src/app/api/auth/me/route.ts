@@ -6,7 +6,8 @@ export async function GET(req: NextRequest) {
   await dbConnect();
   const user = await getUserFromAccessToken(req);
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Return 200 with null user to avoid console error logs
+    return NextResponse.json({ user: null }, { status: 200 });
   }
   return NextResponse.json({
     user: {

@@ -14,6 +14,7 @@ export async function POST(request: NextRequest) {
 
     // Use FileHandler to save the file with proper organization
     // Structure: uploads/purchases/checkout/{userId}/{orderId}/receipt
+    // NOTE: FileHandler automatically handles the 'uploads' prefix in its base path
     const subCategory = orderId ? `${userId || 'anonymous'}/${orderId}` : `${userId || 'anonymous'}/temp`;
     
     const result = await FileHandler.saveFile(

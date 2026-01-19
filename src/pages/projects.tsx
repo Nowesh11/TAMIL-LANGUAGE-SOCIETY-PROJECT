@@ -44,10 +44,10 @@ export default function ProjectsPage({ pageContent, seoData }: ProjectsPageProps
 
   if (loading) {
     return (
-      <div className="font-sans min-h-screen aurora-gradient layout-page flex items-center justify-center">
+      <div className="font-sans min-h-screen aurora-bg layout-page flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-lg text-gray-600">{lang === 'en' ? 'Loading...' : 'ஏற்றுகிறது...'}</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-primary mx-auto shadow-xl shadow-primary/20"></div>
+          <p className="mt-6 text-lg text-gray-400 font-medium animate-pulse">{lang === 'en' ? 'Loading...' : 'ஏற்றுகிறது...'}</p>
         </div>
       </div>
     );
@@ -72,7 +72,7 @@ export default function ProjectsPage({ pageContent, seoData }: ProjectsPageProps
         <DynamicComponent key={component._id} component={component} />
       ))}
       
-      <div className="font-sans min-h-screen aurora-gradient layout-page">
+      <div className="font-sans min-h-screen aurora-bg layout-page">
         {/* Navbar Components */}
         {navbarComponents.map((component) => (
           <DynamicComponent key={component._id} component={component} />
@@ -148,11 +148,11 @@ export default function ProjectsPage({ pageContent, seoData }: ProjectsPageProps
         
         {/* Footer Components */}
         {footerComponents.length > 0 && (
-          <footer className="layout-footer">
+          <>
             {footerComponents.map((component) => (
               <DynamicComponent key={component._id} component={component} />
             ))}
-          </footer>
+          </>
         )}
       </div>
     </>

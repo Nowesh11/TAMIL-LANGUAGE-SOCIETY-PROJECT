@@ -9,26 +9,36 @@
 }
 
 .mini-cart-trigger {
-  position: relative;
-  background: none;
+  position: fixed; /* Override relative */
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 60px;
+  background: var(--gradient-primary);
+  color: white;
+  border-radius: 50%;
   border: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   cursor: pointer;
-  padding: var(--space-sm);
-  border-radius: var(--radius-lg);
-  transition: all var(--transition-normal);
-  color: var(--foreground-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 0;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .mini-cart-trigger:hover {
-  background: var(--surface-hover);
-  color: var(--primary);
-  transform: scale(1.05);
+  transform: scale(1.1) rotate(-5deg);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  color: white; /* Keep white on hover */
 }
 
 .mini-cart-icon {
   width: 24px;
   height: 24px;
   transition: transform var(--transition-normal);
+  color: white; /* Ensure icon is white */
 }
 
 .mini-cart-trigger:hover .mini-cart-icon {

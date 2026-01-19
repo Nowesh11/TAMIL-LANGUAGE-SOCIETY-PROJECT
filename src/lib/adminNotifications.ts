@@ -14,9 +14,15 @@ export async function notifyAdminError(title: string, message: string) {
       sendEmail: false,
       startAt: new Date().toISOString()
     }
+    
+    // Get token for auth
+    const token = localStorage.getItem('accessToken');
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
     await fetch('/api/notifications', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(payload)
     })
   } catch {}
@@ -36,15 +42,26 @@ export async function notifyAdminSuccess(title: string, message: string) {
       sendEmail: false,
       startAt: new Date().toISOString()
     }
+
+    // Get token for auth
+    const token = localStorage.getItem('accessToken');
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
     await fetch('/api/notifications', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(payload)
     })
   } catch {}
 }
 
 export async function fetchAdminNotifications(limit = 10) {
-  const res = await fetch(`/api/notifications?limit=${limit}`)
+  // Get token for auth
+  const token = localStorage.getItem('accessToken');
+  const headers: Record<string, string> = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`/api/notifications?limit=${limit}`, { headers })
   return res.json()
 }

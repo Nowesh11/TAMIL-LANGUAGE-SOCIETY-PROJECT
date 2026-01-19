@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { safeFetchJson } from '../lib/safeFetch';
+import toast from 'react-hot-toast';
 
 interface User {
   id: string;
@@ -125,23 +126,50 @@ export function useAuth() {
   }, [accessToken]);
 
   const login = async (email: string, password: string) => {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    if (!res.ok) throw new Error('Login failed');
-    const data = await res.json();
-    // Store access token and login time in both state and localStorage
-    setUser(data.user);
-    setAccessToken(data.accessToken);
-    localStorage.setItem('accessToken', data.accessToken);
-    localStorage.setItem('loginTime', Date.now().toString());
-    return data;
+    console.log('[useAuth] Sending login request for:', email);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      
+      console.log('[useAuth] Response status:', res.status);
+      
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error('[useAuth] Login failed:', errText);
+        let errMsg = 'Login failed';
+        try {
+          errMsg = JSON.parse(errText).error || errMsg;
+        } catch {}
+        throw new Error(errMsg);
+      }
+      
+      const data = await res.json();
+      console.log('[useAuth] Login success, received data');
+      
+      // Store access token and login time in both state and localStorage
+      setUser(data.user);
+      setAccessToken(data.accessToken);
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('loginTime', Date.now().toString());
+      toast.success('Login successful!');
+      return { success: true, user: data.user, accessToken: data.accessToken };
+    } catch (e: any) {
+      console.error('[useAuth] Login exception:', e);
+      toast.error(e.message || 'Login failed');
+      return { success: false, error: e.message };
+    }
   };
 
   const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      toast.success('Logged out successfully');
+    } catch (e) {
+      console.error('Logout error', e);
+    }
     setUser(null);
     setAccessToken(null);
     localStorage.removeItem('accessToken');

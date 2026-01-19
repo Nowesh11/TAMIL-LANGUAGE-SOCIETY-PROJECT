@@ -122,20 +122,50 @@ export default function TextSection({ page = 'about', slug, data: propData }: { 
     );
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-10">
-      {loading ? (
-        <div className="space-y-4 animate-pulse">
-          <div className="h-7 bg-slate-300/40 dark:bg-white/10 rounded w-1/3 mx-auto" />
-          <div className="h-4 bg-slate-300/40 dark:bg-white/10 rounded w-2/3 mx-auto" />
-          <div className="h-4 bg-slate-300/40 dark:bg-white/10 rounded w-2/3 mx-auto" />
-          <div className="h-4 bg-slate-300/40 dark:bg-white/10 rounded w-1/2 mx-auto" />
+    <section className="py-20 relative overflow-hidden aurora-bg">
+      <div className="layout-container relative z-10 max-w-5xl">
+        <div className="card-morphism p-8 md:p-12 rounded-3xl border border-white/10 shadow-2xl animate-slide-in-up">
+          {loading ? (
+            <div className="space-y-4 animate-pulse">
+              <div className="h-8 bg-white/10 rounded w-1/3 mx-auto" />
+              <div className="h-4 bg-white/10 rounded w-full" />
+              <div className="h-4 bg-white/10 rounded w-5/6" />
+              <div className="h-4 bg-white/10 rounded w-4/5" />
+            </div>
+          ) : error ? null : (
+            <>
+              {content?.title && (
+                <h2 className="text-3xl md:text-4xl font-bold mb-8 text-white drop-shadow-lg text-center gradient-title">
+                  <span className="animate-text-glow">{content.title?.[lang] || content.title?.en || ''}</span>
+                </h2>
+              )}
+              
+              <div className={`text-gray-300 leading-relaxed ${
+                fontSize === 'sm' ? 'text-sm' :
+                fontSize === 'md' ? 'text-base' :
+                fontSize === 'lg' ? 'text-lg' :
+                fontSize === 'xl' ? 'text-xl' :
+                fontSize === '2xl' ? 'text-2xl' : 'text-base'
+              } ${
+                fontWeight === 'normal' ? 'font-normal' :
+                fontWeight === 'medium' ? 'font-medium' :
+                fontWeight === 'semibold' ? 'font-semibold' :
+                fontWeight === 'bold' ? 'font-bold' : 'font-normal'
+              } ${
+                alignment === 'center' ? 'text-center' :
+                alignment === 'right' ? 'text-right' :
+                alignment === 'justify' ? 'text-justify' : 'text-left'
+              }`}>
+                {content?.format === 'html' ? (
+                  <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: content?.content?.[lang] || content?.content?.en || '' }} />
+                ) : (
+                  <p className="whitespace-pre-line">{content?.content?.[lang] || content?.content?.en || ''}</p>
+                )}
+              </div>
+            </>
+          )}
         </div>
-      ) : error ? null : (
-        <>
-          {Title}
-          {Body}
-        </>
-      )}
+      </div>
     </section>
   );
 }

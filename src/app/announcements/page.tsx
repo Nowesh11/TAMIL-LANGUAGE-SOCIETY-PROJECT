@@ -31,6 +31,11 @@ export default function UserNotificationsPage() {
       const res = await fetch('/api/notifications?limit=50', {
         headers: { 'Authorization': `Bearer ${accessToken}` }
       });
+      if (res.status === 401) {
+        // Handle unauthorized by potentially refreshing token or just stopping
+        console.error('Unauthorized access to notifications');
+        return;
+      }
       const data = await res.json();
       if (data.notifications) {
         setNotifications(data.notifications);
@@ -181,7 +186,13 @@ export default function UserNotificationsPage() {
                       {notification.actionUrl && (
                         <div className="mt-3">
                           <Link 
-                            href={notification.actionUrl}
+                            href={notification.actionUrl.startsWith('/account/purchases') ? '#' : notification.actionUrl}
+                            onClick={(e) => {
+                               if (notification.actionUrl?.startsWith('/account/purchases')) {
+                                  e.preventDefault();
+                                  window.location.href = '/books?modal=purchases';
+                               }
+                            }}
                             className="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800"
                           >
                             {getLanguageContent(notification.actionText) || 'View Details'} →

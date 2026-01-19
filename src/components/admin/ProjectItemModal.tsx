@@ -232,172 +232,195 @@ const ProjectItemModal: React.FC<ProjectItemModalProps> = ({ isOpen, onClose, it
   if (!isOpen) return null;
 
   return (
-    <div className="component-modal-overlay modern-modal-overlay">
-      <div className="component-modal-container modern-modal-container">
-        <form onSubmit={handleSubmit} className="modern-modal-form">
-          <div className="modern-modal-header">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[100000] p-4 animate-fade-in">
+      <div className="w-full max-w-6xl bg-[#0a0a0f] border border-white/10 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] max-h-[90vh] flex flex-col relative overflow-hidden text-white animate-scale-in">
+        <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden">
+          <div className="flex items-center justify-between p-6 border-b border-white/10 bg-[#0a0a0f]">
             <div className="modal-title-section">
-              <h2 className="modern-modal-title">
+              <h2 className="text-2xl font-bold text-white mb-1">
                 {mode === 'edit' ? 'Edit Project Item' : 'Create Project Item'}
               </h2>
-              <p className="modal-subtitle">Manage project details, settings, and media</p>
+              <p className="text-sm text-gray-400">Manage project details, settings, and media</p>
             </div>
-            <button type="button" className="modern-close-button" onClick={onClose} aria-label="Close">
-              <FaTimes />
+            <button 
+              type="button" 
+              className="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-all border border-transparent hover:border-white/10"
+              onClick={onClose} 
+              aria-label="Close"
+            >
+              <FaTimes size={20} />
             </button>
           </div>
 
-          <div className="modern-modal-tabs">
-            <button type="button" className={`tab-button ${activeTab === 'content' ? 'active' : ''}`} onClick={() => setActiveTab('content')}>
+          <div className="flex gap-2 p-4 border-b border-white/10 bg-white/5">
+            <button 
+              type="button" 
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'content' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+              onClick={() => setActiveTab('content')}
+            >
               Content
             </button>
-            <button type="button" className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
+            <button 
+              type="button" 
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'settings' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+              onClick={() => setActiveTab('settings')}
+            >
               Settings
             </button>
-            <button type="button" className={`tab-button ${activeTab === 'media' ? 'active' : ''}`} onClick={() => setActiveTab('media')}>
+            <button 
+              type="button" 
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'media' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+              onClick={() => setActiveTab('media')}
+            >
               Media
             </button>
           </div>
 
-          <div className="modern-modal-body">
+          <div className="flex-1 overflow-y-auto p-6 bg-[#0a0a0f] custom-scrollbar">
             {activeTab === 'content' && (
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Title (English)</label>
-                  <input value={form.title.en} onChange={e => updateBilingual('title', 'en', e.target.value)} />
-                  {errors.titleEn && <p className="error-text">{errors.titleEn}</p>}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium text-gray-400">Title (English)</label>
+                  <input className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50" value={form.title.en} onChange={e => updateBilingual('title', 'en', e.target.value)} />
+                  {errors.titleEn && <p className="text-xs text-rose-400 flex items-center gap-1"><FaExclamationTriangle /> {errors.titleEn}</p>}
                 </div>
-                <div className="form-group">
-                  <label>Title (Tamil)</label>
-                  <input value={form.title.ta} onChange={e => updateBilingual('title', 'ta', e.target.value)} />
-                  {errors.titleTa && <p className="error-text">{errors.titleTa}</p>}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium text-gray-400">Title (Tamil)</label>
+                  <input className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50" value={form.title.ta} onChange={e => updateBilingual('title', 'ta', e.target.value)} />
+                  {errors.titleTa && <p className="text-xs text-rose-400 flex items-center gap-1"><FaExclamationTriangle /> {errors.titleTa}</p>}
                 </div>
 
-              <div className="form-group">
-                <label>Short Description (English)</label>
-                <textarea value={form.shortDesc.en} onChange={e => updateBilingual('shortDesc', 'en', e.target.value)} />
-                {errors.shortDescEn && <p className="error-text">{errors.shortDescEn}</p>}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Short Description (English)</label>
+                <textarea className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50 min-h-[100px]" value={form.shortDesc.en} onChange={e => updateBilingual('shortDesc', 'en', e.target.value)} />
+                {errors.shortDescEn && <p className="text-xs text-rose-400 flex items-center gap-1"><FaExclamationTriangle /> {errors.shortDescEn}</p>}
               </div>
-              <div className="form-group">
-                <label>Short Description (Tamil)</label>
-                <textarea value={form.shortDesc.ta} onChange={e => updateBilingual('shortDesc', 'ta', e.target.value)} />
-                {errors.shortDescTa && <p className="error-text">{errors.shortDescTa}</p>}
-              </div>
-
-              <div className="form-group full-width">
-                <label>Full Description (English)</label>
-                <textarea rows={4} value={form.fullDesc.en} onChange={e => updateBilingual('fullDesc', 'en', e.target.value)} />
-                {errors.fullDescEn && <p className="error-text">{errors.fullDescEn}</p>}
-              </div>
-              <div className="form-group full-width">
-                <label>Full Description (Tamil)</label>
-                <textarea rows={4} value={form.fullDesc.ta} onChange={e => updateBilingual('fullDesc', 'ta', e.target.value)} />
-                {errors.fullDescTa && <p className="error-text">{errors.fullDescTa}</p>}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Short Description (Tamil)</label>
+                <textarea className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50 min-h-[100px]" value={form.shortDesc.ta} onChange={e => updateBilingual('shortDesc', 'ta', e.target.value)} />
+                {errors.shortDescTa && <p className="text-xs text-rose-400 flex items-center gap-1"><FaExclamationTriangle /> {errors.shortDescTa}</p>}
               </div>
 
-              <div className="form-group">
-                <label>Goals (English)</label>
-                <textarea value={form.goals.en} onChange={e => updateBilingual('goals', 'en', e.target.value)} />
+              <div className="flex flex-col gap-2 md:col-span-2">
+                <label className="text-sm font-medium text-gray-400">Full Description (English)</label>
+                <textarea className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50 min-h-[150px]" rows={4} value={form.fullDesc.en} onChange={e => updateBilingual('fullDesc', 'en', e.target.value)} />
+                {errors.fullDescEn && <p className="text-xs text-rose-400 flex items-center gap-1"><FaExclamationTriangle /> {errors.fullDescEn}</p>}
               </div>
-              <div className="form-group">
-                <label>Goals (Tamil)</label>
-                <textarea value={form.goals.ta} onChange={e => updateBilingual('goals', 'ta', e.target.value)} />
-              </div>
-
-              <div className="form-group">
-                <label>Achievement (English)</label>
-                <textarea value={form.achievement.en} onChange={e => updateBilingual('achievement', 'en', e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label>Achievement (Tamil)</label>
-                <textarea value={form.achievement.ta} onChange={e => updateBilingual('achievement', 'ta', e.target.value)} />
+              <div className="flex flex-col gap-2 md:col-span-2">
+                <label className="text-sm font-medium text-gray-400">Full Description (Tamil)</label>
+                <textarea className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50 min-h-[150px]" rows={4} value={form.fullDesc.ta} onChange={e => updateBilingual('fullDesc', 'ta', e.target.value)} />
+                {errors.fullDescTa && <p className="text-xs text-rose-400 flex items-center gap-1"><FaExclamationTriangle /> {errors.fullDescTa}</p>}
               </div>
 
-              <div className="form-group">
-                <label>Director Name (English)</label>
-                <input value={form.directorName.en} onChange={e => updateBilingual('directorName', 'en', e.target.value)} />
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Goals (English)</label>
+                <textarea className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50 min-h-[100px]" value={form.goals.en} onChange={e => updateBilingual('goals', 'en', e.target.value)} />
               </div>
-              <div className="form-group">
-                <label>Director Name (Tamil)</label>
-                <input value={form.directorName.ta} onChange={e => updateBilingual('directorName', 'ta', e.target.value)} />
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Goals (Tamil)</label>
+                <textarea className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50 min-h-[100px]" value={form.goals.ta} onChange={e => updateBilingual('goals', 'ta', e.target.value)} />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Achievement (English)</label>
+                <textarea className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50 min-h-[100px]" value={form.achievement.en} onChange={e => updateBilingual('achievement', 'en', e.target.value)} />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Achievement (Tamil)</label>
+                <textarea className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50 min-h-[100px]" value={form.achievement.ta} onChange={e => updateBilingual('achievement', 'ta', e.target.value)} />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Director Name (English)</label>
+                <input className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50" value={form.directorName.en} onChange={e => updateBilingual('directorName', 'en', e.target.value)} />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Director Name (Tamil)</label>
+                <input className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50" value={form.directorName.ta} onChange={e => updateBilingual('directorName', 'ta', e.target.value)} />
               </div>
             </div>
           )}
 
           {activeTab === 'settings' && (
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Type</label>
-                <select value={form.type} onChange={e => updateField('type', e.target.value)}>
-                  <option value="project">Project</option>
-                  <option value="activity">Activity</option>
-                  <option value="initiative">Initiative</option>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Type</label>
+                <select className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50 appearance-none" value={form.type} onChange={e => updateField('type', e.target.value)}>
+                  <option value="project" className="bg-[#0a0a0f]">Project</option>
+                  <option value="activity" className="bg-[#0a0a0f]">Activity</option>
+                  <option value="initiative" className="bg-[#0a0a0f]">Initiative</option>
                 </select>
-                {errors.type && <p className="error-text">{errors.type}</p>}
+                {errors.type && <p className="text-xs text-rose-400 flex items-center gap-1"><FaExclamationTriangle /> {errors.type}</p>}
               </div>
-              <div className="form-group">
-                <label>Bureau</label>
-                <select value={form.bureau || ''} onChange={e => updateField('bureau', e.target.value || undefined)}>
-                  <option value="">None</option>
-                  <option value="sports_leadership">Sports & Leadership</option>
-                  <option value="education_intellectual">Education & Intellectual</option>
-                  <option value="arts_culture">Arts & Culture</option>
-                  <option value="social_welfare_voluntary">Social Welfare & Voluntary</option>
-                  <option value="language_literature">Language & Literature</option>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Bureau</label>
+                <select className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50 appearance-none" value={form.bureau || ''} onChange={e => updateField('bureau', e.target.value || undefined)}>
+                  <option value="" className="bg-[#0a0a0f]">None</option>
+                  <option value="sports_leadership" className="bg-[#0a0a0f]">Sports & Leadership</option>
+                  <option value="education_intellectual" className="bg-[#0a0a0f]">Education & Intellectual</option>
+                  <option value="arts_culture" className="bg-[#0a0a0f]">Arts & Culture</option>
+                  <option value="social_welfare_voluntary" className="bg-[#0a0a0f]">Social Welfare & Voluntary</option>
+                  <option value="language_literature" className="bg-[#0a0a0f]">Language & Literature</option>
                 </select>
               </div>
-              <div className="form-group">
-                <label>Status</label>
-                <select value={form.status} onChange={e => updateField('status', e.target.value)}>
-                  <option value="planning">Planning</option>
-                  <option value="active">Active</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                  <option value="on-hold">On-hold</option>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Status</label>
+                <select className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50 appearance-none" value={form.status} onChange={e => updateField('status', e.target.value)}>
+                  <option value="planning" className="bg-[#0a0a0f]">Planning</option>
+                  <option value="active" className="bg-[#0a0a0f]">Active</option>
+                  <option value="completed" className="bg-[#0a0a0f]">Completed</option>
+                  <option value="cancelled" className="bg-[#0a0a0f]">Cancelled</option>
+                  <option value="on-hold" className="bg-[#0a0a0f]">On-hold</option>
                 </select>
-                {errors.status && <p className="error-text">{errors.status}</p>}
+                {errors.status && <p className="text-xs text-rose-400 flex items-center gap-1"><FaExclamationTriangle /> {errors.status}</p>}
               </div>
-              <div className="form-group">
-                <label>Start Date</label>
-                <input type="date" value={form.startDate || ''} onChange={e => updateField('startDate', e.target.value)} />
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Start Date</label>
+                <input type="date" className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50" value={form.startDate || ''} onChange={e => updateField('startDate', e.target.value)} />
               </div>
-              <div className="form-group">
-                <label>End Date</label>
-                <input type="date" value={form.endDate || ''} onChange={e => updateField('endDate', e.target.value)} />
-                {errors.endDate && <p className="error-text">{errors.endDate}</p>}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">End Date</label>
+                <input type="date" className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50" value={form.endDate || ''} onChange={e => updateField('endDate', e.target.value)} />
+                {errors.endDate && <p className="text-xs text-rose-400 flex items-center gap-1"><FaExclamationTriangle /> {errors.endDate}</p>}
               </div>
-              <div className="form-group">
-                <label>Budget</label>
-                <input type="number" min={0} value={form.budget ?? ''} onChange={e => updateField('budget', e.target.value === '' ? undefined : Number(e.target.value))} />
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Budget</label>
+                <input type="number" min={0} className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50" value={form.budget ?? ''} onChange={e => updateField('budget', e.target.value === '' ? undefined : Number(e.target.value))} />
               </div>
-              <div className="form-group">
-                <label>Participants</label>
-                <input type="number" min={0} value={form.participants ?? 0} onChange={e => updateField('participants', Number(e.target.value))} />
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Participants</label>
+                <input type="number" min={0} className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50" value={form.participants ?? 0} onChange={e => updateField('participants', Number(e.target.value))} />
               </div>
-              <div className="form-group">
-                <label>Active</label>
-                <input type="checkbox" checked={form.active} onChange={e => updateField('active', e.target.checked)} />
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Active</label>
+                <div className="flex items-center gap-3 p-3 bg-black/20 border border-white/10 rounded-xl">
+                  <input type="checkbox" className="w-5 h-5 rounded border-white/20 bg-white/5 text-indigo-600 focus:ring-indigo-500" checked={form.active} onChange={e => updateField('active', e.target.checked)} />
+                  <span className="text-white">Is Active?</span>
+                </div>
               </div>
-              <div className="form-group">
-                <label>Featured</label>
-                <input type="checkbox" checked={form.featured} onChange={e => updateField('featured', e.target.checked)} />
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Featured</label>
+                <div className="flex items-center gap-3 p-3 bg-black/20 border border-white/10 rounded-xl">
+                  <input type="checkbox" className="w-5 h-5 rounded border-white/20 bg-white/5 text-indigo-600 focus:ring-indigo-500" checked={form.featured} onChange={e => updateField('featured', e.target.checked)} />
+                  <span className="text-white">Is Featured?</span>
+                </div>
               </div>
-              <div className="form-group">
-                <label>Location (English)</label>
-                <input value={form.location?.en || ''} onChange={e => updateBilingual('location', 'en', e.target.value)} />
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Location (English)</label>
+                <input className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50" value={form.location?.en || ''} onChange={e => updateBilingual('location', 'en', e.target.value)} />
               </div>
-              <div className="form-group">
-                <label>Location (Tamil)</label>
-                <input value={form.location?.ta || ''} onChange={e => updateBilingual('location', 'ta', e.target.value)} />
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-400">Location (Tamil)</label>
+                <input className="w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all focus:border-indigo-500/50" value={form.location?.ta || ''} onChange={e => updateBilingual('location', 'ta', e.target.value)} />
               </div>
             </div>
           )}
 
           {activeTab === 'media' && (
-            <div className="modern-form-section">
-              <h3 className="section-title">Media Gallery</h3>
+            <div className="flex flex-col gap-6">
+              <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2">Media Gallery</h3>
 
-              <div className="modern-field-group">
+              <div className="p-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm">
                 <MediaUploader
                   category="projectitems"
                   subCategory={`${form._id || 'new'}/images`}
@@ -409,10 +432,10 @@ const ProjectItemModal: React.FC<ProjectItemModalProps> = ({ isOpen, onClose, it
                     updateField('heroImagePath', url);
                   }}
                 />
-                {errors.image && <span className="error-message"><FaExclamationTriangle /> {errors.image}</span>}
+                {errors.image && <span className="text-xs text-rose-400 flex items-center gap-1 mt-2"><FaExclamationTriangle /> {errors.image}</span>}
               </div>
 
-              <div className="modern-field-group">
+              <div className="p-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm">
                 <MediaUploader
                   category="projectitems"
                   subCategory={`${form._id || 'new'}/images`}
@@ -424,17 +447,18 @@ const ProjectItemModal: React.FC<ProjectItemModalProps> = ({ isOpen, onClose, it
                     updateField('images', [...(form.images || []), url]);
                   }}
                 />
-                {galleryErrors && <span className="error-message"><FaExclamationTriangle /> {galleryErrors}</span>}
+                {galleryErrors && <span className="text-xs text-rose-400 flex items-center gap-1 mt-2"><FaExclamationTriangle /> {galleryErrors}</span>}
                 
                 {(form.images || []).length > 0 && (
-                  <div className="modern-image-upload-section">
+                  <div className="mt-4">
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
                       {(form.images || []).map((src, idx) => (
-                        <div key={`${src}-${idx}`} className="modern-image-upload-area" style={{ minHeight: 140 }}>
-                          <div className="image-preview">
-                            <img className="preview-image" src={src.startsWith('/api/') ? src : `/api/files/serve?path=${encodeURIComponent(src)}`} alt={`Image ${idx + 1}`} />
-                            <div className="image-overlay">
-                              <button type="button" className="remove-image-btn" onClick={() => removeImageAt(idx)}>
+                        <div key={`${src}-${idx}`} className="relative min-h-[140px] border-2 border-dashed border-white/10 rounded-xl bg-black/20 flex items-center justify-center cursor-pointer overflow-hidden group hover:border-indigo-500/50 hover:bg-indigo-500/5 transition-all">
+                          <div className="w-full h-full flex items-center justify-center">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img className="max-w-full max-h-[140px] object-contain rounded-lg" src={src.startsWith('/api/') ? src : `/api/files/serve?path=${encodeURIComponent(src)}`} alt={`Image ${idx + 1}`} />
+                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button type="button" className="w-8 h-8 rounded-lg bg-rose-500 text-white flex items-center justify-center shadow-lg hover:bg-rose-600 transition-colors" onClick={() => removeImageAt(idx)}>
                                 <FaTimes />
                               </button>
                             </div>
@@ -451,20 +475,29 @@ const ProjectItemModal: React.FC<ProjectItemModalProps> = ({ isOpen, onClose, it
 
           </div>
 
-          <div className="modern-modal-footer">
+          <div className="flex items-center justify-between p-6 border-t border-white/10 bg-[#0a0a0f] sticky bottom-0">
             <div className="modal-footer-left">
               {errors.submit && (
-                <div className="modal-error">
+                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm flex items-center gap-2">
                   <FaExclamationTriangle /> {errors.submit}
                 </div>
               )}
             </div>
-            <div className="modal-footer-right">
-              <button type="button" className="modern-btn modern-btn-secondary" onClick={onClose} disabled={loading}>
+            <div className="flex gap-4">
+              <button 
+                type="button" 
+                className="px-6 py-2.5 rounded-xl border border-white/10 text-gray-300 font-semibold hover:bg-white/5 hover:text-white transition-all flex items-center gap-2" 
+                onClick={onClose} 
+                disabled={loading}
+              >
                 <FaTimes /> Cancel
               </button>
-              <button type="submit" className="modern-btn modern-btn-primary" disabled={loading}>
-                {loading ? (<><FaSpinner className="spinner" /> Saving</>) : (<><FaSave /> Save</>)}
+              <button 
+                type="submit" 
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-bold hover:from-indigo-500 hover:to-blue-500 shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" 
+                disabled={loading}
+              >
+                {loading ? (<><FaSpinner className="animate-spin" /> Saving</>) : (<><FaSave /> Save</>)}
               </button>
             </div>
           </div>

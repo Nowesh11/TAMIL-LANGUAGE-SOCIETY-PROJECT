@@ -1,7 +1,6 @@
 "use client";
 import { useEffect } from 'react';
 import UserPurchases from './UserPurchases';
-import '../styles/components/Modal.css';
 
 interface UserPurchasesModalProps {
   isOpen: boolean;
@@ -31,30 +30,29 @@ export default function UserPurchasesModal({ isOpen, onClose }: UserPurchasesMod
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-container purchases-modal-container" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2 className="modal-title">My Purchases</h2>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+      <div 
+        className="w-full max-w-4xl bg-surface/95 backdrop-blur-xl rounded-2xl border border-border/50 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-scale-in"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="p-6 border-b border-border/50 flex justify-between items-center bg-surface sticky top-0 z-10">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <FaHistory className="text-primary" />
+              {lang === 'en' ? 'My Purchases' : 'எனது கொள்முதல்'}
+            </h2>
+            <p className="text-foreground-secondary text-sm mt-1">
+              {lang === 'en' ? 'Track your orders' : 'உங்கள் ஆர்டர்களைக் கண்காணிக்கவும்'}
+            </p>
+          </div>
           <button 
-            className="modal-close-button"
             onClick={onClose}
-            aria-label="Close purchases"
+            className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-foreground-secondary hover:text-error hover:bg-error/10 transition-colors"
           >
-            <svg 
-              width="24" 
-              height="24" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2"
-            >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
+            <FaTimes />
           </button>
         </div>
-        
-        <div className="modal-content">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-background/50">
           <UserPurchases />
         </div>
       </div>

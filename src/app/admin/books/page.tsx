@@ -734,6 +734,7 @@ const BooksPage: React.FC = () => {
           onSuccess={() => {
             fetchBooks();
             setShowModal(false);
+            notifyAdminSuccess('Success', editingBook ? 'Book updated successfully' : 'Book created successfully');
           }}
           book={editingBook}
           mode={editingBook ? 'edit' : 'create'}

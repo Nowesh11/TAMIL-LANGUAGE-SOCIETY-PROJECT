@@ -143,12 +143,18 @@ export async function GET(request: NextRequest) {
       query.type = type;
     }
     
-    if (pageFilter) {
-      query.page = pageFilter;
+    if (pageFilter && pageFilter !== 'all') {
+      // Escape special regex characters to prevent errors
+      const escapedFilter = pageFilter.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.page = { $regex: new RegExp(`^${escapedFilter}$`, 'i') };
     }
     
     if (bureau) {
       query.bureau = bureau;
+    }
+
+    if (searchParams.get('category')) {
+      query.category = searchParams.get('category');
     }
     
     // Get total count

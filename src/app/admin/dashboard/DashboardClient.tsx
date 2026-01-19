@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { 
   FiUsers, FiBook, FiTrendingUp, FiDownload, FiBriefcase, FiImage, FiFolder,
@@ -36,11 +37,16 @@ export default function DashboardClient({ initialData }: { initialData: any }) {
         const json = await res.json();
         setData(json);
         setRetryCount(0);
+        toast.success('Dashboard data updated');
       } catch (e: any) {
         const msg = String(e?.message || '');
         const name = String(e?.name || '');
         if (name === 'AbortError' || msg.toLowerCase().includes('aborted')) return;
-        setError(e?.message || 'Failed to load dashboard data');
+        
+        const errorMsg = e?.message || 'Failed to load dashboard data';
+        setError(errorMsg);
+        toast.error(errorMsg);
+
         if (retryCount < 2 && msg.includes('Server error')) {
           setTimeout(() => {
             setRetryCount(prev => prev + 1);

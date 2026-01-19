@@ -1,24 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
-import "./site.css";
-import "../styles/global-theme.css";
-import "../styles/auth.css";
-import "../styles/admin/modern.css";
 import { LanguageProvider } from "../hooks/LanguageContext";
 import { ThemeProvider } from "../hooks/ThemeContext";
 import ErrorBoundary from "../components/ErrorBoundary";
 import ReactQueryProvider from "../components/ReactQueryProvider";
 import ToasterProvider from "../components/ToasterProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const poppins = Poppins({
+  weight: ["400", "500", "600", "700", "800"],
   subsets: ["latin"],
+  variable: "--font-poppins",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -82,6 +81,8 @@ export const metadata: Metadata = {
   },
 };
 
+import Navbar from "../components/Navbar";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -92,18 +93,23 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#dc2626" />
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossOrigin="anonymous" referrerPolicy="no-referrer" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background text-foreground`}
+        className={`${inter.variable} ${poppins.variable} antialiased min-h-screen bg-background text-foreground font-sans`}
       >
         <ThemeProvider>
           <LanguageProvider>
             <ReactQueryProvider>
               <ToasterProvider />
               <ErrorBoundary>
-                <div id="root">
-                  {children}
+                <div id="root" className="flex flex-col min-h-screen">
+                  <Navbar />
+                  <main className="flex-grow">
+                    {children}
+                  </main>
                 </div>
               </ErrorBoundary>
             </ReactQueryProvider>

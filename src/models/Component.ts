@@ -432,6 +432,11 @@ const ComponentSchema = new Schema<IComponent>({
     lowercase: true,
     index: true
   },
+  category: {
+    type: String,
+    trim: true,
+    index: true
+  },
   bureau: {
     type: String,
     trim: true,
@@ -540,6 +545,12 @@ ComponentSchema.index({ type: 1, isActive: 1 });
 ComponentSchema.index({ createdBy: 1, createdAt: -1 });
 ComponentSchema.index({ page: 1, type: 1, isActive: 1 });
 ComponentSchema.index({ page: 1, bureau: 1, type: 1, isActive: 1 });
+ComponentSchema.index({ category: 1 });
+ComponentSchema.index({
+  'content.title.en': 'text',
+  'content.title.ta': 'text',
+  'content.description.en': 'text'
+});
 
 // Targeted indexes for better performance
 ComponentSchema.index({ 'visibility.desktop': 1, 'visibility.tablet': 1, 'visibility.mobile': 1 });

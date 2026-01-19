@@ -4,40 +4,10 @@ const nextConfig: NextConfig = {
   // Prevent ESLint errors from failing production builds; keep dev linting
   eslint: { ignoreDuringBuilds: true },
   
-  // Enhanced debugging for development
+  // Enhanced debugging for development - Simplified for performance
   ...(process.env.NODE_ENV === 'development' && {
-    // Better source maps for debugging
-    webpack: (config: any, { dev, isServer }: any) => {
-      if (dev) {
-        // Enable detailed source maps
-        config.devtool = 'eval-source-map';
-        
-        // Preserve component names in stack traces
-        config.optimization = {
-          ...config.optimization,
-          minimize: false,
-        };
-        
-        // Better error handling
-        config.stats = {
-          errorDetails: true,
-          children: true,
-        };
-      }
-      return config;
-    },
-    
-    // Turbopack specific optimizations for better debugging
-    // experimental: {
-    //   turbo: {
-    //     rules: {
-    //       '*.tsx': {
-    //         loaders: ['@next/swc-loader'],
-    //         as: '*.tsx',
-    //       },
-    //     },
-    //   },
-    // },
+    // Remove heavy source maps in favor of default fast ones
+    // Keep webpack config minimal for dev speed
   }),
   
   // Image optimization
@@ -52,6 +22,9 @@ const nextConfig: NextConfig = {
       },
       {
         pathname: '/uploads/**',
+      },
+      {
+        pathname: '/**',
       },
     ],
     remotePatterns: [
@@ -71,13 +44,15 @@ const nextConfig: NextConfig = {
   },
   
   // Compression
-  compress: true,
+  compress: process.env.NODE_ENV === 'production',
   
-  // CSS optimization
-  experimental: {
-    optimizeCss: true,
-    cssChunking: 'strict',
-  },
+  // CSS optimization - Production only for better dev performance
+  ...(process.env.NODE_ENV === 'production' && {
+    experimental: {
+      optimizeCss: true,
+      cssChunking: 'strict',
+    },
+  }),
   
   // Production optimizations
   ...(process.env.NODE_ENV === 'production' && {

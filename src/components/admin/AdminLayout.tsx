@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,6 +8,7 @@ import AdminProtectedRoute from './AdminProtectedRoute';
 import '../../styles/admin/layout.css';
 import '../../styles/admin/modern.css';
 import '../../styles/admin/modals.css';
+import toast, { Toaster } from 'react-hot-toast';
 
 import { 
   FiHome, 
@@ -186,6 +187,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subtitle }) 
   return (
     <AdminProtectedRoute>
       <div className={`admin-layout ${theme === 'dark' ? 'dark theme-dark' : 'theme-light'} accent-${accent}`}>
+      <Toaster position="top-right" toastOptions={{
+        className: 'modern-toast',
+        style: {
+          background: '#1a1a20',
+          color: '#fff',
+          border: '1px solid rgba(255,255,255,0.1)',
+        }
+      }} />
       {/* Sidebar */}
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="admin-sidebar-header">
@@ -268,6 +277,19 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subtitle }) 
             </div>
             
             <div className="admin-user-menu" style={{ gap: '8px' }}>
+              <button
+                className="admin-logout-button relative"
+                onClick={toggleNotifications}
+                title="Notifications"
+              >
+                <FiBell />
+                {notificationCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+                    {notificationCount}
+                  </span>
+                )}
+              </button>
+              
               <button
                 onClick={toggleTheme}
                 className="admin-logout-button"

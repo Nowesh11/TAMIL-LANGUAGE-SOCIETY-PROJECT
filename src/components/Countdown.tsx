@@ -83,7 +83,7 @@ export default function Countdown({ page = 'home', data: propData }: { page?: st
   if (!data) {
     return (
       <section className="mx-auto max-w-5xl px-6 py-10">
-        <div className="text-center text-slate-500 dark:text-slate-400">
+        <div className="text-center text-gray-400">
           {lang === 'en' ? 'Countdown content not available' : 'கவுண்ட்டவுன் உள்ளடக்கம் கிடைக்கவில்லை'}
         </div>
       </section>
@@ -93,8 +93,8 @@ export default function Countdown({ page = 'home', data: propData }: { page?: st
   if (isExpired) {
     return (
       <section className="mx-auto max-w-5xl px-6 py-10 text-center">
-        <h2 className="text-3xl font-bold mb-4">{data.title?.[lang] || data.title?.en || ''}</h2>
-        <p className="text-xl text-slate-600 dark:text-slate-300">
+        <h2 className="text-3xl font-bold mb-4 text-white">{data.title?.[lang] || data.title?.en || ''}</h2>
+        <p className="text-xl text-gray-300">
           {data.expiredMessage?.[lang] || data.expiredMessage?.en || ''}
         </p>
       </section>
@@ -102,39 +102,39 @@ export default function Countdown({ page = 'home', data: propData }: { page?: st
   }
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-10 text-center">
-      <h2 className="text-3xl font-bold mb-4">{data.title?.[lang] || data.title?.en || ''}</h2>
+    <section className="mx-auto max-w-5xl px-6 py-16 text-center">
+      <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-lg">{data.title?.[lang] || data.title?.en || ''}</h2>
       {data.subtitle && (
-        <p className="text-lg text-slate-600 dark:text-slate-300 mb-8">
+        <p className="text-lg md:text-xl text-gray-300 mb-10">
           {data.subtitle?.[lang] || data.subtitle?.en || ''}
         </p>
       )}
       
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-lg border border-slate-200 dark:border-slate-700">
-          <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{timeLeft.days}</div>
-          <div className="text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
+        <div className="card-morphism p-6 rounded-2xl border border-white/10 flex flex-col items-center justify-center transform hover:scale-105 transition-transform duration-300">
+          <div className="text-4xl md:text-5xl font-bold text-primary mb-2">{timeLeft.days}</div>
+          <div className="text-sm md:text-base font-medium text-gray-400 uppercase tracking-wider">
             {data.labels?.days?.[lang] || data.labels?.days?.en || 'Days'}
           </div>
         </div>
         
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-lg border border-slate-200 dark:border-slate-700">
-          <div className="text-3xl font-bold text-green-600 dark:text-green-400">{timeLeft.hours}</div>
-          <div className="text-sm text-slate-600 dark:text-slate-300">
+        <div className="card-morphism p-6 rounded-2xl border border-white/10 flex flex-col items-center justify-center transform hover:scale-105 transition-transform duration-300">
+          <div className="text-4xl md:text-5xl font-bold text-green-400 mb-2">{timeLeft.hours}</div>
+          <div className="text-sm md:text-base font-medium text-gray-400 uppercase tracking-wider">
             {data.labels?.hours?.[lang] || data.labels?.hours?.en || 'Hours'}
           </div>
         </div>
         
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-lg border border-slate-200 dark:border-slate-700">
-          <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">{timeLeft.minutes}</div>
-          <div className="text-sm text-slate-600 dark:text-slate-300">
+        <div className="card-morphism p-6 rounded-2xl border border-white/10 flex flex-col items-center justify-center transform hover:scale-105 transition-transform duration-300">
+          <div className="text-4xl md:text-5xl font-bold text-yellow-400 mb-2">{timeLeft.minutes}</div>
+          <div className="text-sm md:text-base font-medium text-gray-400 uppercase tracking-wider">
             {data.labels?.minutes?.[lang] || data.labels?.minutes?.en || 'Minutes'}
           </div>
         </div>
         
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-lg border border-slate-200 dark:border-slate-700">
-          <div className="text-3xl font-bold text-red-600 dark:text-red-400">{timeLeft.seconds}</div>
-          <div className="text-sm text-slate-600 dark:text-slate-300">
+        <div className="card-morphism p-6 rounded-2xl border border-white/10 flex flex-col items-center justify-center transform hover:scale-105 transition-transform duration-300">
+          <div className="text-4xl md:text-5xl font-bold text-red-400 mb-2">{timeLeft.seconds}</div>
+          <div className="text-sm md:text-base font-medium text-gray-400 uppercase tracking-wider">
             {data.labels?.seconds?.[lang] || data.labels?.seconds?.en || 'Seconds'}
           </div>
         </div>

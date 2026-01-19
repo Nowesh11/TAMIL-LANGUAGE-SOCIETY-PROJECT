@@ -113,7 +113,10 @@ export async function POST(req: NextRequest) {
     const book = new Book(data);
     await book.save();
     
-    return NextResponse.json(book, { status: 201 });
+    return NextResponse.json({
+      success: true,
+      data: book
+    }, { status: 201 });
   } catch (error) {
     console.error('❌ Error creating book:', error);
     return NextResponse.json({ success: false, error: 'Failed to create book', details: (error as Error).message }, { status: 500 });

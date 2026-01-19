@@ -28,10 +28,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
         ref={ref}
         id={inputId}
         className={`
-          block w-full rounded-md border-gray-300 shadow-sm 
-          focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm
-          disabled:bg-gray-100 disabled:text-gray-500
-          ${error ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500' : ''}
+          block w-full rounded-xl border-white/10 bg-black/20 text-white placeholder-gray-400 shadow-sm backdrop-blur-sm
+          focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 focus:outline-none transition-all duration-300
+          disabled:bg-white/5 disabled:text-gray-500
+          ${error ? 'border-red-500/50 text-red-300 placeholder-red-300/50 focus:border-red-500 focus:ring-red-500/20' : ''}
           ${className}
         `}
         {...props}

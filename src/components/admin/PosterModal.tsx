@@ -666,6 +666,7 @@ const PosterModal: React.FC<PosterModalProps> = ({
                       const url = r.url || (r.filePath ? `/api/files/serve?path=${encodeURIComponent(r.filePath)}` : '');
                       handleInputChange('imagePath', url);
                     }}
+                    initialUrl={formData.imagePath}
                   />
                 </div>
               </div>

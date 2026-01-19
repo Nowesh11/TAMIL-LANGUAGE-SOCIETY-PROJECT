@@ -6,6 +6,7 @@ import AdminLayout from '../../../components/admin/AdminLayout';
 import AdminHeader from '../../../components/admin/AdminHeader';
 import AdminTablePagination from '../../../components/admin/AdminTablePagination';
 import ComponentModal from '../../../components/admin/ComponentModal';
+import Image from 'next/image';
 import { 
   FiGrid, 
   FiPlus, 
@@ -34,6 +35,7 @@ import {
   FiTag
 } from 'react-icons/fi';
 import { useAdminShortcuts } from '@/hooks/useAdminShortcuts';
+import { toast } from 'react-hot-toast';
 
 // Types
 interface BilingualText {
@@ -68,6 +70,7 @@ interface ComponentStats {
   recentlyAdded: number;
   categories: { [key: string]: number };
   types: { [key: string]: number };
+  pageStats: { _id: string; count: number }[];
 }
 
 interface StatCard {
@@ -89,6 +92,7 @@ const ComponentsAdmin: React.FC = () => {
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterCategory, setFilterCategory] = useState('all');
+  const [filterPage, setFilterPage] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalComponents, setTotalComponents] = useState(0);
@@ -105,7 +109,7 @@ const ComponentsAdmin: React.FC = () => {
 
   useEffect(() => {
     fetchComponents();
-  }, [currentPage, searchTerm, filterType, filterStatus, filterCategory]);
+  }, [currentPage, searchTerm, filterType, filterStatus, filterCategory, filterPage]);
 
   useEffect(() => {
     const t = setTimeout(() => setSearchTerm(searchInput), 500);
@@ -135,7 +139,8 @@ const ComponentsAdmin: React.FC = () => {
         ...(searchTerm && { search: searchTerm }),
         ...(filterType !== 'all' && { type: filterType }),
         ...(filterStatus !== 'all' && { status: filterStatus }),
-        ...(filterCategory !== 'all' && { category: filterCategory })
+        ...(filterCategory !== 'all' && { category: filterCategory }),
+        ...(filterPage !== 'all' && { pageFilter: filterPage })
       });
 
       const response = await fetch(`/api/admin/components?${queryParams}`, {
@@ -166,16 +171,21 @@ const ComponentsAdmin: React.FC = () => {
             types: result.stats.topTypes?.reduce((acc: any, item: any) => {
               acc[item._id] = item.count;
               return acc;
-            }, {}) || {}
+            }, {}) || {},
+            pageStats: result.stats.pageStats || []
           });
         }
       } else {
-        setError(result.error || 'Failed to fetch components');
+        const errorMsg = result.error || 'Failed to fetch components';
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (error: any) {
       if (error.name === 'AbortError') return;
       console.error('Error fetching components:', error);
-      setError(error.message);
+      const errorMsg = error.message || 'Failed to fetch components';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -198,10 +208,13 @@ const ComponentsAdmin: React.FC = () => {
         throw new Error(`Failed to delete component: ${response.status}`);
       }
 
+      toast.success('Component deleted successfully');
       await fetchComponents();
     } catch (error) {
       console.error('Error deleting component:', error);
-      setError(error instanceof Error ? error.message : 'Failed to delete component');
+      const errorMsg = error instanceof Error ? error.message : 'Failed to delete component';
+      setError(errorMsg);
+      toast.error(errorMsg);
     }
   };
 
@@ -230,10 +243,13 @@ const ComponentsAdmin: React.FC = () => {
         throw new Error(errorMessage);
       }
 
+      toast.success(`Component ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
       await fetchComponents();
     } catch (error) {
       console.error('Error updating component:', error);
-      setError(error instanceof Error ? error.message : 'Failed to update component');
+      const errorMsg = error instanceof Error ? error.message : 'Failed to update component';
+      setError(errorMsg);
+      toast.error(errorMsg);
     }
   };
 
@@ -276,11 +292,14 @@ const ComponentsAdmin: React.FC = () => {
         throw new Error(errorMessage);
       }
 
+      toast.success(`Component ${selectedComponent ? 'updated' : 'created'} successfully`);
       await fetchComponents();
       handleCloseModal();
     } catch (error) {
       console.error('Error saving component:', error);
-      setError(error instanceof Error ? error.message : 'Failed to save component');
+      const errorMsg = error instanceof Error ? error.message : 'Failed to save component';
+      setError(errorMsg);
+      toast.error(errorMsg);
       throw error;
     }
   };
@@ -428,6 +447,23 @@ const ComponentsAdmin: React.FC = () => {
 
             {/* Filters */}
             <div className="admin-modern-filters-panel">
+              <div className="admin-modern-filter-group">
+                <label className="admin-modern-filter-label">
+                  <FiLayers />
+                  Page
+                </label>
+                <select
+                  value={filterPage}
+                  onChange={(e) => setFilterPage(e.target.value)}
+                  className="admin-modern-filter-select"
+                >
+                  <option value="all">All Pages</option>
+                  {stats.pageStats.map(page => (
+                    <option key={page._id} value={page._id}>{page._id} ({page.count})</option>
+                  ))}
+                </select>
+              </div>
+
               <div className="admin-modern-filter-group">
                 <label className="admin-modern-filter-label">
                   <FiFilter />

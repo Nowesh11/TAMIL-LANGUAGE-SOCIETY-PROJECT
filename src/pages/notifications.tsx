@@ -1,11 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { GetServerSideProps } from 'next';
+import { toast } from 'react-hot-toast';
 import DynamicComponent from '../components/DynamicComponent';
 import { useLanguage } from '../hooks/LanguageContext';
 import { useAuth } from '../hooks/useAuth';
 import { getPageContent, getPageSEO } from '../lib/getPageContent';
-import styles from '../app/announcements/notifications.module.css';
 
 interface Notification {
   _id: string;
@@ -283,18 +283,20 @@ export default function NotificationsPage({ pageContent, seoData }: Notification
     return (
       <>
         {componentsLoading ? (
-          <div>Loading...</div>
+          <div className="min-h-screen flex items-center justify-center aurora-bg">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
+          </div>
         ) : (
           <>
             {components.map((component, index) => (
               <DynamicComponent key={index} component={component} />
             ))}
-            <main className="flex items-center justify-center min-h-[60vh]">
-              <div className="text-center">
-                <h1 className="text-2xl font-bold mb-4">
+            <main className="flex items-center justify-center min-h-[60vh] aurora-bg">
+              <div className="text-center card-morphism p-10 rounded-3xl border border-white/10">
+                <h1 className="text-2xl font-bold mb-4 text-white">
                   {language === 'ta' ? 'உள்நுழைவு தேவை' : 'Login Required'}
                 </h1>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-400 mb-6">
                   {language === 'ta' 
                     ? 'அறிவிப்புகளைப் பார்க்க தயவுசெய்து உள்நுழையவும்'
                     : 'Please log in to view notifications'
@@ -302,7 +304,7 @@ export default function NotificationsPage({ pageContent, seoData }: Notification
                 </p>
                 <button 
                   onClick={() => router.push('/login')}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  className="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-xl shadow-lg transition-all transform hover:-translate-y-1"
                 >
                   {language === 'ta' ? 'உள்நுழையவும்' : 'Login'}
                 </button>
@@ -317,18 +319,20 @@ export default function NotificationsPage({ pageContent, seoData }: Notification
   return (
     <>
       {componentsLoading ? (
-        <div>Loading...</div>
+        <div className="min-h-screen flex items-center justify-center aurora-bg">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
+        </div>
       ) : (
         <>
           {components.filter(c => ['seo', 'navbar'].includes(c.type)).map((component, index) => (
             <DynamicComponent key={index} component={component} />
           ))}
-          <main>
-          <div className={styles.container}>
-            <div className={styles.innerContainer}>
-              <div className={styles.header}>
-                <h1 className={styles.title}>📢 {pageContent?.title?.[language] || (language === 'ta' ? 'அறிவிப்புகள்' : 'Notifications')}</h1>
-                <p className={styles.description}>
+          <main className="aurora-bg min-h-screen py-12 px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="space-y-8">
+              <div className="text-center">
+                <h1 className="text-4xl font-bold mb-3 text-white drop-shadow-lg">📢 {pageContent?.title?.[language] || (language === 'ta' ? 'அறிவிப்புகள்' : 'Notifications')}</h1>
+                <p className="text-lg text-gray-300 max-w-2xl mx-auto drop-shadow-md">
                   {pageContent?.description?.[language] || (language === 'ta' 
                     ? 'தமிழ் மொழி சங்கத்தின் சமீபத்திய அறிவிப்புகள், செய்திகள் மற்றும் முக்கியமான தகவல்களுடன் புதுப்பித்துக் கொள்ளுங்கள்.'
                     : 'Stay updated with the latest announcements, news, and important information from the Tamil Language Society.'
@@ -337,30 +341,30 @@ export default function NotificationsPage({ pageContent, seoData }: Notification
               </div>
 
               {/* Statistics Cards */}
-              <div className={styles.statsGrid}>
-                <div className={styles.statCard}>
-                  <div className={`${styles.statNumber} ${styles.totalNotifications}`}>{stats.total}</div>
-                  <div className={styles.statLabel}>{pageContent?.stats?.totalNotifications?.[language] || (language === 'ta' ? 'மொத்த அறிவிப்புகள்' : 'Total Notifications')}</div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="card-morphism p-6 rounded-2xl border border-white/10 flex flex-col items-center justify-center hover:scale-105 transition-transform duration-300">
+                  <div className="text-4xl font-bold text-primary mb-2">{stats.total}</div>
+                  <div className="text-sm font-medium text-gray-400 uppercase tracking-wider">{pageContent?.stats?.totalNotifications?.[language] || (language === 'ta' ? 'மொத்த அறிவிப்புகள்' : 'Total Notifications')}</div>
                 </div>
-                <div className={styles.statCard}>
-                  <div className={`${styles.statNumber} ${styles.unreadCount}`}>{stats.unread}</div>
-                  <div className={styles.statLabel}>{pageContent?.stats?.unread?.[language] || (language === 'ta' ? 'படிக்காதவை' : 'Unread')}</div>
+                <div className="card-morphism p-6 rounded-2xl border border-white/10 flex flex-col items-center justify-center hover:scale-105 transition-transform duration-300">
+                  <div className="text-4xl font-bold text-amber-400 mb-2">{stats.unread}</div>
+                  <div className="text-sm font-medium text-gray-400 uppercase tracking-wider">{pageContent?.stats?.unread?.[language] || (language === 'ta' ? 'படிக்காதவை' : 'Unread')}</div>
                 </div>
-                <div className={styles.statCard}>
-                  <div className={`${styles.statNumber} ${styles.realTimeIcon}`}>📱</div>
-                  <div className={styles.statLabel}>{pageContent?.stats?.realTimeUpdates?.[language] || (language === 'ta' ? 'நேரடி புதுப்பிப்புகள்' : 'Real-time Updates')}</div>
+                <div className="card-morphism p-6 rounded-2xl border border-white/10 flex flex-col items-center justify-center hover:scale-105 transition-transform duration-300">
+                  <div className="text-4xl mb-2">📱</div>
+                  <div className="text-sm font-medium text-gray-400 uppercase tracking-wider">{pageContent?.stats?.realTimeUpdates?.[language] || (language === 'ta' ? 'நேரடி புதுப்பிப்புகள்' : 'Real-time Updates')}</div>
                 </div>
               </div>
 
               {/* Filter Controls */}
-              <div className={styles.filtersCard}>
-                <div className={styles.filtersContainer}>
-                  <div className={styles.filtersGroup}>
+              <div className="card-morphism p-6 rounded-2xl border border-white/10">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                  <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                     {['all', 'unread', 'urgent', 'high', 'medium', 'low', 'announcement', 'news', 'event', 'update', 'info', 'warning', 'success', 'error'].map((filterType) => (
                       <button 
                         key={filterType}
                         onClick={() => setFilter(filterType)}
-                        className={`${styles.filterBtn} ${filter === filterType ? styles.active : ''}`}
+                        className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${filter === filterType ? 'bg-primary text-white shadow-lg' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/5'}`}
                       >
                         {language === 'ta' ? {
                           all: 'அனைத்தும்',
@@ -396,10 +400,10 @@ export default function NotificationsPage({ pageContent, seoData }: Notification
                       </button>
                     ))}
                   </div>
-                  <div className={styles.actionsGroup}>
+                  <div className="flex-shrink-0">
                     <button 
                       onClick={markAllAsRead}
-                      className={`${styles.actionBtn} ${styles.markAllReadBtn}`}
+                      className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-bold border border-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={stats.unread === 0}
                     >
                       {language === 'ta' ? 'அனைத்தையும் படித்ததாக குறிக்கவும்' : 'Mark All Read'}
@@ -410,59 +414,59 @@ export default function NotificationsPage({ pageContent, seoData }: Notification
 
               {/* Error Message */}
               {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <div className="bg-red-500/10 border border-red-500/30 text-red-300 px-6 py-4 rounded-xl text-center">
                   {error}
                 </div>
               )}
 
               {/* Notifications Container */}
-              <div className={styles.notificationsContainer}>
-                <div className={styles.notificationsHeader}>
-                  <h2 className={styles.notificationsTitle}>{language === 'ta' ? 'உங்கள் அறிவிப்புகள்' : 'Your Notifications'}</h2>
-                  <p className={styles.notificationsSubtitle}>{language === 'ta' ? 'படித்ததாக குறிக்க எந்த அறிவிப்பையும் கிளிக் செய்யவும்' : 'Click on any notification to mark it as read'}</p>
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-white">{language === 'ta' ? 'உங்கள் அறிவிப்புகள்' : 'Your Notifications'}</h2>
+                  <p className="text-gray-400 text-sm">{language === 'ta' ? 'படித்ததாக குறிக்க எந்த அறிவிப்பையும் கிளிக் செய்யவும்' : 'Click on any notification to mark it as read'}</p>
                 </div>
                 
-                <div className={styles.notificationsList}>
+                <div className="space-y-4">
                   {loading ? (
-                    <div className={styles.loadingMessage}>{language === 'ta' ? 'அறிவிப்புகள் ஏற்றப்படுகின்றன...' : 'Loading notifications...'}</div>
+                    <div className="text-center py-12 text-gray-400">{language === 'ta' ? 'அறிவிப்புகள் ஏற்றப்படுகின்றன...' : 'Loading notifications...'}</div>
                   ) : filteredNotifications.length === 0 ? (
-                    <div className={styles.emptyState}>
-                      <div className={styles.emptyIcon}>📭</div>
-                      <h3 className={styles.emptyTitle}>{language === 'ta' ? 'அறிவிப்புகள் எதுவும் கிடைக்கவில்லை' : 'No notifications found'}</h3>
-                      <p className={styles.emptyDescription}>{language === 'ta' ? 'நீங்கள் அனைத்தையும் பார்த்துவிட்டீர்கள்! புதிய புதுப்பிப்புகளுக்கு பின்னர் சரிபார்க்கவும்.' : 'You\'re all caught up! Check back later for new updates.'}</p>
+                    <div className="card-morphism p-12 rounded-3xl border border-white/10 text-center">
+                      <div className="text-6xl mb-4">📭</div>
+                      <h3 className="text-xl font-bold text-white mb-2">{language === 'ta' ? 'அறிவிப்புகள் எதுவும் கிடைக்கவில்லை' : 'No notifications found'}</h3>
+                      <p className="text-gray-400">{language === 'ta' ? 'நீங்கள் அனைத்தையும் பார்த்துவிட்டீர்கள்! புதிய புதுப்பிப்புகளுக்கு பின்னர் சரிபார்க்கவும்.' : 'You\'re all caught up! Check back later for new updates.'}</p>
                     </div>
                   ) : (
                     filteredNotifications.map((notification) => (
                       <div
                         key={notification._id}
-                        className={`${styles.notificationItem} ${notification.isRead ? styles.read : styles.unread}`}
+                        className={`card-morphism p-6 rounded-2xl border border-white/10 transition-all duration-300 cursor-pointer relative overflow-hidden group ${notification.isRead ? 'opacity-80 hover:opacity-100' : 'bg-white/5 border-primary/30 shadow-lg shadow-primary/5'}`}
                         onClick={() => handleNotificationClick(notification)}
-                        style={{ borderLeftColor: getPriorityColor(notification.priority) }}
+                        style={{ borderLeftWidth: '4px', borderLeftColor: getPriorityColor(notification.priority) }}
                       >
-                        <div className={styles.notificationContent}>
-                          <div className={styles.notificationIcon}>
+                        <div className="flex gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-2xl flex-shrink-0 border border-white/10">
                             {getTypeIcon(notification.type)}
                           </div>
-                          <div className={styles.notificationBody}>
-                            <div className={styles.notificationHeader}>
-                              <h4 className={styles.notificationTitle}>
+                          <div className="flex-1">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
+                              <h4 className={`text-lg font-bold ${notification.isRead ? 'text-gray-300' : 'text-white'}`}>
                                 {language === 'ta' ? (notification.title?.ta || '') : (notification.title?.en || '')}
                               </h4>
-                              <div className={styles.notificationMeta}>
-                                <span className={styles.priorityBadge} style={{ backgroundColor: getPriorityColor(notification.priority) }}>
+                              <div className="flex items-center gap-3">
+                                <span className="px-2 py-1 rounded-lg text-xs font-bold uppercase text-white" style={{ backgroundColor: getPriorityColor(notification.priority) }}>
                                   {notification.priority.toUpperCase()}
                                 </span>
-                                <span className={styles.notificationTime}>
+                                <span className="text-xs text-gray-400 whitespace-nowrap">
                                   {formatTimeAgo(notification.startAt)}
                                 </span>
                               </div>
                             </div>
-                            <p className={styles.notificationMessage}>
+                            <p className="text-gray-400 leading-relaxed mb-4">
                               {language === 'ta' ? (notification.message.ta || '') : (notification.message.en || '')}
                             </p>
                             {notification.actionText && notification.actionUrl && (
-                              <div className={styles.notificationActions}>
-                                <button className={styles.notificationActionBtn}>
+                              <div className="flex justify-end">
+                                <button className="px-4 py-2 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 rounded-lg text-sm font-bold transition-all">
                                   {language === 'ta' ? (notification.actionText.ta || '') : (notification.actionText.en || '')}
                                 </button>
                               </div>
@@ -476,13 +480,15 @@ export default function NotificationsPage({ pageContent, seoData }: Notification
               </div>
 
               {/* Settings Panel */}
-              <div className={styles.settingsPanel}>
-                <h3 className={styles.settingsTitle}>🔔 {language === 'ta' ? 'அறிவிப்பு விருப்பத்தேர்வுகள்' : 'Notification Preferences'}</h3>
-                <div className={styles.settingsGrid}>
+              <div className="card-morphism p-8 rounded-3xl border border-white/10 mt-12">
+                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                  <span>🔔</span> {language === 'ta' ? 'அறிவிப்பு விருப்பத்தேர்வுகள்' : 'Notification Preferences'}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   <div>
-                    <h4 className={styles.settingsSubtitle}>{language === 'ta' ? 'மின்னஞ்சல் அறிவிப்புகள்' : 'Email Notifications'}</h4>
-                    <div className={styles.settingsOptions}>
-                      <label className={styles.settingsOption}>
+                    <h4 className="font-bold text-primary mb-4 text-sm uppercase tracking-wider">{language === 'ta' ? 'மின்னஞ்சல் அறிவிப்புகள்' : 'Email Notifications'}</h4>
+                    <div className="space-y-3">
+                      <label className="flex items-center gap-3 cursor-pointer group">
                         <input 
                           type="checkbox" 
                           checked={preferences.email.announcements}
@@ -490,11 +496,11 @@ export default function NotificationsPage({ pageContent, seoData }: Notification
                             ...prev,
                             email: { ...prev.email, announcements: e.target.checked }
                           }))}
-                          className={styles.checkbox} 
+                          className="w-5 h-5 rounded border-gray-600 bg-gray-700 text-primary focus:ring-primary/50" 
                         />
-                        <span>{language === 'ta' ? 'முக்கியமான அறிவிப்புகள்' : 'Important announcements'}</span>
+                        <span className="text-gray-300 group-hover:text-white transition-colors">{language === 'ta' ? 'முக்கியமான அறிவிப்புகள்' : 'Important announcements'}</span>
                       </label>
-                      <label className={styles.settingsOption}>
+                      <label className="flex items-center gap-3 cursor-pointer group">
                         <input 
                           type="checkbox" 
                           checked={preferences.email.newContent}
@@ -502,11 +508,11 @@ export default function NotificationsPage({ pageContent, seoData }: Notification
                             ...prev,
                             email: { ...prev.email, newContent: e.target.checked }
                           }))}
-                          className={styles.checkbox} 
+                          className="w-5 h-5 rounded border-gray-600 bg-gray-700 text-primary focus:ring-primary/50" 
                         />
-                        <span>{language === 'ta' ? 'புதிய புத்தகங்கள் மற்றும் உள்ளடக்கம்' : 'New books and content'}</span>
+                        <span className="text-gray-300 group-hover:text-white transition-colors">{language === 'ta' ? 'புதிய புத்தகங்கள் மற்றும் உள்ளடக்கம்' : 'New books and content'}</span>
                       </label>
-                      <label className={styles.settingsOption}>
+                      <label className="flex items-center gap-3 cursor-pointer group">
                         <input 
                           type="checkbox" 
                           checked={preferences.email.weekly}
@@ -514,16 +520,16 @@ export default function NotificationsPage({ pageContent, seoData }: Notification
                             ...prev,
                             email: { ...prev.email, weekly: e.target.checked }
                           }))}
-                          className={styles.checkbox} 
+                          className="w-5 h-5 rounded border-gray-600 bg-gray-700 text-primary focus:ring-primary/50" 
                         />
-                        <span>{language === 'ta' ? 'வாராந்திர சுருக்கம்' : 'Weekly digest'}</span>
+                        <span className="text-gray-300 group-hover:text-white transition-colors">{language === 'ta' ? 'வாராந்திர சுருக்கம்' : 'Weekly digest'}</span>
                       </label>
                     </div>
                   </div>
                   <div>
-                    <h4 className={styles.settingsSubtitle}>{language === 'ta' ? 'புஷ் அறிவிப்புகள்' : 'Push Notifications'}</h4>
-                    <div className={styles.settingsOptions}>
-                      <label className={styles.settingsOption}>
+                    <h4 className="font-bold text-primary mb-4 text-sm uppercase tracking-wider">{language === 'ta' ? 'புஷ் அறிவிப்புகள்' : 'Push Notifications'}</h4>
+                    <div className="space-y-3">
+                      <label className="flex items-center gap-3 cursor-pointer group">
                         <input 
                           type="checkbox" 
                           checked={preferences.push.breaking}
@@ -531,11 +537,11 @@ export default function NotificationsPage({ pageContent, seoData }: Notification
                             ...prev,
                             push: { ...prev.push, breaking: e.target.checked }
                           }))}
-                          className={styles.checkbox} 
+                          className="w-5 h-5 rounded border-gray-600 bg-gray-700 text-primary focus:ring-primary/50" 
                         />
-                        <span>{language === 'ta' ? 'முக்கிய செய்திகள்' : 'Breaking news'}</span>
+                        <span className="text-gray-300 group-hover:text-white transition-colors">{language === 'ta' ? 'முக்கிய செய்திகள்' : 'Breaking news'}</span>
                       </label>
-                      <label className={styles.settingsOption}>
+                      <label className="flex items-center gap-3 cursor-pointer group">
                         <input 
                           type="checkbox" 
                           checked={preferences.push.newContent}
@@ -543,11 +549,11 @@ export default function NotificationsPage({ pageContent, seoData }: Notification
                             ...prev,
                             push: { ...prev.push, newContent: e.target.checked }
                           }))}
-                          className={styles.checkbox} 
+                          className="w-5 h-5 rounded border-gray-600 bg-gray-700 text-primary focus:ring-primary/50" 
                         />
-                        <span>{language === 'ta' ? 'புதிய உள்ளடக்க எச்சரிக்கைகள்' : 'New content alerts'}</span>
+                        <span className="text-gray-300 group-hover:text-white transition-colors">{language === 'ta' ? 'புதிய உள்ளடக்க எச்சரிக்கைகள்' : 'New content alerts'}</span>
                       </label>
-                      <label className={styles.settingsOption}>
+                      <label className="flex items-center gap-3 cursor-pointer group">
                         <input 
                           type="checkbox" 
                           checked={preferences.push.updates}
@@ -555,70 +561,73 @@ export default function NotificationsPage({ pageContent, seoData }: Notification
                             ...prev,
                             push: { ...prev.push, updates: e.target.checked }
                           }))}
-                          className={styles.checkbox} 
+                          className="w-5 h-5 rounded border-gray-600 bg-gray-700 text-primary focus:ring-primary/50" 
                         />
-                        <span>{language === 'ta' ? 'கணினி புதுப்பிப்புகள்' : 'System updates'}</span>
+                        <span className="text-gray-300 group-hover:text-white transition-colors">{language === 'ta' ? 'கணினி புதுப்பிப்புகள்' : 'System updates'}</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-primary mb-4 text-sm uppercase tracking-wider">{language === 'ta' ? 'மொழி விருப்பம்' : 'Language Preference'}</h4>
+                    <div className="space-y-3">
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <input 
+                          type="radio" 
+                          name="language" 
+                          value="en" 
+                          checked={preferences.language === 'en'}
+                          onChange={(e) => setPreferences(prev => ({ ...prev, language: e.target.value as 'en' | 'ta' | 'both' }))}
+                          className="w-5 h-5 border-gray-600 bg-gray-700 text-primary focus:ring-primary/50" 
+                        />
+                        <span className="text-gray-300 group-hover:text-white transition-colors">English</span>
+                      </label>
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <input 
+                          type="radio" 
+                          name="language" 
+                          value="ta" 
+                          checked={preferences.language === 'ta'}
+                          onChange={(e) => setPreferences(prev => ({ ...prev, language: e.target.value as 'en' | 'ta' | 'both' }))}
+                          className="w-5 h-5 border-gray-600 bg-gray-700 text-primary focus:ring-primary/50" 
+                        />
+                        <span className="text-gray-300 group-hover:text-white transition-colors">தமிழ்</span>
+                      </label>
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <input 
+                          type="radio" 
+                          name="language" 
+                          value="both" 
+                          checked={preferences.language === 'both'}
+                          onChange={(e) => setPreferences(prev => ({ ...prev, language: e.target.value as 'en' | 'ta' | 'both' }))}
+                          className="w-5 h-5 border-gray-600 bg-gray-700 text-primary focus:ring-primary/50" 
+                        />
+                        <span className="text-gray-300 group-hover:text-white transition-colors">{language === 'ta' ? 'இரண்டும்' : 'Both'}</span>
                       </label>
                     </div>
                   </div>
                 </div>
-                <div className={styles.languageSection}>
-                  <h4 className={styles.settingsSubtitle}>{language === 'ta' ? 'மொழி விருப்பம்' : 'Language Preference'}</h4>
-                  <div className={styles.languageOptions}>
-                    <label className={styles.settingsOption}>
-                      <input 
-                        type="radio" 
-                        name="language" 
-                        value="en" 
-                        checked={preferences.language === 'en'}
-                        onChange={(e) => setPreferences(prev => ({ ...prev, language: e.target.value as 'en' | 'ta' | 'both' }))}
-                        className={styles.radio} 
-                      />
-                      <span>English</span>
-                    </label>
-                    <label className={styles.settingsOption}>
-                      <input 
-                        type="radio" 
-                        name="language" 
-                        value="ta" 
-                        checked={preferences.language === 'ta'}
-                        onChange={(e) => setPreferences(prev => ({ ...prev, language: e.target.value as 'en' | 'ta' | 'both' }))}
-                        className={styles.radio} 
-                      />
-                      <span>தமிழ்</span>
-                    </label>
-                    <label className={styles.settingsOption}>
-                      <input 
-                        type="radio" 
-                        name="language" 
-                        value="both" 
-                        checked={preferences.language === 'both'}
-                        onChange={(e) => setPreferences(prev => ({ ...prev, language: e.target.value as 'en' | 'ta' | 'both' }))}
-                        className={styles.radio} 
-                      />
-                      <span>{language === 'ta' ? 'இரண்டும்' : 'Both'}</span>
-                    </label>
-                  </div>
+                <div className="mt-8 flex justify-end">
+                  <button 
+                    onClick={savePreferences}
+                    disabled={savingPreferences}
+                    className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold border border-white/10 transition-all flex items-center gap-2"
+                  >
+                    <span>💾</span>
+                    {savingPreferences 
+                      ? (language === 'ta' ? 'சேமிக்கப்படுகிறது...' : 'Saving...') 
+                      : (language === 'ta' ? 'விருப்பத்தேர்வுகளை சேமிக்கவும்' : 'Save Preferences')
+                    }
+                  </button>
                 </div>
-                <button 
-                  onClick={savePreferences}
-                  disabled={savingPreferences}
-                  className={styles.saveButton}
-                >
-                  💾 {savingPreferences 
-                    ? (language === 'ta' ? 'சேமிக்கப்படுகிறது...' : 'Saving...') 
-                    : (language === 'ta' ? 'விருப்பத்தேர்வுகளை சேமிக்கவும்' : 'Save Preferences')
-                  }
-                </button>
               </div>
             </div>
           </div>
-        </main>
-        {components.filter(c => c.type === 'footer').map((component, index) => (
-          <DynamicComponent key={index} component={component} />
-        ))}
-      </>
-    )}
+          </main>
+          {components.filter(c => c.type === 'footer').map((component, index) => (
+            <DynamicComponent key={index} component={component} />
+          ))}
+        </>
+      )}
     </>
   );
 }

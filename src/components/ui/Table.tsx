@@ -27,46 +27,46 @@ export function Table<T>({
   if (isLoading) {
     return (
       <div className="w-full h-64 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
       </div>
     );
   }
 
   if (data.length === 0) {
     return (
-      <div className="w-full p-8 text-center text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+      <div className="w-full p-8 text-center text-gray-400 bg-white/5 rounded-xl border border-dashed border-white/10">
         {emptyMessage}
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-      <table className="min-w-full divide-y divide-gray-300">
-        <thead className="bg-gray-50">
+    <div className="overflow-x-auto rounded-xl border border-white/10 bg-black/20 backdrop-blur-sm">
+      <table className="min-w-full divide-y divide-white/10">
+        <thead className="bg-white/5">
           <tr>
             {columns.map((col, index) => (
               <th
                 key={index}
                 scope="col"
-                className={`py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 ${col.className || ''}`}
+                className={`py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6 ${col.className || ''}`}
               >
                 {col.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200 bg-white">
+        <tbody className="divide-y divide-white/10 bg-transparent">
           {data.map((item) => (
             <tr 
               key={String(item[keyField])} 
               onClick={() => onRowClick && onRowClick(item)}
-              className={onRowClick ? 'cursor-pointer hover:bg-gray-50' : ''}
+              className={onRowClick ? 'cursor-pointer hover:bg-white/5 transition-colors' : 'hover:bg-white/5 transition-colors'}
             >
               {columns.map((col, index) => (
                 <td
                   key={index}
-                  className={`whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-500 sm:pl-6 ${col.className || ''}`}
+                  className={`whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-300 sm:pl-6 ${col.className || ''}`}
                 >
                   {typeof col.accessor === 'function'
                     ? col.accessor(item)

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { safeFetchJson } from '../lib/safeFetch';
 import { useLanguage } from '../hooks/LanguageContext';
-import '../styles/components/Stats.css';
+import { IconRenderer } from './ui/IconRenderer';
 
 interface Bilingual {
   en: string;
@@ -120,12 +120,12 @@ export default function Stats({ page = 'home', bureau, data: propData }: { page?
 
   if (loading) {
     return (
-      <section className="stats bg-section-gradient py-10">
-        <div className="container">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="card-morphism h-24 shimmer" />
-            <div className="card-morphism h-24 shimmer" />
-            <div className="card-morphism h-24 shimmer" />
+      <section className="py-20 aurora-bg">
+        <div className="layout-container">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div className="card-morphism h-32 animate-pulse rounded-2xl border border-white/10" />
+            <div className="card-morphism h-32 animate-pulse rounded-2xl border border-white/10" />
+            <div className="card-morphism h-32 animate-pulse rounded-2xl border border-white/10" />
           </div>
         </div>
       </section>
@@ -135,22 +135,37 @@ export default function Stats({ page = 'home', bureau, data: propData }: { page?
   if (!data) return null;
 
   return (
-    <section className="stats bg-section-gradient py-10">
-      <div className="container">
+    <section className="py-20 aurora-bg relative overflow-hidden">
+      <div className="layout-container relative z-10">
         {data.title ? (
-          <h3 className="section-title gradient-title text-3xl font-bold mb-6 text-center"><span className="animate-text-glow">{data.title?.[lang] || data.title?.en || ''}</span></h3>
+          <h3 className="text-4xl font-bold mb-16 text-center text-white drop-shadow-lg animate-slide-in-up">
+            <span className="animate-text-glow">{data.title?.[lang] || data.title?.en || ''}</span>
+          </h3>
         ) : null}
-        <div className="stats-grid grid grid-cols-1 sm:grid-cols-3 gap-6">
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {data.stats.map((s, idx) => (
-            <div key={idx} className="stat-item card-morphism card-gradient text-white animate-slide-in-up hover-lift hover-glow">
-              <div className="flex items-center gap-3">
-                {s.icon ? <i className={`${s.icon} fa-fw stat-icon text-white`}></i> : null}
-                <div className="stat-number animate-text-glow text-3xl font-bold">
-                  {(values[idx] ?? (Number.parseInt(s.value, 10) || 0))}
-                  {s.suffix ? s.suffix : ''}
+            <div 
+              key={idx} 
+              className="card-morphism p-8 text-center hover-lift flex flex-col items-center justify-center group animate-slide-in-up rounded-3xl border border-white/10 shadow-xl"
+              style={{ animationDelay: `${idx * 0.1}s` }}
+            >
+              {s.icon ? (
+                <div className="mb-6 p-4 rounded-2xl bg-white/5 text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:scale-110 shadow-lg shadow-primary/20 border border-white/10 group-hover:border-primary/50">
+                  <IconRenderer iconName={s.icon} className="text-3xl" />
                 </div>
+              ) : null}
+              
+              <div className="text-5xl font-black text-white mb-3 flex items-baseline justify-center tracking-tight drop-shadow-md">
+                <span className="bg-clip-text text-transparent bg-gradient-to-br from-white to-gray-400 group-hover:from-white group-hover:to-primary/50 transition-all">
+                  {(values[idx] ?? (Number.parseInt(s.value, 10) || 0))}
+                </span>
+                {s.suffix ? <span className="text-2xl ml-1 text-primary font-bold">{s.suffix}</span> : ''}
               </div>
-              <div className="stat-label animate-fade-in animate-stagger-1 opacity-90">{s.label?.[lang] || s.label?.en || ''}</div>
+              
+              <div className="text-sm font-bold text-gray-400 uppercase tracking-widest border-t border-white/10 pt-4 w-full group-hover:text-gray-300 transition-colors">
+                {s.label?.[lang] || s.label?.en || ''}
+              </div>
             </div>
           ))}
         </div>

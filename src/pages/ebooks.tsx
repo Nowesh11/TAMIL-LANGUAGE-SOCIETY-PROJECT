@@ -120,10 +120,10 @@ export default function EbooksPage() {
 
   if (componentsLoading) {
     return (
-      <div className="font-sans min-h-screen aurora-gradient layout-page flex items-center justify-center">
+      <div className="font-sans min-h-screen aurora-bg layout-page flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-lg text-gray-600">Loading page components...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-primary mx-auto shadow-xl shadow-primary/20"></div>
+          <p className="mt-6 text-lg text-gray-400 font-medium animate-pulse">Loading page components...</p>
         </div>
       </div>
     );
@@ -147,7 +147,7 @@ export default function EbooksPage() {
         <DynamicComponent key={component._id} component={component} />
       ))}
       
-      <div className="font-sans min-h-screen aurora-gradient layout-page">
+      <div className="font-sans min-h-screen aurora-bg layout-page">
         {/* Navbar Components */}
         {navbarComponents.map((component) => (
           <DynamicComponent key={component._id} component={component} />
@@ -239,11 +239,11 @@ export default function EbooksPage() {
         
         {/* Footer Components */}
         {footerComponents.length > 0 && (
-          <footer className="mt-10">
+          <>
             {footerComponents.map((component) => (
               <DynamicComponent key={component._id} component={component} />
             ))}
-          </footer>
+          </>
         )}
       </div>
     </>

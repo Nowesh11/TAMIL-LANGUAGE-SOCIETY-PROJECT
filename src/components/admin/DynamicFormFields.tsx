@@ -226,6 +226,56 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
     updateContent('testimonials', currentTestimonials);
   };
 
+  const addHeroImage = () => {
+    const currentImages = formData.content.backgroundImages || [];
+    updateContent('backgroundImages', [
+      ...currentImages,
+      {
+        src: '',
+        alt: { en: '', ta: '' }
+      }
+    ]);
+  };
+
+  const removeHeroImage = (index: number) => {
+    const currentImages = formData.content.backgroundImages || [];
+    updateContent('backgroundImages', currentImages.filter((_: any, i: number) => i !== index));
+  };
+
+  const updateHeroImage = (index: number, field: string, value: any) => {
+    const currentImages = [...(formData.content.backgroundImages || [])];
+    currentImages[index] = {
+      ...currentImages[index],
+      [field]: value
+    };
+    updateContent('backgroundImages', currentImages);
+  };
+
+  const addCTAImage = () => {
+    const currentImages = formData.content.backgroundImages || [];
+    updateContent('backgroundImages', [
+      ...currentImages,
+      {
+        src: '',
+        alt: { en: '', ta: '' }
+      }
+    ]);
+  };
+
+  const removeCTAImage = (index: number) => {
+    const currentImages = formData.content.backgroundImages || [];
+    updateContent('backgroundImages', currentImages.filter((_: any, i: number) => i !== index));
+  };
+
+  const updateCTAImage = (index: number, field: string, value: any) => {
+    const currentImages = [...(formData.content.backgroundImages || [])];
+    currentImages[index] = {
+      ...currentImages[index],
+      [field]: value
+    };
+    updateContent('backgroundImages', currentImages);
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string, index?: number) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -238,6 +288,10 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
             updateTimelineEvent(index, 'image', url);
           } else if (fieldName.includes('testimonial')) {
             updateTestimonial(index, 'avatar', url);
+          } else if (fieldName.includes('hero')) {
+             updateHeroImage(index, 'src', url);
+          } else if (fieldName.includes('cta')) {
+             updateCTAImage(index, 'src', url);
           }
         } else {
           updateContent(fieldName, url);
@@ -395,7 +449,64 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
         <div className="content-fields">
           {renderBilingualInput('title', 'Hero Title')}
           {renderBilingualInput('subtitle', 'Hero Subtitle', 'textarea')}
-          {renderImageUpload('backgroundImage', 'Background Image', formData.content.backgroundImage)}
+          <div className="modern-field-group">
+            <label className="modern-label">Background Images</label>
+            <div className="buttons-list">
+              {(formData.content.backgroundImages || []).map((image: any, index: number) => (
+                <div key={index} className="button-item">
+                  <div className="image-upload-container">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload(e, 'hero', index)}
+                      className="hidden"
+                      id={`hero-bg-upload-${index}`}
+                    />
+                    <label htmlFor={`hero-bg-upload-${index}`} className="upload-button">
+                      <FaImage /> Choose Image
+                    </label>
+                    {image.src && (
+                      <div className="image-preview">
+                        <img src={image.src} alt={`Background ${index + 1}`} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="bilingual-inputs">
+                    <div className="bilingual-input-group">
+                      <span className="language-tag">EN</span>
+                      <input
+                        type="text"
+                        className="modern-input"
+                        value={image.alt?.en || ''}
+                        onChange={(e) => updateHeroImage(index, 'alt', { ...image.alt, en: e.target.value })}
+                        placeholder="Alt text in English"
+                      />
+                    </div>
+                    <div className="bilingual-input-group">
+                      <span className="language-tag tamil">TA</span>
+                      <input
+                        type="text"
+                        className="modern-input"
+                        value={image.alt?.ta || ''}
+                        onChange={(e) => updateHeroImage(index, 'alt', { ...image.alt, ta: e.target.value })}
+                        placeholder="Alt text in Tamil"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="delete-button"
+                    onClick={() => removeHeroImage(index)}
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              ))}
+              <button type="button" className="add-button" onClick={addHeroImage}>
+                <FaPlus /> Add Background Image
+              </button>
+            </div>
+          </div>
           
           <div className="modern-field-group">
             <label className="modern-label">Background Video URL</label>
@@ -1108,7 +1219,67 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
         <div className="content-fields">
           {renderBilingualInput('title', 'CTA Title')}
           {renderBilingualInput('subtitle', 'CTA Subtitle', 'textarea')}
-          {renderImageUpload('backgroundImage', 'Background Image', formData.content.backgroundImage)}
+          {renderBilingualInput('description', 'CTA Description', 'textarea')}
+          
+          <div className="modern-field-group">
+            <label className="modern-label">Background Images</label>
+            <div className="buttons-list">
+              {(formData.content.backgroundImages || []).map((image: any, index: number) => (
+                <div key={index} className="button-item">
+                  <div className="image-upload-container">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload(e, 'cta', index)}
+                      className="hidden"
+                      id={`cta-upload-${index}`}
+                    />
+                    <label htmlFor={`cta-upload-${index}`} className="upload-button">
+                      <FaImage /> Choose Image
+                    </label>
+                    {image.src && (
+                      <div className="image-preview">
+                        <img src={image.src} alt={`Background ${index + 1}`} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="bilingual-inputs">
+                    <div className="bilingual-input-group">
+                      <span className="language-tag">EN</span>
+                      <input
+                        type="text"
+                        className="modern-input"
+                        value={image.alt?.en || ''}
+                        onChange={(e) => updateCTAImage(index, 'alt', { ...image.alt, en: e.target.value })}
+                        placeholder="Alt text in English"
+                      />
+                    </div>
+                    <div className="bilingual-input-group">
+                      <span className="language-tag tamil">TA</span>
+                      <input
+                        type="text"
+                        className="modern-input"
+                        value={image.alt?.ta || ''}
+                        onChange={(e) => updateCTAImage(index, 'alt', { ...image.alt, ta: e.target.value })}
+                        placeholder="Alt text in Tamil"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="delete-button"
+                    onClick={() => removeCTAImage(index)}
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              ))}
+              <button type="button" className="add-button" onClick={addCTAImage}>
+                <FaPlus /> Add Background Image
+              </button>
+            </div>
+          </div>
+
           {renderButtons()}
           {renderColorInput('backgroundColor', 'Background Color')}
           {renderColorInput('textColor', 'Text Color')}

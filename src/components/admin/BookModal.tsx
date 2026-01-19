@@ -25,7 +25,6 @@ interface Book {
   price: number;
   stock: number;
   coverPath: string;
-  isbn: string;
   category: string;
   publishedYear: number;
   pages: number;
@@ -97,6 +96,10 @@ const BookModal: React.FC<BookModalProps> = ({
         title: book.title || { en: '', ta: '' },
         author: book.author || { en: '', ta: '' },
         description: book.description || { en: '', ta: '' },
+        price: book.price ?? 0,
+        stock: book.stock ?? 0,
+        publishedYear: book.publishedYear ?? new Date().getFullYear(),
+        pages: book.pages ?? 0,
         category: book.category || 'general',
         language: book.language || 'tamil'
       });
@@ -109,7 +112,6 @@ const BookModal: React.FC<BookModalProps> = ({
         price: 0,
         stock: 0,
         coverPath: '',
-        isbn: '',
         category: 'general',
         publishedYear: new Date().getFullYear(),
         pages: 0,
@@ -142,7 +144,7 @@ const BookModal: React.FC<BookModalProps> = ({
 
     try {
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append('file', file);
       
       const res = await fetch('/api/upload/books', {
         method: 'POST',
@@ -154,11 +156,11 @@ const BookModal: React.FC<BookModalProps> = ({
 
       const data = await res.json();
       if (data.success) {
-        setFormData(prev => ({ ...prev, coverPath: data.imagePath }));
+        setFormData(prev => ({ ...prev, coverPath: data.url }));
+        if (errors.cover) setErrors(prev => ({ ...prev, cover: '' }));
       } else {
         console.error('Upload failed:', data.error);
-        // Revert preview on failure? Or keep it?
-        // Keep it but maybe show error.
+        setErrors(prev => ({ ...prev, cover: data.error || 'Upload failed' }));
       }
     } catch (error) {
       console.error('Error uploading cover:', error);
@@ -176,6 +178,16 @@ const BookModal: React.FC<BookModalProps> = ({
     if (!formData.author?.ta?.trim()) newErrors['author.ta'] = 'Tamil author is required';
     if (formData.price < 0) newErrors['price'] = 'Price cannot be negative';
     if (formData.stock < 0) newErrors['stock'] = 'Stock cannot be negative';
+    
+    // Cover is required only for new books
+    const actualMode = mode || (book?._id ? 'edit' : 'create');
+    if (actualMode === 'create' && !formData.coverPath) {
+        newErrors['cover'] = 'Cover image is required for new books';
+    }
+
+    if (uploadingCover) {
+        newErrors['cover'] = 'Please wait for cover upload to complete';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -195,19 +207,51 @@ const BookModal: React.FC<BookModalProps> = ({
         ? { id: book?._id, ...formData }
         : formData;
 
+      // Sanitize payload
+      const sanitizedPayload = {
+        ...payload,
+        publishedYear: parseInt(String(payload.publishedYear)) || new Date().getFullYear(),
+        pages: parseInt(String(payload.pages)) || 0,
+        price: parseFloat(String(payload.price)) || 0,
+        stock: parseInt(String(payload.stock)) || 0,
+        // Ensure bilingual fields exist
+        title: payload.title || { en: '', ta: '' },
+        author: payload.author || { en: '', ta: '' },
+        description: payload.description || { en: '', ta: '' }
+      };
+
+      console.log('=== API REQUEST DEBUG ===');
+      console.log('Mode:', actualMode);
+      console.log('Method:', method);
+      console.log('URL:', url);
+      console.log('Payload:', JSON.stringify(sanitizedPayload, null, 2));
+      console.log('========================');
+
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(sanitizedPayload),
       });
 
       const result = await response.json();
       
+      console.log('=== API RESPONSE DEBUG ===');
+      console.log('Status:', response.status);
+      console.log('Result:', JSON.stringify(result, null, 2));
+      console.log('=========================');
+      
       if (!result.success) {
-        throw new Error(result.error || 'Operation failed');
+        const errorMessage = result.details ? `${result.error}: ${result.details}` : (result.error || 'Operation failed');
+        console.error('Backend Error:', {
+            error: result.error,
+            details: result.details,
+            message: result.message,
+            validation: result.validation
+        });
+        throw new Error(errorMessage);
       }
 
       if (onSuccess) onSuccess();
@@ -227,7 +271,13 @@ const BookModal: React.FC<BookModalProps> = ({
         const [parent, child] = field.split('.');
         (newData as any)[parent] = { ...(newData as any)[parent], [child]: value };
       } else {
-        (newData as any)[field] = value;
+        // Special handling for number fields to prevent NaN
+        if (['publishedYear', 'pages', 'stock', 'price'].includes(field)) {
+          const numValue = field === 'price' ? parseFloat(value) : parseInt(value);
+          (newData as any)[field] = isNaN(numValue) ? 0 : numValue;
+        } else {
+          (newData as any)[field] = value;
+        }
       }
       return newData;
     });
@@ -439,7 +489,7 @@ const BookModal: React.FC<BookModalProps> = ({
                           type="number"
                           className="modern-input pl-10"
                           value={formData.price}
-                          onChange={(e) => handleInputChange('price', parseFloat(e.target.value))}
+                          onChange={(e) => handleInputChange('price', e.target.value)}
                           min="0"
                           step="0.01"
                         />
@@ -452,7 +502,7 @@ const BookModal: React.FC<BookModalProps> = ({
                         type="number"
                         className="modern-input"
                         value={formData.stock}
-                        onChange={(e) => handleInputChange('stock', parseInt(e.target.value))}
+                        onChange={(e) => handleInputChange('stock', e.target.value)}
                         min="0"
                       />
                       {errors.stock && <span className="error-message">{errors.stock}</span>}
@@ -461,36 +511,25 @@ const BookModal: React.FC<BookModalProps> = ({
 
                   <div className="grid-2-cols">
                     <div className="modern-field-group">
-                      <label className="modern-label">ISBN</label>
-                      <input
-                        type="text"
-                        className="modern-input"
-                        value={formData.isbn}
-                        onChange={(e) => handleInputChange('isbn', e.target.value)}
-                        placeholder="ISBN Number"
-                      />
-                    </div>
-                    <div className="modern-field-group">
                       <label className="modern-label">Published Year</label>
                       <input
                         type="number"
                         className="modern-input"
                         value={formData.publishedYear}
-                        onChange={(e) => handleInputChange('publishedYear', parseInt(e.target.value))}
+                        onChange={(e) => handleInputChange('publishedYear', e.target.value)}
                         max={new Date().getFullYear()}
                       />
                     </div>
-                  </div>
-
-                  <div className="modern-field-group">
-                    <label className="modern-label">Number of Pages</label>
-                    <input
-                      type="number"
-                      className="modern-input"
-                      value={formData.pages}
-                      onChange={(e) => handleInputChange('pages', parseInt(e.target.value))}
-                      min="0"
-                    />
+                    <div className="modern-field-group">
+                        <label className="modern-label">Number of Pages</label>
+                        <input
+                        type="number"
+                        className="modern-input"
+                        value={formData.pages}
+                        onChange={(e) => handleInputChange('pages', e.target.value)}
+                        min="0"
+                        />
+                    </div>
                   </div>
                 </div>
               </div>

@@ -1,4 +1,3 @@
-"use client";
 import { useEffect, useState } from 'react';
 import ItemCard, { ItemRecord } from './ItemCard';
 
@@ -28,24 +27,31 @@ export default function ItemsGrid({ type, bureau }: { type: 'project' | 'activit
   }, [type, bureau]);
 
   if (loading) {
-    const wrapperClass = type === 'project' ? 'projects-grid' : type === 'activity' ? 'activities-grid' : 'initiatives-grid';
     return (
-      <div className={wrapperClass}>
-        <div className="card">Loading...</div>
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full border-2 border-cyan-500 border-t-transparent animate-spin" />
+          <p className="text-gray-400">Loading...</p>
+        </div>
       </div>
     );
   }
 
   if (!items.length) {
-    return <p className="text-muted">No items found.</p>;
+    return (
+      <div className="min-h-[300px] flex items-center justify-center">
+        <p className="text-gray-400 text-lg">No items found.</p>
+      </div>
+    );
   }
 
-  const wrapperClass = type === 'project' ? 'projects-grid' : type === 'activity' ? 'activities-grid' : 'initiatives-grid';
   return (
-    <div className={wrapperClass}>
-      {items.map((it) => (
-        <ItemCard key={it._id} item={it} />
-      ))}
+    <div className="container mx-auto px-4 pb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {items.map((it) => (
+          <ItemCard key={it._id} item={it} />
+        ))}
+      </div>
     </div>
   );
 }

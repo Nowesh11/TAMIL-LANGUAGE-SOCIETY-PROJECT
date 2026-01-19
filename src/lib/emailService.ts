@@ -281,6 +281,50 @@ const templates = {
         </div>
     </body>
     </html>
+  `,
+
+  orderStatusUpdate: (data: any) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>Order Status Update</title>
+        <style>${commonStyles}</style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Order Update</h1>
+                <p>Order #${data.orderId}</p>
+            </div>
+            <div class="content">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <span class="badge" style="background: ${data.statusColor}; color: ${data.statusTextColor}; font-size: 14px; padding: 8px 16px;">
+                        ${data.status.toUpperCase()}
+                    </span>
+                </div>
+                
+                <p>Hello ${data.userName},</p>
+                <p>${data.message}</p>
+
+                ${data.trackingNumber ? `
+                <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4f46e5;">
+                    <p style="margin: 0; font-size: 12px; color: #6b7280; text-transform: uppercase; font-weight: bold;">Tracking Number</p>
+                    <p style="margin: 5px 0 0; font-size: 18px; font-weight: bold; color: #1f2937; letter-spacing: 1px;">${data.trackingNumber}</p>
+                    ${data.carrier ? `<p style="margin: 5px 0 0; font-size: 14px; color: #4b5563;">via ${data.carrier}</p>` : ''}
+                </div>
+                ` : ''}
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="${process.env.NEXT_PUBLIC_BASE_URL}/account/purchases" class="button">Track Order</a>
+                </div>
+            </div>
+            <div class="footer">
+                <p>Thank you for shopping with Tamil Language Society.</p>
+            </div>
+        </div>
+    </body>
+    </html>
   `
 };
 

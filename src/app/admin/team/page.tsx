@@ -169,12 +169,16 @@ const TeamAdmin: React.FC = () => {
           setStats(result.stats);
         }
       } else {
-        setError(result.error || 'Failed to fetch team members');
+        const errorMsg = result.error || 'Failed to fetch team members';
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (error: any) {
       if (error.name === 'AbortError') return;
       console.error('Error fetching team members:', error);
-      setError(error instanceof Error ? error.message : 'Failed to fetch team members');
+      const errorMsg = error instanceof Error ? error.message : 'Failed to fetch team members';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -197,10 +201,13 @@ const TeamAdmin: React.FC = () => {
         throw new Error(`Failed to delete team member: ${response.status}`);
       }
 
+      toast.success('Team member deleted successfully');
       await fetchMembers();
     } catch (error) {
       console.error('Error deleting team member:', error);
-      setError(error instanceof Error ? error.message : 'Failed to delete team member');
+      const errorMsg = error instanceof Error ? error.message : 'Failed to delete team member';
+      setError(errorMsg);
+      toast.error(errorMsg);
     }
   };
 
@@ -218,6 +225,7 @@ const TeamAdmin: React.FC = () => {
     await fetchMembers();
     setIsModalOpen(false);
     setSelectedMember(null);
+    toast.success('Team member saved successfully');
   };
 
   if (loading && members.length === 0) {
@@ -346,6 +354,7 @@ const TeamAdmin: React.FC = () => {
               <thead>
                 <tr>
                   <th>Order</th>
+                  <th>Image</th>
                   <th>Member</th>
                   <th>Role & Department</th>
                   <th>Contact</th>
@@ -356,7 +365,7 @@ const TeamAdmin: React.FC = () => {
               <tbody>
                 {members.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-8">
+                    <td colSpan={7} className="text-center py-8">
                       <div className="admin-modern-empty-state">
                         <FiUsers />
                         <h3>No team members found</h3>
@@ -371,13 +380,32 @@ const TeamAdmin: React.FC = () => {
                         {member.orderNum}
                       </td>
                       <td>
+                        <div className="w-12 h-12 relative rounded-full overflow-hidden border border-gray-200">
+                          <img
+                            src={
+                              member.imagePath 
+                                ? (member.imagePath.startsWith('/') || member.imagePath.startsWith('http') 
+                                    ? member.imagePath 
+                                    : `/api/files/serve?path=${encodeURIComponent(member.imagePath)}`)
+                                : '/placeholder-avatar.svg'
+                            }
+                            alt={member.name.en}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </td>
+                      <td>
                         <div className="admin-modern-table-cell-title">{member.name.en}</div>
                         <div className="admin-modern-table-cell-subtitle">{member.name.ta}</div>
                       </td>
                       <td>
                         <div className="flex flex-col gap-1">
-                          <span className="font-medium text-gray-900">{member.role}</span>
-                          <span className="admin-modern-badge admin-modern-badge-secondary">{member.department}</span>
+                          <span className="font-medium text-gray-900">
+                            {typeof member.role === 'object' ? (member.role as any).en || (member.role as any).ta : member.role}
+                          </span>
+                          <span className="admin-modern-badge admin-modern-badge-secondary">
+                            {typeof member.department === 'object' ? (member.department as any).en || (member.department as any).ta : member.department}
+                          </span>
                         </div>
                       </td>
                       <td>

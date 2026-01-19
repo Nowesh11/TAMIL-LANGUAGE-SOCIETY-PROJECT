@@ -1,7 +1,6 @@
-
 import React, { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { FaTimes } from 'react-icons/fa';
+import { X } from 'lucide-react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -28,7 +27,7 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
+      <Dialog as="div" className="relative z-[100]" onClose={onClose}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -38,7 +37,7 @@ export const Modal: React.FC<ModalProps> = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-25 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -52,19 +51,21 @@ export const Modal: React.FC<ModalProps> = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className={`w-full ${sizeClasses[size]} transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all`}>
-                <div className="flex justify-between items-center mb-4">
-                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+              <Dialog.Panel 
+                className={`w-full ${sizeClasses[size]} transform overflow-hidden rounded-2xl bg-[#0a0a0f] border border-white/10 shadow-2xl transition-all animate-scaleIn`}
+              >
+                <div className="flex justify-between items-center p-6 border-b border-white/10 bg-white/5">
+                  <Dialog.Title as="h3" className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
                     {title}
                   </Dialog.Title>
                   <button
                     onClick={onClose}
-                    className="text-gray-400 hover:text-gray-500 focus:outline-none"
+                    className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors focus:outline-none"
                   >
-                    <FaTimes />
+                    <X size={20} />
                   </button>
                 </div>
-                <div className="mt-2">
+                <div className="p-6 text-left text-gray-300">
                   {children}
                 </div>
               </Dialog.Panel>

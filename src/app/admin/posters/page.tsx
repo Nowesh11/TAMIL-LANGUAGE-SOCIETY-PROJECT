@@ -35,6 +35,7 @@ import {
   FiBarChart
 } from 'react-icons/fi';
 import { useAdminShortcuts } from '@/hooks/useAdminShortcuts';
+import { toast } from 'react-hot-toast';
 
 // Types
 interface BilingualText {
@@ -153,7 +154,9 @@ const PostersAdmin: React.FC = () => {
       const name = String(error?.name || '');
       if (name === 'AbortError' || msg.toLowerCase().includes('aborted')) return;
       console.error('Error fetching posters:', error);
-      setError(error instanceof Error ? error.message : 'Failed to fetch posters');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch posters';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -176,10 +179,13 @@ const PostersAdmin: React.FC = () => {
         throw new Error(`Failed to delete poster: ${response.status}`);
       }
 
+      toast.success('Poster deleted successfully');
       await fetchPosters();
     } catch (error) {
       console.error('Error deleting poster:', error);
-      setError(error instanceof Error ? error.message : 'Failed to delete poster');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete poster';
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -202,10 +208,13 @@ const PostersAdmin: React.FC = () => {
         throw new Error(`Failed to update poster: ${response.status}`);
       }
 
+      toast.success(`Poster ${currentStatus ? 'deactivated' : 'activated'} successfully`);
       await fetchPosters();
     } catch (error) {
       console.error('Error updating poster:', error);
-      setError(error instanceof Error ? error.message : 'Failed to update poster');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update poster';
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -224,8 +233,10 @@ const PostersAdmin: React.FC = () => {
     try {
       await fetchPosters();
       handleCloseModal();
+      toast.success('Poster saved successfully');
     } catch (error) {
       console.error('Error saving poster:', error);
+      toast.error('Failed to save poster');
     }
   };
 
@@ -501,7 +512,7 @@ const PostersAdmin: React.FC = () => {
                       <div className="admin-modern-table-image-container">
                         {poster.imagePath ? (
                           <img 
-                            src={`/api/files/serve?path=${encodeURIComponent(poster.imagePath)}`} 
+                            src={poster.imagePath.startsWith('/') || poster.imagePath.startsWith('http') ? poster.imagePath : `/api/files/serve?path=${encodeURIComponent(poster.imagePath)}`} 
                             alt={poster.title?.en || 'Poster'} 
                             className="admin-modern-table-image admin-modern-poster-image"
                           />

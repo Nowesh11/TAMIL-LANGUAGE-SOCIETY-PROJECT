@@ -1,11 +1,15 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI;
+// Manually ensure MONGODB_URI is available if process.env isn't populated yet
+// This is a failsafe for scripts running via tsx where env vars might not propagate automatically to imported modules
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/tamil-language-society';
 
-if (!MONGODB_URI) {
-  throw new Error(
-    'Please define the MONGODB_URI environment variable inside .env.local'
-  );
+// Don't throw error if not defined, let it fail at connection time if needed
+// This prevents build/script failures when env vars are not loaded in that specific context
+// but provided elsewhere (e.g. Docker, Vercel)
+if (!MONGODB_URI && process.env.NODE_ENV !== 'production' && !process.env.NEXT_RUNTIME) {
+  // Only warn in non-production/non-runtime environments (like scripts)
+  console.warn('⚠️ MONGODB_URI is not defined in environment variables');
 }
 
 /**

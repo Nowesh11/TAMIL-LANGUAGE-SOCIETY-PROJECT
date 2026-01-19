@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import DynamicComponent from '../components/DynamicComponent';
 import { IComponent } from '../models/Component';
+import { safeFetchJson } from '../lib/safeFetch';
 
 export default function HomePage() {
   const [components, setComponents] = useState<IComponent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchComponents();
@@ -12,30 +14,18 @@ export default function HomePage() {
 
   async function fetchComponents() {
     try {
-      const res = await fetch('/api/components/page?page=home');
-
-      if (!res.ok) {
-        console.error('Components API error:', res.status, res.statusText);
-        setComponents([]);
-        return;
-      }
-
-      const contentType = res.headers.get('content-type');
-      if (!contentType?.includes('application/json')) {
-        console.error('API returned non-JSON response');
-        setComponents([]);
-        return;
-      }
-
-      const data = await res.json();
+      const data = await safeFetchJson<{ success: boolean; components: IComponent[] }>('/api/components/page?page=home');
+      
       if (data.success && Array.isArray(data.components)) {
         setComponents(data.components);
       } else {
         setComponents([]);
+        setError('No components found for home page');
       }
     } catch (error) {
       console.error('Error fetching components:', error);
       setComponents([]);
+      setError('Failed to load page content');
     } finally {
       setLoading(false);
     }
@@ -43,11 +33,29 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-[#0b1020] dark:via-[#0d0f1a] dark:to-[#0b0e19]">
+      <div className="min-h-screen flex items-center justify-center aurora-bg">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary mx-auto mb-6 shadow-lg shadow-primary/25"></div>
+          <p className="text-lg text-gray-400 font-medium animate-pulse">Loading experience...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (error && components.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
+        <div className="w-24 h-24 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center text-red-500 mb-6">
+          <i className="fa-solid fa-triangle-exclamation text-4xl"></i>
+        </div>
+        <h1 className="text-2xl font-bold text-foreground mb-2">Something went wrong</h1>
+        <p className="text-foreground-secondary mb-8 text-center max-w-md">{error}</p>
+        <button 
+          onClick={fetchComponents}
+          className="btn-primary"
+        >
+          Try Again
+        </button>
       </div>
     );
   }
@@ -71,34 +79,33 @@ export default function HomePage() {
         <DynamicComponent key={String(component._id)} component={component as any} />
       ))}
       
-      <div className="font-sans min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-[#0b1020] dark:via-[#0d0f1a] dark:to-[#0b0e19]">
+      <div className="font-sans min-h-screen bg-background text-foreground aurora-bg layout-page">
         {/* Navbar Components */}
         {navbarComponents.map((component) => (
           <DynamicComponent key={String(component._id)} component={component as any} />
         ))}
         
-        <main className="space-y-12 layout-container">
+        <main className="space-y-16 layout-container">
           {/* Hero Components */}
           {heroComponents.length > 0 && (
-            <section className="-mt-10">
+            <section className="-mt-10 hero-gradient">
               {heroComponents.map((component) => (
-                <DynamicComponent key={String(component._id)} component={component as any} />
+                <div key={String(component._id)} className="layout-card animate-fade-in">
+                  <DynamicComponent component={component as any} />
+                </div>
               ))}
-              <div className="divider-glow" />
             </section>
           )}
 
-          {/* Content Components */}
+          {/* Content Components - Full Width Stack */}
           <section className="layout-section">
             <div className="layout-container">
-              <div className="layout-grid two-col section-stack">
-                <div className="space-y-8">
-                  {contentComponents.map((component) => (
-                    <div key={String(component._id)} className="layout-card animate-slide-in-up">
-                      <DynamicComponent component={component as any} />
-                    </div>
-                  ))}
-                </div>
+              <div className="section-stack">
+                {contentComponents.map((component) => (
+                  <div key={String(component._id)} className="layout-card animate-slide-in-up">
+                    <DynamicComponent component={component as any} />
+                  </div>
+                ))}
               </div>
             </div>
           </section>
@@ -106,11 +113,11 @@ export default function HomePage() {
         
         {/* Footer Components */}
         {footerComponents.length > 0 && (
-          <footer className="mt-10">
+          <>
             {footerComponents.map((component) => (
               <DynamicComponent key={String(component._id)} component={component as any} />
             ))}
-          </footer>
+          </>
         )}
       </div>
     </>
