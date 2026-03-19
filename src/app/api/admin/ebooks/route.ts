@@ -193,18 +193,50 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const ebook = await EBook.findByIdAndUpdate(
-      id,
-      { ...updateData, updatedAt: new Date() },
-      { new: true, runValidators: true }
-    );
-
-    if (!ebook) {
+    // Handle file cleanup on replacement
+    const existingEbook = await EBook.findById(id);
+    if (!existingEbook) {
       return NextResponse.json(
         { success: false, error: 'EBook not found' },
         { status: 404 }
       );
     }
+
+    // Cleanup cover image
+    if (updateData.coverPath && existingEbook.coverPath && updateData.coverPath !== existingEbook.coverPath) {
+      try {
+        let pathToDelete = existingEbook.coverPath;
+        if (pathToDelete.includes('/api/files/serve?path=')) {
+          const urlObj = new URL(pathToDelete, 'http://dummy.com');
+          const pathParam = urlObj.searchParams.get('path');
+          if (pathParam) pathToDelete = decodeURIComponent(pathParam);
+        }
+        FileHandler.deleteFile(pathToDelete);
+      } catch (e) {
+        console.error('Failed to delete old ebook cover:', e);
+      }
+    }
+
+    // Cleanup ebook file
+    if (updateData.filePath && existingEbook.filePath && updateData.filePath !== existingEbook.filePath) {
+      try {
+        let pathToDelete = existingEbook.filePath;
+        if (pathToDelete.includes('/api/files/serve?path=')) {
+           const urlObj = new URL(pathToDelete, 'http://dummy.com');
+           const pathParam = urlObj.searchParams.get('path');
+           if (pathParam) pathToDelete = decodeURIComponent(pathParam);
+        }
+        FileHandler.deleteFile(pathToDelete);
+      } catch (e) {
+        console.error('Failed to delete old ebook file:', e);
+      }
+    }
+
+    const ebook = await EBook.findByIdAndUpdate(
+      id,
+      { ...updateData, updatedAt: new Date() },
+      { new: true, runValidators: true }
+    );
 
     // Log admin ebook update activity
     await ActivityLogger.logEbookUpdate('admin', ebook._id, ebook.title?.en || 'Unknown Title');

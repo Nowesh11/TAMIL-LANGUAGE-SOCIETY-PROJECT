@@ -230,6 +230,52 @@ export async function PUT(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Handle file cleanup on replacement
+    const existingItem = await ProjectItem.findById(_id);
+    if (!existingItem) {
+      return NextResponse.json(
+        { success: false, error: 'Project item not found' },
+        { status: 404 }
+      );
+    }
+
+    // Cleanup Hero Image
+    if (updateData.heroImagePath && existingItem.heroImagePath && updateData.heroImagePath !== existingItem.heroImagePath) {
+      try {
+        let pathToDelete = existingItem.heroImagePath;
+        if (pathToDelete.includes('/api/files/serve?path=')) {
+          const urlObj = new URL(pathToDelete, 'http://dummy.com');
+          const pathParam = urlObj.searchParams.get('path');
+          if (pathParam) pathToDelete = decodeURIComponent(pathParam);
+        }
+        FileHandler.deleteFile(pathToDelete);
+      } catch (e) {
+        console.error('Failed to delete old hero image:', e);
+      }
+    }
+
+    // Cleanup Gallery Images (Find removed images)
+    if (updateData.images && Array.isArray(updateData.images) && existingItem.images && existingItem.images.length > 0) {
+      try {
+        const newImages = new Set(updateData.images);
+        const oldImages = existingItem.images;
+        
+        for (const img of oldImages) {
+          if (!newImages.has(img)) {
+            let pathToDelete = img;
+            if (pathToDelete.includes('/api/files/serve?path=')) {
+              const urlObj = new URL(pathToDelete, 'http://dummy.com');
+              const pathParam = urlObj.searchParams.get('path');
+              if (pathParam) pathToDelete = decodeURIComponent(pathParam);
+            }
+            FileHandler.deleteFile(pathToDelete);
+          }
+        }
+      } catch (e) {
+         console.error('Failed to cleanup gallery images:', e);
+      }
+    }
     
     // Handle date conversions
     if (startDate) {

@@ -163,6 +163,40 @@ export function useAuth() {
     }
   };
 
+  const signup = async (email: string, password: string, name: { en: string; ta: string }) => {
+    console.log('[useAuth] Sending signup request for:', email);
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name })
+      });
+      
+      if (!res.ok) {
+        const errText = await res.text();
+        let errMsg = 'Signup failed';
+        try {
+          errMsg = JSON.parse(errText).error || errMsg;
+        } catch {}
+        throw new Error(errMsg);
+      }
+      
+      const data = await res.json();
+      
+      // Store access token and login time in both state and localStorage
+      setUser(data.user);
+      setAccessToken(data.accessToken);
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('loginTime', Date.now().toString());
+      toast.success('Account created successfully!');
+      return { success: true, user: data.user, accessToken: data.accessToken };
+    } catch (e: any) {
+      console.error('[useAuth] Signup exception:', e);
+      toast.error(e.message || 'Signup failed');
+      return { success: false, error: e.message };
+    }
+  };
+
   const logout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
@@ -183,5 +217,5 @@ export function useAuth() {
     }
   };
 
-  return { user, loading, login, logout, accessToken, redirectByRole };
+  return { user, loading, login, signup, logout, accessToken, redirectByRole };
 }

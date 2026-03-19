@@ -137,18 +137,35 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const book = await Book.findByIdAndUpdate(
-      id,
-      { ...updateData, updatedAt: new Date() },
-      { new: true, runValidators: true }
-    );
-
-    if (!book) {
+    // Handle image cleanup on replacement
+    const existingBook = await Book.findById(id);
+    if (!existingBook) {
       return NextResponse.json(
         { success: false, error: 'Book not found' },
         { status: 404 }
       );
     }
+
+    if (updateData.coverPath && existingBook.coverPath && updateData.coverPath !== existingBook.coverPath) {
+      try {
+        let pathToDelete = existingBook.coverPath;
+        // Handle serve URLs
+        if (pathToDelete.includes('/api/files/serve?path=')) {
+          const urlObj = new URL(pathToDelete, 'http://dummy.com');
+          const pathParam = urlObj.searchParams.get('path');
+          if (pathParam) pathToDelete = decodeURIComponent(pathParam);
+        }
+        FileHandler.deleteFile(pathToDelete);
+      } catch (cleanupError) {
+        console.error('Failed to delete old book cover:', cleanupError);
+      }
+    }
+
+    const book = await Book.findByIdAndUpdate(
+      id,
+      { ...updateData, updatedAt: new Date() },
+      { new: true, runValidators: true }
+    );
 
     // Log admin book update activity
     await ActivityLogger.logBookUpdate('admin', book._id, book.title?.en || 'Unknown Title');

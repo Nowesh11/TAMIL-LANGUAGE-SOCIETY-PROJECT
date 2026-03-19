@@ -12,7 +12,10 @@ export async function getPageContent(page: string, type?: string, slug?: string)
     // Use API route instead of direct database access
     const baseUrl = typeof window !== 'undefined' 
       ? window.location.origin 
-      : process.env.NEXTAUTH_URL || 'http://localhost:3000';
+      : process.env.NEXTAUTH_URL
+        || process.env.NEXT_PUBLIC_APP_URL
+        || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined)
+        || `http://localhost:${process.env.PORT || 3001}`;
     
     const response = await fetch(`${baseUrl}/api/components/page?${params.toString()}`);
     

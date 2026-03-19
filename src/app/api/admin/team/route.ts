@@ -217,7 +217,30 @@ export async function PUT(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
+    // Handle image cleanup on replacement
+    const existingMember = await Team.findById(_id);
+    if (!existingMember) {
+      return NextResponse.json(
+        { success: false, error: 'Team member not found' },
+        { status: 404 }
+      );
+    }
+
+    if (updateData.imagePath && existingMember.imagePath && updateData.imagePath !== existingMember.imagePath) {
+      try {
+        let pathToDelete = existingMember.imagePath;
+        if (pathToDelete.includes('/api/files/serve?path=')) {
+          const urlObj = new URL(pathToDelete, 'http://dummy.com');
+          const pathParam = urlObj.searchParams.get('path');
+          if (pathParam) pathToDelete = decodeURIComponent(pathParam);
+        }
+        FileHandler.deleteFile(pathToDelete);
+      } catch (cleanupError) {
+        console.error('Failed to delete old team member image:', cleanupError);
+      }
+    }
+
     // Handle date conversion
     if (joinedDate) {
       updateData.joinedDate = new Date(joinedDate);

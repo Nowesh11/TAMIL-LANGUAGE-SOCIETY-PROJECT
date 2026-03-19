@@ -233,18 +233,45 @@ export async function PUT(request: NextRequest) {
       updateData.eventDate = new Date(eventDate);
     }
     
-    const poster = await Poster.findByIdAndUpdate(
-      _id,
-      { ...updateData, updatedAt: new Date() },
-      { new: true, runValidators: true }
-    );
-    
-    if (!poster) {
+    // Check for existing poster to handle image cleanup
+    const existingPoster = await Poster.findById(_id);
+    if (!existingPoster) {
       return NextResponse.json(
         { success: false, error: 'Poster not found' },
         { status: 404 }
       );
     }
+
+    // If image is being updated, delete the old one
+    if (updateData.imagePath && existingPoster.imagePath && updateData.imagePath !== existingPoster.imagePath) {
+      try {
+        let pathToDelete = existingPoster.imagePath;
+        
+        // Extract path from serve URL if applicable
+        if (pathToDelete.includes('/api/files/serve?path=')) {
+          const urlObj = new URL(pathToDelete, 'http://dummy.com'); // Base needed for relative URLs
+          const pathParam = urlObj.searchParams.get('path');
+          if (pathParam) {
+            pathToDelete = decodeURIComponent(pathParam);
+          }
+        }
+
+        // Only delete if it's a local file (not an external URL) and not the serve URL itself
+        if (!pathToDelete.startsWith('http') && !pathToDelete.startsWith('/')) {
+           FileHandler.deleteFile(pathToDelete);
+        } else if (pathToDelete.startsWith('uploads/')) {
+           FileHandler.deleteFile(pathToDelete);
+        }
+      } catch (cleanupError) {
+        console.error('Failed to delete old poster image:', cleanupError);
+      }
+    }
+
+    const poster = await Poster.findByIdAndUpdate(
+      _id,
+      { ...updateData, updatedAt: new Date() },
+      { new: true, runValidators: true }
+    );
     
     // Log admin poster update activity
     await ActivityLogger.logPosterUpdate('admin', poster._id, poster.title?.en || 'Unknown Title');

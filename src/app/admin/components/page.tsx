@@ -104,7 +104,8 @@ const ComponentsAdmin: React.FC = () => {
     inactive: 0,
     recentlyAdded: 0,
     categories: {},
-    types: {}
+    types: {},
+    pageStats: []
   });
 
   useEffect(() => {

@@ -6,11 +6,12 @@ import { getUserFromAccessToken } from '@/lib/auth'
 
 export const runtime = 'nodejs'
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const user = await getUserFromAccessToken(req)
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   await dbConnect()
-  const ebook = await EBook.findById(params.id)
+  const ebook = await EBook.findById(id)
   if (!ebook) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   const body = await req.json().catch(() => ({}))
   const value = Math.max(1, Math.min(5, Number(body.rating || 5)))

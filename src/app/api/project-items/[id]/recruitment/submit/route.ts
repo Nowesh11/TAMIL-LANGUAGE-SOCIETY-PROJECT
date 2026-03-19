@@ -41,6 +41,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       );
     }
 
+    // Validate answers object
+    if (typeof body.answers !== 'object' && !Array.isArray(body.answers)) {
+      return NextResponse.json(
+        { success: false, error: 'Answers must be an object or array' },
+        { status: 400 }
+      );
+    }
+
     // Find the project item
     const projectItem = await ProjectItem.findById(id);
     
@@ -116,10 +124,19 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const answersObject: { [key: string]: any } = {};
     if (Array.isArray(body.answers)) {
       body.answers.forEach((answer: { key: string; value: any }) => {
-        answersObject[answer.key] = answer.value;
+        if (answer && answer.key) {
+          answersObject[answer.key] = answer.value;
+        }
       });
     } else {
       Object.assign(answersObject, body.answers);
+    }
+
+    if (Object.keys(answersObject).length === 0) {
+       return NextResponse.json(
+        { success: false, error: 'At least one answer is required' },
+        { status: 400 }
+      );
     }
 
     // Create new recruitment response with user reference
@@ -134,6 +151,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       status: 'pending',
       submittedAt: new Date()
     });
+
+    // Validate before saving to catch Mongoose validation errors
+    try {
+      await newResponse.validate();
+    } catch (validationError: any) {
+      console.error('Validation error:', validationError);
+      return NextResponse.json(
+        { success: false, error: validationError.message || 'Validation failed' },
+        { status: 400 }
+      );
+    }
 
     const savedResponse = await newResponse.save();
 

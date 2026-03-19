@@ -38,6 +38,7 @@ import {
   FiGlobe
 } from 'react-icons/fi';
 import { useAdminShortcuts } from '@/hooks/useAdminShortcuts';
+import { toast } from 'react-hot-toast';
 import '../../../styles/admin/modals.css';
 
 // Types

@@ -34,7 +34,12 @@ export default function SignupPage() {
     }
 
     try {
-      const result = await signup(formData.name, formData.email, formData.password);
+      // Pass email first, then password, then name object (using entered name for both en and ta)
+      const result = await signup(
+        formData.email, 
+        formData.password, 
+        { en: formData.name, ta: formData.name }
+      );
       
       if (result.success) {
         toast.success('Account created successfully!');

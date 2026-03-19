@@ -187,8 +187,6 @@ const TeamSchema = new Schema<ITeam>({
 });
 
 // Indexes for better performance
-TeamSchema.index({ slug: 1 }, { unique: true });
-TeamSchema.index({ email: 1 }, { unique: true });
 TeamSchema.index({ orderNum: 1, isActive: 1 });
 TeamSchema.index({ role: 1, isActive: 1 });
 TeamSchema.index({ department: 1 });

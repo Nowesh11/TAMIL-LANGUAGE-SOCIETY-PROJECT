@@ -211,39 +211,39 @@ export default function CartCheckout({
   return (
     <div className="space-y-6">
       {/* Items Section */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
-        <h3 className="text-lg font-bold flex items-center gap-2 mb-4 text-white">
-          <FaShoppingCart className="text-purple-400" />
+      <div className="bg-surface border border-border rounded-2xl p-6 backdrop-blur-md">
+        <h3 className="text-lg font-bold flex items-center gap-2 mb-4 text-foreground">
+          <FaShoppingCart className="text-primary" />
           <span>Shopping Cart</span>
         </h3>
         
         {!items.length && (
-          <p className="text-gray-400 text-center py-8">Your cart is empty.</p>
+          <p className="text-foreground-muted text-center py-8">Your cart is empty.</p>
         )}
         
         {!!items.length && (
           <div className="space-y-4">
             {items.map((it, idx) => (
-              <div key={idx} className="bg-black/20 border border-white/10 rounded-xl p-4 flex items-center justify-between gap-4 shadow-sm hover:border-purple-500/30 transition-all">
+              <div key={idx} className="bg-surface-hover border border-border rounded-xl p-4 flex items-center justify-between gap-4 shadow-sm hover:border-primary/30 transition-all">
                 <div>
-                  <div className="font-medium text-lg text-white">
+                  <div className="font-medium text-lg text-foreground">
                     {typeof it.title === 'string' 
                       ? it.title 
                       : (it.title as any)?.[lang] || it.title?.en || 'Book'
                     }
                   </div>
-                  <div className="text-sm text-purple-400 font-bold">RM {it.price.toFixed(2)}</div>
+                  <div className="text-sm text-primary font-bold">RM {it.price.toFixed(2)}</div>
                 </div>
                 <div className="flex items-center gap-2">
                   <input 
                     type="number" 
                     min={1} 
                     value={it.quantity} 
-                    className="w-16 px-2 py-1 bg-black/40 border border-white/10 rounded-lg text-center text-white focus:ring-2 focus:ring-purple-500/50 outline-none" 
+                    className="w-16 px-2 py-1 bg-surface border border-border rounded-lg text-center text-foreground focus:ring-2 focus:ring-primary/50 outline-none" 
                     onChange={(e) => updateQty(idx, Number(e.target.value))} 
                   />
                   <button 
-                    className="text-red-400 hover:text-red-500 p-2 transition-colors hover:bg-white/5 rounded-lg" 
+                    className="text-error hover:text-red-500 p-2 transition-colors hover:bg-surface rounded-lg" 
                     onClick={() => onItemsChange(items.filter((_, i) => i !== idx))}
                     title="Remove Item"
                   >
@@ -258,31 +258,31 @@ export default function CartCheckout({
          
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Shipping Section */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
-          <h4 className="text-lg font-bold mb-4 text-white">Shipping Address</h4>
+        <div className="bg-surface border border-border rounded-2xl p-6 backdrop-blur-md">
+          <h4 className="text-lg font-bold mb-4 text-foreground">Shipping Address</h4>
           <div className="space-y-4">
             <div className="space-y-1">
-              <label className="text-sm font-semibold text-gray-300">Full Name <span className="text-red-500">*</span></label>
+              <label className="text-sm font-semibold text-foreground-secondary">Full Name <span className="text-error">*</span></label>
               <input 
-                className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-purple-500/50 outline-none transition-all focus:border-purple-500/50" 
+                className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50" 
                 placeholder="Full Name" 
                 value={shipping.fullName} 
                 onChange={(e) => setShipping({ ...shipping, fullName: e.target.value })} 
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-semibold text-gray-300">Address Line 1 <span className="text-red-500">*</span></label>
+              <label className="text-sm font-semibold text-foreground-secondary">Address Line 1 <span className="text-error">*</span></label>
               <input 
-                className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-purple-500/50 outline-none transition-all focus:border-purple-500/50" 
+                className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50" 
                 placeholder="Address Line 1" 
                 value={shipping.addressLine1} 
                 onChange={(e) => setShipping({ ...shipping, addressLine1: e.target.value })} 
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-semibold text-gray-300">Address Line 2</label>
+              <label className="text-sm font-semibold text-foreground-secondary">Address Line 2</label>
               <input 
-                className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-purple-500/50 outline-none transition-all focus:border-purple-500/50" 
+                className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50" 
                 placeholder="Address Line 2" 
                 value={shipping.addressLine2} 
                 onChange={(e) => setShipping({ ...shipping, addressLine2: e.target.value })} 
@@ -290,18 +290,18 @@ export default function CartCheckout({
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-sm font-semibold text-gray-300">City <span className="text-red-500">*</span></label>
+                <label className="text-sm font-semibold text-foreground-secondary">City <span className="text-error">*</span></label>
                 <input 
-                  className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-purple-500/50 outline-none transition-all focus:border-purple-500/50" 
+                  className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50" 
                   placeholder="City" 
                   value={shipping.city} 
                   onChange={(e) => setShipping({ ...shipping, city: e.target.value })} 
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-semibold text-gray-300">State <span className="text-red-500">*</span></label>
+                <label className="text-sm font-semibold text-foreground-secondary">State <span className="text-error">*</span></label>
                 <input 
-                  className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-purple-500/50 outline-none transition-all focus:border-purple-500/50" 
+                  className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50" 
                   placeholder="State" 
                   value={shipping.state} 
                   onChange={(e) => setShipping({ ...shipping, state: e.target.value })} 
@@ -310,18 +310,18 @@ export default function CartCheckout({
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-sm font-semibold text-gray-300">Postal Code <span className="text-red-500">*</span></label>
+                <label className="text-sm font-semibold text-foreground-secondary">Postal Code <span className="text-error">*</span></label>
                 <input 
-                  className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-purple-500/50 outline-none transition-all focus:border-purple-500/50" 
+                  className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50" 
                   placeholder="Postal Code" 
                   value={shipping.postalCode} 
                   onChange={(e) => setShipping({ ...shipping, postalCode: e.target.value })} 
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-semibold text-gray-300">Country <span className="text-red-500">*</span></label>
+                <label className="text-sm font-semibold text-foreground-secondary">Country <span className="text-error">*</span></label>
                 <input 
-                  className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-purple-500/50 outline-none transition-all focus:border-purple-500/50" 
+                  className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50" 
                   placeholder="Country" 
                   value={shipping.country} 
                   onChange={(e) => setShipping({ ...shipping, country: e.target.value })} 
@@ -329,9 +329,9 @@ export default function CartCheckout({
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-semibold text-gray-300">Phone <span className="text-red-500">*</span></label>
+              <label className="text-sm font-semibold text-foreground-secondary">Phone <span className="text-error">*</span></label>
               <input 
-                className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-purple-500/50 outline-none transition-all focus:border-purple-500/50" 
+                className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50" 
                 placeholder="Phone" 
                 value={shipping.phone} 
                 onChange={(e) => setShipping({ ...shipping, phone: e.target.value })} 
@@ -342,43 +342,43 @@ export default function CartCheckout({
         
         {/* Payment Section */}
         <div className="space-y-6">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
-            <h4 className="text-lg font-bold flex items-center gap-2 mb-4 text-white">
-              <FaCreditCard className="text-purple-400" />
+          <div className="bg-surface border border-border rounded-2xl p-6 backdrop-blur-md">
+            <h4 className="text-lg font-bold flex items-center gap-2 mb-4 text-foreground">
+              <FaCreditCard className="text-primary" />
               <span>Payment</span>
             </h4>
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="text-sm font-semibold text-gray-300">Payment Method <span className="text-red-500">*</span></label>
+                <label className="text-sm font-semibold text-foreground-secondary">Payment Method <span className="text-error">*</span></label>
                 <select 
-                  className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-purple-500/50 outline-none transition-all appearance-none" 
+                  className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all appearance-none" 
                   value={method} 
                   onChange={(e) => setMethod(e.target.value as any)}
                 >
                   {(settings?.activePaymentMethods || []).map((m: string) => (
-                    <option key={m} value={m} className="bg-[#0a0a0f] text-white">{m.toUpperCase()}</option>
+                    <option key={m} value={m} className="bg-surface text-foreground">{m.toUpperCase()}</option>
                   ))}
                 </select>
               </div>
                
               {method === 'epayum' && settings?.epayum && (
-                <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-                  <h5 className="font-semibold text-purple-300 mb-2">E-PAY UM Payment Details</h5>
+                <div className="p-4 bg-primary/10 border border-primary/20 rounded-xl">
+                  <h5 className="font-semibold text-primary mb-2">E-PAY UM Payment Details</h5>
                   {settings.epayum.link && (
                     <div className="mb-2">
-                      <strong className="text-gray-300">Payment Link: </strong>
+                      <strong className="text-foreground-secondary">Payment Link: </strong>
                       <a 
                         href={settings.epayum.link} 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="text-purple-400 hover:text-purple-300 underline break-all"
+                        className="text-primary hover:text-primary/80 underline break-all"
                       >
                         {settings.epayum.link}
                       </a>
                     </div>
                   )}
                   {settings.epayum.instructions && (
-                    <div className="text-sm text-gray-300">
+                    <div className="text-sm text-foreground-secondary">
                       <span className="font-medium">Instructions: </span>
                       {settings.epayum.instructions}
                     </div>
@@ -388,8 +388,8 @@ export default function CartCheckout({
 
               {method === 'fpx' && settings?.fpx && (
                 <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-xl">
-                  <h5 className="font-semibold text-green-300 mb-2">Bank Transfer Details</h5>
-                  <div className="space-y-1 text-sm text-gray-300">
+                  <h5 className="font-semibold text-green-500 mb-2">Bank Transfer Details</h5>
+                  <div className="space-y-1 text-sm text-foreground-secondary">
                     <div><strong>Bank Name:</strong> {settings.fpx.bankName}</div>
                     <div><strong>Account Number:</strong> {settings.fpx.accountNumber}</div>
                     <div><strong>Account Holder:</strong> {settings.fpx.accountHolder}</div>
@@ -400,7 +400,7 @@ export default function CartCheckout({
                     </div>
                   )}
                   {settings.fpx.instructions && (
-                    <div className="mt-2 text-sm text-gray-300">
+                    <div className="mt-2 text-sm text-foreground-secondary">
                       <span className="font-medium">Instructions: </span>
                       {settings.fpx.instructions}
                     </div>
@@ -409,37 +409,37 @@ export default function CartCheckout({
               )}
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-300">Upload Transaction Proof <span className="text-red-500">*</span></label>
+                <label className="text-sm font-semibold text-foreground-secondary">Upload Transaction Proof <span className="text-error">*</span></label>
                 <div className="space-y-2">
                   <input
                     type="file"
                     accept=".jpg,.jpeg,.png,.pdf"
                     onChange={handleFileUpload}
-                    className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-500/10 file:text-purple-400 hover:file:bg-purple-500/20 transition-all"
+                    className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all"
                   />
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-foreground-muted">
                     Upload your payment receipt (JPG, PNG, or PDF, max 5MB)
                   </p>
                   {receiptFile && (
-                    <div className="text-sm text-green-400 flex items-center gap-2 font-medium">
+                    <div className="text-sm text-green-500 flex items-center gap-2 font-medium">
                       <FaCheckCircle />
                       Selected: {receiptFile.name}
                     </div>
                   )}
                   {uploadStatus === 'uploading' && (
-                    <div className="text-sm text-purple-400 flex items-center gap-2 font-medium">
+                    <div className="text-sm text-primary flex items-center gap-2 font-medium">
                       <FaSpinner className="animate-spin" />
                       Uploading...
                     </div>
                   )}
                   {uploadStatus === 'success' && (
-                    <div className="text-sm text-green-400 flex items-center gap-2 font-medium">
+                    <div className="text-sm text-green-500 flex items-center gap-2 font-medium">
                       <FaCheckCircle />
                       Upload successful
                     </div>
                   )}
                   {uploadStatus === 'error' && (
-                    <div className="text-sm text-red-400 flex items-center gap-2 font-medium">
+                    <div className="text-sm text-error flex items-center gap-2 font-medium">
                       <FaExclamationTriangle />
                       Upload failed
                     </div>
@@ -449,25 +449,25 @@ export default function CartCheckout({
             </div>
           </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
-            <h4 className="text-lg font-bold mb-4 text-white">Order Summary</h4>
-            <div className="p-4 bg-black/20 border border-white/10 rounded-xl space-y-3">
-              <div className="flex justify-between text-gray-300">
+          <div className="bg-surface border border-border rounded-2xl p-6 backdrop-blur-md">
+            <h4 className="text-lg font-bold mb-4 text-foreground">Order Summary</h4>
+            <div className="p-4 bg-surface-hover border border-border rounded-xl space-y-3">
+              <div className="flex justify-between text-foreground-secondary">
                 <span>Subtotal</span>
-                <span className="font-semibold text-white">RM {subtotal.toFixed(2)}</span>
+                <span className="font-semibold text-foreground">RM {subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-gray-300">
+              <div className="flex justify-between text-foreground-secondary">
                 <span>Tax ({settings?.taxRate || 0}%)</span>
-                <span className="font-semibold text-white">RM {tax.toFixed(2)}</span>
+                <span className="font-semibold text-foreground">RM {tax.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-gray-300">
+              <div className="flex justify-between text-foreground-secondary">
                 <span>Shipping</span>
-                <span className="font-semibold text-white">RM {shippingFee.toFixed(2)}</span>
+                <span className="font-semibold text-foreground">RM {shippingFee.toFixed(2)}</span>
               </div>
-              <div className="border-t border-white/10 pt-3 mt-1">
+              <div className="border-t border-border pt-3 mt-1">
                 <div className="flex justify-between text-lg font-bold">
-                  <span className="text-white">Total</span>
-                  <span className="text-purple-400">RM {finalTotal.toFixed(2)}</span>
+                  <span className="text-foreground">Total</span>
+                  <span className="text-primary">RM {finalTotal.toFixed(2)}</span>
                 </div>
               </div>
             </div>

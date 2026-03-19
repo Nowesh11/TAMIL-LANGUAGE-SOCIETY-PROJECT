@@ -696,35 +696,35 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
               </div>
               
               {mounted && showForm && form && createPortal(
-                <div className={`fixed inset-0 z-[100000] flex items-center justify-center p-0 md:p-4 ${isDark ? 'bg-background/80' : 'bg-black/60'} backdrop-blur-md animate-fade-in`} onClick={() => setShowForm(false)}>
-                  <div className="w-full h-full md:h-[90vh] md:max-w-7xl bg-surface/95 border border-border/50 md:rounded-2xl shadow-2xl backdrop-blur-xl animate-slide-in-up overflow-y-auto custom-scrollbar relative z-[100001] flex flex-col" onClick={(e) => e.stopPropagation()}>
-                    <div className="modern-modal-header sticky top-0 bg-surface/95 backdrop-blur z-20 border-b border-border/50 px-6 py-4 flex justify-between items-center shrink-0">
-                      <div>
-                        <h2 className="modern-modal-title flex items-center gap-3 text-2xl font-bold text-foreground">
+                <div className="modern-modal-overlay" onClick={() => setShowForm(false)}>
+                  <div className="modern-modal-container md:max-w-7xl h-[90vh]" onClick={(e) => e.stopPropagation()}>
+                    <div className="modern-modal-header sticky top-0 z-20">
+                      <div className="modal-title-section">
+                        <h2 className="modern-modal-title flex items-center gap-3">
                           <FaUsers className="text-primary" />
                           {form.title?.[lang] || (lang === 'en' ? 'Join Our Team' : 'எங்கள் அணியில் சேருங்கள்')}
                         </h2>
-                        <p className="modal-subtitle mt-1 text-foreground-secondary">{form.description?.[lang] || (lang === 'en' ? 'Be part of this initiative' : 'இந்த முயற்சியின் ஒரு பகுதியாக இருங்கள்')}</p>
+                        <p className="modal-subtitle mt-1">{form.description?.[lang] || (lang === 'en' ? 'Be part of this initiative' : 'இந்த முயற்சியின் ஒரு பகுதியாக இருங்கள்')}</p>
                       </div>
                       <button 
-                        className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-hover hover:bg-error/10 hover:text-error transition-colors text-foreground-secondary" 
+                        className="modern-close-button" 
                         onClick={() => setShowForm(false)}
                       >
-                        <FaTimes className="text-lg" />
+                        <FaTimes />
                       </button>
                     </div>
                     
-                    <div className="modern-modal-body space-y-8 p-6 md:p-8 overflow-y-auto flex-grow">
-                      <div className="form-section">
-                        <h3 className="section-title text-primary">
+                    <div className="modern-modal-body space-y-8 p-6 md:p-8">
+                      <div className="modern-form-section">
+                        <h3 className="section-title">
                           {lang === 'en' ? 'Personal Information' : 'தனிப்பட்ட தகவல்கள்'}
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="modern-field-group">
-                            <label className="modern-label">{lang === 'en' ? 'Your Name' : 'உங்கள் பெயர்'} <span className="text-error">*</span></label>
+                            <label className="modern-label text-foreground-secondary">{lang === 'en' ? 'Your Name' : 'உங்கள் பெயர்'} <span className="text-error">*</span></label>
                             <div className="relative">
                               <input 
-                                className={`modern-input pl-10 ${fieldErrors.applicantName ? 'border-error' : ''}`}
+                                className={`modern-input pl-10 bg-surface text-foreground border-border ${fieldErrors.applicantName ? 'invalid' : ''}`}
                                 type="text" 
                                 value={applicantName} 
                                 onChange={(e) => {
@@ -733,20 +733,20 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
                                 }} 
                                 placeholder={lang === 'en' ? 'Enter your full name' : 'உங்கள் முழு பெயரை உள்ளிடவும்'}
                               />
-                              <FaUser className="absolute left-3 top-3.5 text-foreground-muted" />
+                              <FaUser className="absolute left-3 top-3.5 text-foreground-muted pointer-events-none" />
                             </div>
                             {fieldErrors.applicantName && (
-                              <div className="error-message">
+                              <div className="error-message text-error">
                                 <FaExclamationTriangle />
                                 <span>{fieldErrors.applicantName}</span>
                               </div>
                             )}
                           </div>
                           <div className="modern-field-group">
-                            <label className="modern-label">{lang === 'en' ? 'Email' : 'மின்னஞ்சல்'} <span className="text-error">*</span></label>
+                            <label className="modern-label text-foreground-secondary">{lang === 'en' ? 'Email' : 'மின்னஞ்சல்'} <span className="text-error">*</span></label>
                             <div className="relative">
                               <input 
-                                className={`modern-input pl-10 ${fieldErrors.applicantEmail ? 'border-error' : ''}`}
+                                className={`modern-input pl-10 bg-surface text-foreground border-border ${fieldErrors.applicantEmail ? 'invalid' : ''}`}
                                 type="email" 
                                 value={applicantEmail} 
                                 onChange={(e) => {
@@ -755,7 +755,7 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
                                 }} 
                                 placeholder={lang === 'en' ? 'Enter your email address' : 'உங்கள் மின்னஞ்சல் முகவரியை உள்ளிடவும்'}
                               />
-                              <FaEnvelope className="absolute left-3 top-3.5 text-foreground-muted" />
+                              <FaEnvelope className="absolute left-3 top-3.5 text-foreground-muted pointer-events-none" />
                             </div>
                             {fieldErrors.applicantEmail && (
                               <div className="error-message">
@@ -768,8 +768,8 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
                       </div>
 
                       {(form.fields || []).length > 0 && (
-                        <div className="form-section">
-                          <h3 className="section-title text-primary">
+                        <div className="modern-form-section">
+                          <h3 className="section-title">
                             {lang === 'en' ? 'Additional Information' : 'கூடுதல் தகவல்கள்'}
                           </h3>
                           <div className="space-y-6">
@@ -787,39 +787,42 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
                       )}
 
                       {(submitError || submitOk !== null) && (
-                        <div className={`p-4 rounded-xl border flex items-center gap-3 ${submitError ? 'bg-error/10 border-error/20 text-error' : 'bg-success/10 border-success/20 text-success'}`}>
+                        <div className={`p-4 rounded-xl border flex items-center gap-3 ${submitError ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-green-500/10 border-green-500/20 text-green-500'}`}>
                           {submitError ? <FaExclamationTriangle /> : <FaCheckCircle />}
                           <span>{submitError || (lang === 'en' ? 'Thank you! We received your application.' : 'நன்றி! உங்கள் விண்ணப்பத்தை பெற்றோம்.')}</span>
                         </div>
                       )}
                     </div>
                     
-                    <div className="modern-modal-footer border-t border-border/10 p-6 bg-background/95 backdrop-blur z-20 shrink-0 flex justify-end gap-4">
-                      <button 
-                        className="px-6 py-3 rounded-xl border border-border bg-surface hover:bg-surface-hover text-foreground font-medium transition-all" 
-                        type="button" 
-                        onClick={() => setShowForm(false)}
-                      >
-                        {lang === 'en' ? 'Cancel' : 'ரத்து செய்யவும்'}
-                      </button>
-                      <button 
-                        className="px-8 py-3 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-bold hover:shadow-[0_0_20px_rgba(79,70,229,0.3)] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2" 
-                        type="button" 
-                        onClick={submitRecruitment} 
-                        disabled={submitting}
-                      >
-                        {submitting ? (
-                          <>
-                            <FaSpinner className="animate-spin" />
-                            <span>{lang === 'en' ? 'Submitting...' : 'சமர்ப்பித்து வருகிறது...'}</span>
-                          </>
-                        ) : (
-                          <>
-                            <FaPaperPlane />
-                            <span>{lang === 'en' ? 'Submit Application' : 'விண்ணப்பத்தை சமர்ப்பிக்கவும்'}</span>
-                          </>
-                        )}
-                      </button>
+                    <div className="modern-modal-footer sticky bottom-0 z-20">
+                      <div className="modal-footer-left"></div>
+                      <div className="modal-footer-right flex gap-4">
+                        <button 
+                          className="modern-btn modern-btn-secondary" 
+                          type="button" 
+                          onClick={() => setShowForm(false)}
+                        >
+                          {lang === 'en' ? 'Cancel' : 'ரத்து செய்யவும்'}
+                        </button>
+                        <button 
+                          className="modern-btn modern-btn-primary" 
+                          type="button" 
+                          onClick={submitRecruitment} 
+                          disabled={submitting}
+                        >
+                          {submitting ? (
+                            <>
+                              <FaSpinner className="animate-spin" />
+                              <span>{lang === 'en' ? 'Submitting...' : 'சமர்ப்பித்து வருகிறது...'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <FaPaperPlane />
+                              <span>{lang === 'en' ? 'Submit Application' : 'விண்ணப்பத்தை சமர்ப்பிக்கவும்'}</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>, document.body)}

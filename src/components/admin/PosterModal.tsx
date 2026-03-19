@@ -409,15 +409,15 @@ const PosterModal: React.FC<PosterModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="component-modal-overlay modern-modal-overlay" style={{ zIndex: 1000 }}>
-      <div className="component-modal-container modern-modal-container" style={{ maxWidth: '900px', backgroundColor: 'var(--surface)', color: 'var(--foreground)', borderColor: 'var(--border)' }}>
+    <div className="component-modal-overlay modern-modal-overlay">
+      <div className="component-modal-container modern-modal-container" style={{ maxWidth: '900px' }}>
         {/* Modal Header */}
-        <div className="modern-modal-header" style={{ borderBottomColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+        <div className="modern-modal-header">
           <div className="modal-title-section">
-            <h2 className="modern-modal-title" style={{ color: 'var(--foreground)' }}>
+            <h2 className="modern-modal-title">
               {mode === 'create' ? 'Create New Poster' : 'Edit Poster'}
             </h2>
-            <p className="modal-subtitle" style={{ color: 'var(--foreground-muted)' }}>
+            <p className="modal-subtitle">
               {mode === 'create' 
                 ? 'Add a new poster to showcase events and announcements'
                 : 'Update poster information and settings'
@@ -428,18 +428,16 @@ const PosterModal: React.FC<PosterModalProps> = ({
             onClick={onClose}
             className="modern-close-button"
             disabled={isLoading}
-            style={{ color: 'var(--foreground-muted)' }}
           >
             <FaTimes />
           </button>
         </div>
 
         {/* Modal Tabs */}
-        <div className="modern-modal-tabs" style={{ borderBottomColor: 'var(--border)' }}>
+        <div className="modern-modal-tabs">
           <button
             className={`tab-button ${activeTab === 'content' ? 'active' : ''}`}
             onClick={() => setActiveTab('content')}
-            style={{ color: activeTab === 'content' ? 'var(--primary)' : 'var(--foreground-muted)', borderBottomColor: activeTab === 'content' ? 'var(--primary)' : 'transparent' }}
           >
             <FaCode />
             Content
@@ -447,7 +445,6 @@ const PosterModal: React.FC<PosterModalProps> = ({
           <button
             className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`}
             onClick={() => setActiveTab('settings')}
-            style={{ color: activeTab === 'settings' ? 'var(--primary)' : 'var(--foreground-muted)', borderBottomColor: activeTab === 'settings' ? 'var(--primary)' : 'transparent' }}
           >
             <FaCog />
             Settings
@@ -455,7 +452,6 @@ const PosterModal: React.FC<PosterModalProps> = ({
           <button
             className={`tab-button ${activeTab === 'media' ? 'active' : ''}`}
             onClick={() => setActiveTab('media')}
-            style={{ color: activeTab === 'media' ? 'var(--primary)' : 'var(--foreground-muted)', borderBottomColor: activeTab === 'media' ? 'var(--primary)' : 'transparent' }}
           >
             <FaImage />
             Media
@@ -464,49 +460,47 @@ const PosterModal: React.FC<PosterModalProps> = ({
 
         {/* Modal Body */}
         <form className="modern-modal-form" onSubmit={handleSubmit}>
-          <div className="modern-modal-body" style={{ backgroundColor: 'var(--background-secondary)' }}>
+          <div className="modern-modal-body">
             {/* Content Tab */}
             {activeTab === 'content' && (
               <div className="tab-content">
-                <div className="form-section" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', padding: '1.5rem', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
-                  <h3 className="section-title" style={{ color: 'var(--foreground-secondary)' }}>Poster Content</h3>
+                <div className="modern-form-section">
+                  <h3 className="section-title">Poster Content</h3>
                   
                   {/* Title Fields */}
                   <div className="bilingual-inputs">
                     <div className="modern-field-group bilingual-input-group">
-                      <label className="modern-label required" style={{ color: 'var(--foreground-muted)' }}>
+                      <label className="modern-label required">
                         Title (English)
                         <span className={`field-status ${validationState['title.en'] ? 'valid' : 'invalid'}`}>
                           {validationState['title.en'] ? '✓' : '*'}
                         </span>
                       </label>
-                      <div className="language-tag" style={{ backgroundColor: 'var(--border)', color: 'var(--foreground)' }}>EN</div>
+                      <div className="language-tag">EN</div>
                       <input
                         type="text"
                         className={`modern-input ${errors['title.en'] ? 'invalid' : validationState['title.en'] ? 'valid' : ''}`}
                         value={formData.title?.en || ''}
                         onChange={(e) => handleInputChange('title.en', e.target.value)}
                         placeholder="Enter poster title in English"
-                        style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)', borderColor: 'var(--border-light)' }}
                       />
                       {errors['title.en'] && <span className="error-message">{errors['title.en']}</span>}
                     </div>
                     
                     <div className="modern-field-group bilingual-input-group">
-                      <label className="modern-label required" style={{ color: 'var(--foreground-muted)' }}>
+                      <label className="modern-label required">
                         Title (Tamil)
                         <span className={`field-status ${validationState['title.ta'] ? 'valid' : 'invalid'}`}>
                           {validationState['title.ta'] ? '✓' : '*'}
                         </span>
                       </label>
-                      <div className="language-tag tamil" style={{ backgroundColor: 'var(--border)', color: 'var(--foreground)' }}>TA</div>
+                      <div className="language-tag tamil">TA</div>
                       <input
                         type="text"
                         className={`modern-input ${errors['title.ta'] ? 'invalid' : validationState['title.ta'] ? 'valid' : ''}`}
                         value={formData.title?.ta || ''}
                         onChange={(e) => handleInputChange('title.ta', e.target.value)}
                         placeholder="தமிழில் போஸ்டர் தலைப்பை உள்ளிடவும்"
-                        style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)', borderColor: 'var(--border-light)' }}
                       />
                       {errors['title.ta'] && <span className="error-message">{errors['title.ta']}</span>}
                     </div>
@@ -515,39 +509,37 @@ const PosterModal: React.FC<PosterModalProps> = ({
                   {/* Description Fields */}
                   <div className="bilingual-inputs">
                     <div className="modern-field-group bilingual-input-group">
-                      <label className="modern-label required" style={{ color: 'var(--foreground-muted)' }}>
+                      <label className="modern-label required">
                         Description (English)
                         <span className={`field-status ${validationState['description.en'] ? 'valid' : 'invalid'}`}>
                           {validationState['description.en'] ? '✓' : '*'}
                         </span>
                       </label>
-                      <div className="language-tag" style={{ backgroundColor: 'var(--border)', color: 'var(--foreground)' }}>EN</div>
+                      <div className="language-tag">EN</div>
                       <textarea
                         className={`modern-textarea ${errors['description.en'] ? 'invalid' : validationState['description.en'] ? 'valid' : ''}`}
                         value={formData.description?.en || ''}
                         onChange={(e) => handleInputChange('description.en', e.target.value)}
                         placeholder="Enter poster description in English"
                         rows={4}
-                        style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)', borderColor: 'var(--border-light)' }}
                       />
                       {errors['description.en'] && <span className="error-message">{errors['description.en']}</span>}
                     </div>
                     
                     <div className="modern-field-group bilingual-input-group">
-                      <label className="modern-label required" style={{ color: 'var(--foreground-muted)' }}>
+                      <label className="modern-label required">
                         Description (Tamil)
                         <span className={`field-status ${validationState['description.ta'] ? 'valid' : 'invalid'}`}>
                           {validationState['description.ta'] ? '✓' : '*'}
                         </span>
                       </label>
-                      <div className="language-tag tamil" style={{ backgroundColor: 'var(--border)', color: 'var(--foreground)' }}>TA</div>
+                      <div className="language-tag tamil">TA</div>
                       <textarea
                         className={`modern-textarea ${errors['description.ta'] ? 'invalid' : validationState['description.ta'] ? 'valid' : ''}`}
                         value={formData.description?.ta || ''}
                         onChange={(e) => handleInputChange('description.ta', e.target.value)}
                         placeholder="தமிழில் போஸ்டர் விளக்கத்தை உள்ளிடவும்"
                         rows={4}
-                        style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)', borderColor: 'var(--border-light)' }}
                       />
                       {errors['description.ta'] && <span className="error-message">{errors['description.ta']}</span>}
                     </div>
@@ -559,11 +551,11 @@ const PosterModal: React.FC<PosterModalProps> = ({
             {/* Settings Tab */}
             {activeTab === 'settings' && (
               <div className="tab-content">
-                <div className="modern-form-section" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', padding: '1.5rem', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
-                  <h3 className="section-title" style={{ color: 'var(--foreground-secondary)' }}>Poster Settings</h3>
+                <div className="modern-form-section">
+                  <h3 className="section-title">Poster Settings</h3>
                   
                   <div className="modern-field-group">
-                    <label className="modern-label required" style={{ color: 'var(--foreground-muted)' }}>
+                    <label className="modern-label required">
                       Category
                       <span className={`field-status ${validationState.category ? 'valid' : 'invalid'}`}>
                         {validationState.category ? '✓' : '*'}
@@ -573,7 +565,6 @@ const PosterModal: React.FC<PosterModalProps> = ({
                       className={`modern-select ${errors.category ? 'invalid' : validationState.category ? 'valid' : ''}`}
                       value={formData.category || ''}
                       onChange={(e) => handleInputChange('category', e.target.value)}
-                      style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)', borderColor: 'var(--border-light)' }}
                     >
                       <option value="">Select a category</option>
                       {posterCategories.map(cat => (
@@ -584,7 +575,7 @@ const PosterModal: React.FC<PosterModalProps> = ({
                   </div>
                   
                   <div className="modern-field-group">
-                    <label className="modern-label required" style={{ color: 'var(--foreground-muted)' }}>
+                    <label className="modern-label required">
                       Display Order
                       <span className={`field-status ${validationState.order ? 'valid' : 'invalid'}`}>
                         {validationState.order ? '✓' : '*'}
@@ -597,13 +588,12 @@ const PosterModal: React.FC<PosterModalProps> = ({
                       onChange={(e) => handleInputChange('order', parseInt(e.target.value) || 0)}
                       min="0"
                       placeholder="Display order (0 = first)"
-                      style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)', borderColor: 'var(--border-light)' }}
                     />
                     {errors.order && <span className="error-message">{errors.order}</span>}
                   </div>
 
                   <div className="modern-field-group">
-                    <label className="modern-label" style={{ color: 'var(--foreground-muted)' }}>
+                    <label className="modern-label">
                       Event Date
                       <span className={`field-status ${validationState.eventDate ? 'valid' : 'invalid'}`}>
                         {validationState.eventDate ? '✓' : ''}
@@ -614,7 +604,6 @@ const PosterModal: React.FC<PosterModalProps> = ({
                       className={`modern-input ${errors.eventDate ? 'invalid' : validationState.eventDate ? 'valid' : ''}`}
                       value={formData.eventDate || ''}
                       onChange={(e) => handleInputChange('eventDate', e.target.value)}
-                      style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)', borderColor: 'var(--border-light)' }}
                     />
                     {errors.eventDate && <span className="error-message">{errors.eventDate}</span>}
                   </div>
@@ -628,8 +617,8 @@ const PosterModal: React.FC<PosterModalProps> = ({
                           checked={formData.isActive ?? true}
                           onChange={(e) => handleInputChange('isActive', e.target.checked)}
                         />
-                        <span className="checkbox-text" style={{ color: 'var(--foreground-muted)' }}>Active</span>
-                        <span className="checkbox-description" style={{ color: 'var(--foreground-muted)' }}>Poster is visible to users</span>
+                        <span className="checkbox-text">Active</span>
+                        <span className="checkbox-description">Poster is visible to users</span>
                       </label>
                     </div>
                   </div>
@@ -643,8 +632,8 @@ const PosterModal: React.FC<PosterModalProps> = ({
                           checked={formData.isFeatured ?? false}
                           onChange={(e) => handleInputChange('isFeatured', e.target.checked)}
                         />
-                        <span className="checkbox-text" style={{ color: 'var(--foreground-muted)' }}>Featured</span>
-                        <span className="checkbox-description" style={{ color: 'var(--foreground-muted)' }}>Highlight this poster</span>
+                        <span className="checkbox-text">Featured</span>
+                        <span className="checkbox-description">Highlight this poster</span>
                       </label>
                     </div>
                   </div>
@@ -655,19 +644,53 @@ const PosterModal: React.FC<PosterModalProps> = ({
             {/* Media Tab */}
             {activeTab === 'media' && (
               <div className="tab-content">
-                <div className="modern-form-section" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', padding: '1.5rem', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
-                  <h3 className="section-title" style={{ color: 'var(--foreground-secondary)' }}>Poster Image</h3>
-                  <MediaUploader
-                    category="posters"
-                    subCategory="images"
-                    accept="image/*"
-                    previewType="image"
-                    onUploaded={(r) => {
-                      const url = r.url || (r.filePath ? `/api/files/serve?path=${encodeURIComponent(r.filePath)}` : '');
-                      handleInputChange('imagePath', url);
-                    }}
-                    initialUrl={formData.imagePath}
-                  />
+                <div className="modern-form-section">
+                  <h3 className="section-title">Poster Image</h3>
+                  
+                  <div className="modern-image-upload-section">
+                    <div className="modern-image-upload-area">
+                      {formData.imagePath ? (
+                        <div className="image-preview">
+                          <img 
+                            src={formData.imagePath.startsWith('http') || formData.imagePath.startsWith('/') ? formData.imagePath : `/api/files/serve?path=${encodeURIComponent(formData.imagePath)}`} 
+                            alt="Poster Preview" 
+                            className="preview-image"
+                          />
+                          <button 
+                            type="button" 
+                            className="remove-image-btn" 
+                            onClick={() => handleInputChange('imagePath', '')}
+                          >
+                            <FaTimes />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="upload-placeholder" onClick={() => document.getElementById('poster-image-upload')?.click()}>
+                          <FaUpload />
+                          <p>Click to upload poster image</p>
+                          <p className="upload-hint" style={{ color: 'var(--foreground-muted)', fontSize: '0.875rem' }}>Supported formats: JPG, PNG, WebP (Max 5MB)</p>
+                        </div>
+                      )}
+                      
+                      <input 
+                        id="poster-image-upload"
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleImageUpload} 
+                        className="file-input" 
+                        style={{ display: 'none' }}
+                      />
+                      
+                      {uploadingImage && (
+                        <div className="upload-progress" style={{ marginTop: '1rem', color: 'var(--primary)' }}>
+                          <FaSpinner className="spinner fa-spin" />
+                          <span style={{ marginLeft: '0.5rem' }}>Uploading...</span>
+                        </div>
+                      )}
+                      
+                      {errors.image && <div className="error-message" style={{ color: 'var(--error)', marginTop: '0.5rem' }}>{errors.image}</div>}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -676,7 +699,7 @@ const PosterModal: React.FC<PosterModalProps> = ({
         </form>
 
         {/* Modal Footer */}
-        <div className="modern-modal-footer" style={{ borderTopColor: 'var(--border)' }}>
+        <div className="modern-modal-footer">
           <div className="modal-footer-left">
             {errors.submit && (
               <div className="modal-error">

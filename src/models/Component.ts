@@ -545,7 +545,6 @@ ComponentSchema.index({ type: 1, isActive: 1 });
 ComponentSchema.index({ createdBy: 1, createdAt: -1 });
 ComponentSchema.index({ page: 1, type: 1, isActive: 1 });
 ComponentSchema.index({ page: 1, bureau: 1, type: 1, isActive: 1 });
-ComponentSchema.index({ category: 1 });
 ComponentSchema.index({
   'content.title.en': 'text',
   'content.title.ta': 'text',

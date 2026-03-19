@@ -13,9 +13,10 @@ function read(p: string) {
   } catch { return null }
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   await dbConnect()
-  const ebook = await EBook.findById(params.id).lean()
+  const { id } = await params
+  const ebook = await EBook.findById(id).lean()
   if (!ebook) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   const rel = String(ebook.filePath || '')
   if (!rel) return NextResponse.json({ error: 'No file' }, { status: 404 })
