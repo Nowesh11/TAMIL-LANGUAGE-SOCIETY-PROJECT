@@ -194,8 +194,8 @@ const ProjectItemModal: React.FC<ProjectItemModalProps> = ({ isOpen, onClose, it
 
   return (
     <div className="modern-modal-overlay">
-      <div className="modern-modal-container" style={{ maxWidth: '900px' }}>
-        <form onSubmit={handleSubmit} className="modern-modal-form">
+      <div className="modern-modal-container overflow-hidden" style={{ maxWidth: '900px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+        <form onSubmit={handleSubmit} className="modern-modal-form" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
           <div className="modern-modal-header">
             <div className="modal-title-section">
               <h2 className="modern-modal-title">
@@ -237,7 +237,7 @@ const ProjectItemModal: React.FC<ProjectItemModalProps> = ({ isOpen, onClose, it
             </button>
           </div>
 
-          <div className="modern-modal-body custom-scrollbar">
+          <div className="modern-modal-body custom-scrollbar" style={{ flex: 1, overflowY: 'auto' }}>
             {activeTab === 'content' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="form-group">

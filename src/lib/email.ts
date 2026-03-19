@@ -9,7 +9,7 @@ type EmailPayload = {
 };
 
 export async function sendEmailSafe(payload: EmailPayload): Promise<{ ok: boolean; error?: string }> {
-  const from = process.env.EMAIL_FROM || 'onboarding@resend.dev';
+  const from = 'onboarding@resend.dev'; // Hardcoding to onboarding domain as unimalayatls@gmail.com is likely not verified on Resend
   const apiKey = process.env.RESEND_API_KEY;
 
   if (!apiKey) {

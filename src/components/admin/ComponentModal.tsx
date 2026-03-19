@@ -418,8 +418,8 @@ const ComponentModal: React.FC<ComponentModalProps> = ({
 
   return (
     <div className="component-modal-overlay modern-modal-overlay" onClick={handleOverlayClick}>
-      <div className="component-modal-container modern-modal-container" style={{ maxWidth: '900px' }}>
-        <form onSubmit={handleSubmit} className="modern-modal-form">
+      <div className="component-modal-container modern-modal-container overflow-hidden" style={{ maxWidth: '800px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+        <form onSubmit={handleSubmit} className="modern-modal-form" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
           {/* Header */}
           <div className="modern-modal-header">
             <div className="modal-title-section">
@@ -472,7 +472,7 @@ const ComponentModal: React.FC<ComponentModalProps> = ({
           </div>
 
           {/* Modal Body */}
-          <div className="modern-modal-body">
+          <div className="modern-modal-body" style={{ flex: 1, overflowY: 'auto' }}>
             {/* Content Tab */}
             {activeTab === 'content' && (
               <div className="tab-content">

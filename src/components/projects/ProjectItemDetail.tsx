@@ -507,7 +507,7 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
       const payload = {
         applicantName,
         applicantEmail,
-        answers: Object.entries(formattedAnswers).map(([key, value]) => ({ key, value })),
+        answers: formattedAnswers,
       };
       const token = localStorage.getItem('accessToken');
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };

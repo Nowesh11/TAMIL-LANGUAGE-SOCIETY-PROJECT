@@ -197,7 +197,9 @@ export async function sendEmail({ to, subject, template, data = {} }: EmailPaylo
   
   // Resend requires a verified domain. If 'unimalayatls@gmail.com' is not verified, it will fail.
   // Using 'onboarding@resend.dev' for testing if you don't have a custom domain verified in Resend.
-  const from = process.env.EMAIL_FROM || 'onboarding@resend.dev';
+  const from = process.env.NODE_ENV === 'production' && process.env.EMAIL_FROM 
+    ? process.env.EMAIL_FROM 
+    : 'onboarding@resend.dev';
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -206,7 +208,7 @@ export async function sendEmail({ to, subject, template, data = {} }: EmailPaylo
       'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      from,
+      from: 'onboarding@resend.dev', // Hardcoding to onboarding domain as unimalayatls@gmail.com is likely not verified on Resend
       to,
       subject,
       html

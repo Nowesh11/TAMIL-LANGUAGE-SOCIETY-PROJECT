@@ -294,7 +294,7 @@ const RecruitmentFormModal: React.FC<RecruitmentFormModalProps> = ({
         onClick={onClose}
       />
       
-      <div className="relative w-full max-w-4xl bg-[#0a0a0f] border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-scaleIn">
+      <div className="relative w-full max-w-4xl bg-[#0a0a0f] border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-scaleIn overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10 bg-white/5">
           <div>

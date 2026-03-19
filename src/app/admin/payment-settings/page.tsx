@@ -578,7 +578,7 @@ const PaymentSettingsPage: React.FC = () => {
       {/* Modal */}
       {showModal && (
         <div className="modern-modal-overlay" onClick={handleCloseModal}>
-          <div className="modern-modal-container" onClick={e => e.stopPropagation()} style={{ maxWidth: '900px' }}>
+          <div className="modern-modal-container overflow-hidden" onClick={e => e.stopPropagation()} style={{ maxWidth: '900px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
             <div className="modern-modal-header">
               <h2 className="modern-modal-title">
                 {editingSettings ? 'Edit Payment Settings' : 'Add Payment Settings'}
@@ -588,7 +588,7 @@ const PaymentSettingsPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="modern-modal-body">
+            <div className="modern-modal-body" style={{ flex: 1, overflowY: 'auto' }}>
               <form onSubmit={handleSubmit} className="space-y-6">
                 {formErrors.general && (
                   <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
