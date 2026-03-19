@@ -578,7 +578,7 @@ const PaymentSettingsPage: React.FC = () => {
       {/* Modal */}
       {showModal && (
         <div className="modern-modal-overlay" onClick={handleCloseModal}>
-          <div className="modern-modal-container" onClick={e => e.stopPropagation()}>
+          <div className="modern-modal-container" onClick={e => e.stopPropagation()} style={{ maxWidth: '900px' }}>
             <div className="modern-modal-header">
               <h2 className="modern-modal-title">
                 {editingSettings ? 'Edit Payment Settings' : 'Add Payment Settings'}

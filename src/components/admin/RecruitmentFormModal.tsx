@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import MediaUploader from './MediaUploader';
 import { useAuth } from '../../hooks/useAuth';
+import toast from 'react-hot-toast';
 
 interface BilingualText {
   en: string;
@@ -211,11 +212,14 @@ const RecruitmentFormModal: React.FC<RecruitmentFormModalProps> = ({
         throw new Error(result.error || `HTTP error! status: ${response.status}`);
       }
 
+      toast.success(actualMode === 'create' ? 'Form created successfully' : 'Form updated successfully');
       if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
       console.error('Error saving form:', error);
-      setErrors({ submit: error instanceof Error ? error.message : 'Failed to save form' });
+      const errorMsg = error instanceof Error ? error.message : 'Failed to save form';
+      setErrors({ submit: errorMsg });
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -290,7 +294,7 @@ const RecruitmentFormModal: React.FC<RecruitmentFormModalProps> = ({
         onClick={onClose}
       />
       
-      <div className="relative w-full max-w-6xl bg-[#0a0a0f] border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-scaleIn">
+      <div className="relative w-full max-w-4xl bg-[#0a0a0f] border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-scaleIn">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10 bg-white/5">
           <div>

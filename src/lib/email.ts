@@ -9,20 +9,34 @@ type EmailPayload = {
 };
 
 export async function sendEmailSafe(payload: EmailPayload): Promise<{ ok: boolean; error?: string }> {
-  const host = process.env.SMTP_HOST;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-  const from = process.env.SMTP_FROM || 'no-reply@tamilsociety.org';
+  const from = process.env.EMAIL_FROM || 'onboarding@resend.dev';
+  const apiKey = process.env.RESEND_API_KEY;
 
-  // Placeholder: if SMTP is not configured, just log and return ok=false (queued)
-  if (!host || !user || !pass) {
+  if (!apiKey) {
     console.log('Email dispatch (fallback):', { from, ...payload });
-    return { ok: false, error: 'SMTP not configured' };
+    return { ok: false, error: 'Resend API key not configured' };
   }
 
-  // In future: integrate nodemailer or any provider
   try {
-    console.log('Email dispatch (stub):', { from, ...payload });
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        from,
+        to: payload.to,
+        subject: payload.subject,
+        html: payload.html
+      })
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      return { ok: false, error: errText };
+    }
+
     return { ok: true };
   } catch (err: unknown) {
     const error = err instanceof Error ? err.message : 'Failed to send email';

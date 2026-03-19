@@ -487,7 +487,8 @@ const RecruitmentChartsModal: React.FC<RecruitmentChartsModalProps> = ({ isOpen,
 
   return createPortal(
     <div className="component-modal-overlay modern-modal-overlay">
-      <div className="component-modal-container modern-modal-container" style={{ maxWidth: '1200px' }}>
+      <div className="component-modal-container modern-modal-container" style={{ maxWidth: '900px' }}>
+        
         {/* Header */}
         <div className="modern-modal-header">
           <div className="flex items-center gap-5">

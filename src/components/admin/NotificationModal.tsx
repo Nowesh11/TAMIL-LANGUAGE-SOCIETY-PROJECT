@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../../styles/admin/modals.css';
 import { FaTimes, FaSave, FaSpinner, FaExclamationTriangle, FaBell, FaPaperPlane, FaUsers, FaClock, FaCalendar, FaEnvelope, FaLink, FaImage, FaTag } from 'react-icons/fa';
 import { useAuth } from '../../hooks/useAuth';
+import toast from 'react-hot-toast';
 
 interface BilingualText {
   en: string;
@@ -202,11 +203,13 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
       }
 
       onSuccess();
+      toast.success(mode === 'create' ? 'Notification created successfully' : 'Notification updated successfully');
       onClose();
     } catch (error) {
       console.error('Error saving notification:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to save notification';
       setErrors({ submit: errorMessage });
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -241,7 +244,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
 
   return (
     <div className="component-modal-overlay modern-modal-overlay">
-      <div className="component-modal-container modern-modal-container">
+      <div className="component-modal-container modern-modal-container" style={{ maxWidth: '900px' }}>
         {/* Modal Header */}
         <div className="modern-modal-header">
           <div className="modal-title-section">

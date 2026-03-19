@@ -288,7 +288,7 @@ const BookModal: React.FC<BookModalProps> = ({
 
   return (
     <div className="component-modal-overlay modern-modal-overlay">
-      <div className="component-modal-container modern-modal-container" style={{ maxWidth: '900px' }}>
+      <div className="component-modal-container modern-modal-container" style={{ maxWidth: "900px" }}>
         <div className="modern-modal-header">
           <div className="modal-title-section">
             <h2 className="modern-modal-title">
@@ -324,7 +324,7 @@ const BookModal: React.FC<BookModalProps> = ({
           </button>
         </div>
 
-        <form className="modern-modal-form" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="modern-modal-form">
           <div className="modern-modal-body">
             {activeTab === 'details' && (
               <div className="tab-content">

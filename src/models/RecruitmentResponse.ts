@@ -252,20 +252,18 @@ RecruitmentResponseSchema.methods.getFormattedAnswers = function() {
 RecruitmentResponseSchema.pre('save', async function(next) {
   if (this.isModified('answers') || this.isNew) {
     try {
-      // Check if formRef is available and populated
-      // If it's just an ID, we need to populate it, but safely
+      let form;
       if (this.formRef && !this.populated('formRef')) {
-        // Try to populate if the model is available
+        // Try to fetch the form instead of populating to avoid CastError during save
         if (mongoose.models.RecruitmentForm) {
-           await this.populate('formRef');
+           form = await mongoose.models.RecruitmentForm.findById(this.formRef);
         } else {
-           // If model not loaded, skip validation to avoid crash
            console.warn('RecruitmentForm model not loaded, skipping answer validation');
            return next();
         }
+      } else {
+        form = this.formRef as any;
       }
-      
-      const form = this.formRef as any; // Use any to avoid strict typing issues during population
       
       if (form && form.fields) {
         // Check required fields

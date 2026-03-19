@@ -209,10 +209,19 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       },
       message: 'Application submitted successfully'
     }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error submitting recruitment application:', error);
+    
+    // Handle MongoDB duplicate key error (E11000)
+    if (error.code === 11000) {
+      return NextResponse.json(
+        { ok: false, success: false, error: 'You have already submitted an application with this email address.' },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
-      { ok: false, success: false, error: 'Failed to submit application' },
+      { ok: false, success: false, error: error.message || 'Failed to submit application' },
       { status: 500 }
     );
   }

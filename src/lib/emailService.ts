@@ -181,19 +181,9 @@ function renderTemplate(name: string, data: Record<string, any> = {}) {
 }
 
 export async function sendEmail({ to, subject, template, data = {} }: EmailPayload) {
-  const user = process.env.SMTP_USER || process.env.EMAIL_USER
-  const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS
-  const host = process.env.SMTP_HOST || 'smtp.gmail.com'
-  const port = Number(process.env.SMTP_PORT || 465)
+  const apiKey = process.env.RESEND_API_KEY;
 
-  if (!user || !pass) throw new Error('SMTP credentials missing')
-
-  const transporter = nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    auth: { user, pass }
-  })
+  if (!apiKey) throw new Error('Resend API key missing');
 
   const html = renderTemplate(template || 'notification', {
     ad: data.ad || {
@@ -203,9 +193,31 @@ export async function sendEmail({ to, subject, template, data = {} }: EmailPaylo
       actionText: 'Support Now'
     },
     ...data
-  })
-  const from = process.env.EMAIL_FROM || `Tamil Language Society <${user}>`
+  });
+  
+  // Resend requires a verified domain. If 'unimalayatls@gmail.com' is not verified, it will fail.
+  // Using 'onboarding@resend.dev' for testing if you don't have a custom domain verified in Resend.
+  const from = process.env.EMAIL_FROM || 'onboarding@resend.dev';
 
-  await transporter.sendMail({ from, to, subject, html })
-  return true
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      from,
+      to,
+      subject,
+      html
+    })
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error('Failed to send email via Resend:', errorText);
+    throw new Error(`Failed to send email: ${errorText}`);
+  }
+
+  return true;
 }

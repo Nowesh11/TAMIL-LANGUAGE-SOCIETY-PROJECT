@@ -99,10 +99,10 @@ export async function POST(req: NextRequest) {
 
       // Log purchase activity
       ActivityLogger.logBookPurchase(user._id, book._id, book.title?.en || 'Unknown Book', finalAmount)
-        .catch(err => console.error('Activity log failed:', err));
+        .catch((err: any) => console.error('Activity log failed:', err));
 
       // Reduce stock
-      book.reduceStock(qty).catch(err => console.error('Stock reduction failed:', err));
+      book.reduceStock(qty).catch((err: any) => console.error('Stock reduction failed:', err));
 
       // Create notification asynchronously
       NotificationService.createNotification({
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
         actionUrl: '/account/purchases',
         actionText: { en: 'View Purchases', ta: 'கொள்முதல்களைப் பார்க்கவும்' },
         createdBy: user._id
-      }).catch(err => console.error('Notification failed:', err));
+      }).catch((err: any) => console.error('Notification failed:', err));
     }
 
     // Send receipt email asynchronously (fire-and-forget)

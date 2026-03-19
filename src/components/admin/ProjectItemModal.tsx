@@ -3,6 +3,7 @@ import '../../styles/admin/modals.css';
 import { FaTimes, FaSave, FaSpinner, FaExclamationTriangle, FaImage, FaUpload } from 'react-icons/fa';
 import MediaUploader from './MediaUploader';
 import { useAuth } from '../../hooks/useAuth';
+import toast from 'react-hot-toast';
 
 interface BilingualText {
   en: string;
@@ -172,10 +173,12 @@ const ProjectItemModal: React.FC<ProjectItemModalProps> = ({ isOpen, onClose, it
         throw new Error(message);
       }
 
+      toast.success(mode === 'edit' ? 'Project updated successfully' : 'Project created successfully');
       if (onSaved) await onSaved();
       onClose();
     } catch (err: any) {
       setErrors(prev => ({ ...prev, submit: err.message }));
+      toast.error(err.message || 'Failed to save project item');
     } finally {
       setLoading(false);
     }
@@ -191,7 +194,7 @@ const ProjectItemModal: React.FC<ProjectItemModalProps> = ({ isOpen, onClose, it
 
   return (
     <div className="modern-modal-overlay">
-      <div className="modern-modal-container">
+      <div className="modern-modal-container" style={{ maxWidth: '900px' }}>
         <form onSubmit={handleSubmit} className="modern-modal-form">
           <div className="modern-modal-header">
             <div className="modal-title-section">

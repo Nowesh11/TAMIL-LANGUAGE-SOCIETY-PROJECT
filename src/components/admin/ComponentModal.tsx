@@ -3,6 +3,7 @@ import '../../styles/admin/modals.css';
 import { FaTimes, FaSave, FaSpinner, FaExclamationTriangle, FaCog, FaEye, FaPalette, FaCode, FaSearch } from 'react-icons/fa';
 import Component, { IComponent } from '../../models/Component';
 import DynamicFormFields from './DynamicFormFields';
+import toast from 'react-hot-toast';
 
 interface ComponentModalProps {
   isOpen: boolean;
@@ -338,9 +339,13 @@ const ComponentModal: React.FC<ComponentModalProps> = ({
         setCurrentComponent(cleanedFormData as any);
       }
       
+      toast.success(mode === 'create' ? 'Component created successfully' : 'Component updated successfully');
       onClose();
-    } catch (error) {
-      setErrors({ general: 'An error occurred while saving the component.' });
+    } catch (error: any) {
+      console.error('Error saving component:', error);
+      const errorMsg = error.message || 'An error occurred while saving the component.';
+      setErrors({ general: errorMsg });
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -413,7 +418,7 @@ const ComponentModal: React.FC<ComponentModalProps> = ({
 
   return (
     <div className="component-modal-overlay modern-modal-overlay" onClick={handleOverlayClick}>
-      <div className="component-modal-container modern-modal-container">
+      <div className="component-modal-container modern-modal-container" style={{ maxWidth: '900px' }}>
         <form onSubmit={handleSubmit} className="modern-modal-form">
           {/* Header */}
           <div className="modern-modal-header">
