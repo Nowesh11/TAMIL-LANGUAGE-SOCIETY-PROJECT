@@ -1,7 +1,7 @@
 "use client";
 import EbookCard from './EbookCard';
 
-export default function EbooksGrid({ ebooks, loading, onDownload, onRate, onLoadMore, hasMore }: {
+export default function EbooksGrid({ ebooks, loading, onDownload, onLoadMore, hasMore }: {
   ebooks: any[];
   loading: boolean;
   onDownload: (id: string) => Promise<void>;
@@ -19,7 +19,7 @@ export default function EbooksGrid({ ebooks, loading, onDownload, onRate, onLoad
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
         {ebooks.map((e) => (
-          <EbookCard key={e._id} ebook={e} onDownload={onDownload} onRate={onRate} />
+          <EbookCard key={e._id} ebook={e} onDownload={onDownload} />
         ))}
       </div>
       

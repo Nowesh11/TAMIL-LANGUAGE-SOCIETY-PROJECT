@@ -62,7 +62,7 @@ export default function Team({ page, data }: { page?: string, data?: any }) {
   
   // Auditors
   const allAuditors = members.filter(m => ['Auditor', 'Chief Auditor'].includes(m.role))
-    .sort((a, b) => (m.role === 'Chief Auditor' ? -1 : 1)); // Chief first if exists
+    .sort((a) => (a.role === 'Chief Auditor' ? -1 : 1)); // Chief first if exists
   
   const mainAuditors = allAuditors.slice(0, 3);
   const remainingAuditors = allAuditors.slice(3); // Any extras

@@ -432,11 +432,6 @@ const ComponentSchema = new Schema<IComponent>({
     lowercase: true,
     index: true
   },
-  category: {
-    type: String,
-    trim: true,
-    index: true
-  },
   bureau: {
     type: String,
     trim: true,
@@ -447,6 +442,8 @@ const ComponentSchema = new Schema<IComponent>({
     },
     index: true,
     sparse: true
+  
+
   },
   content: {
     type: Schema.Types.Mixed,

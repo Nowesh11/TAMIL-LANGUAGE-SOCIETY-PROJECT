@@ -22,7 +22,7 @@ export default function FeaturedEbooks({ ebooks, onDownload, onRate }: {
       <div ref={ref} className="flex gap-6 overflow-x-auto pb-6 px-4 scrollbar-hide snap-x">
         {ebooks.map((e) => (
           <div key={e._id} className="min-w-[280px] w-[280px] snap-start transform transition-transform duration-300 hover:scale-105">
-            <EbookCard ebook={e} onDownload={onDownload} onRate={onRate} />
+            <EbookCard ebook={e} onDownload={onDownload} />
           </div>
         ))}
       </div>

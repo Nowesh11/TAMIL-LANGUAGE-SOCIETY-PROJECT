@@ -452,7 +452,7 @@ export default function NavBar({ page = 'home', data: initialData }: { page?: st
               <div className="pt-4 border-t border-white/10 mt-2">
                  <div className="px-4 py-2 text-sm font-bold text-white flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white">
-                      {typeof user.name === 'string' ? user.name.charAt(0) : 'U'}
+                    {typeof user.name === 'string' ? (user.name as string).charAt(0).toUpperCase() : 'U'}
                     </div>
                     {typeof user.name === 'string' ? user.name : user.name?.[lang] || user.name?.en || 'User'}
                  </div>

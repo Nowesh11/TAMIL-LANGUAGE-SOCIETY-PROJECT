@@ -18,7 +18,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params
   const ebook = await EBook.findById(id).lean()
   if (!ebook) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  const rel = String(ebook.filePath || '')
+  const rel = typeof ebook === 'object' && ebook && 'filePath' in ebook ? String((ebook as any).filePath || '') : ''
   if (!rel) return NextResponse.json({ error: 'No file' }, { status: 404 })
   let relPath = rel
   if (rel.includes('/api/files/serve')) {
@@ -56,9 +56,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     ext === '.mobi' ? 'application/x-mobipocket-ebook' :
     ext === '.txt' ? 'text/plain' :
     'application/octet-stream'
-  const safeTitle = (ebook.title?.en || 'ebook').replace(/[^\w\s.-]/g, '')
+  const safeTitle = ((ebook as any).title?.en || 'ebook').replace(/[^\w\s.-]/g, '')
   const name = `${safeTitle}${ext}`
-  return new NextResponse(buf, {
+  return new NextResponse(buf as any, {
     status: 200,
     headers: {
       'Content-Type': mime,

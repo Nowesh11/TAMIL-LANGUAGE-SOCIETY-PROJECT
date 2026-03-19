@@ -67,12 +67,14 @@ export default function PosterSlider({ page, data }: { page?: string, data?: any
           {(current.imageUrl || current.imagePath) && (
             <Image 
               src={
-                current.imageUrl
-                  ? current.imageUrl
-                  : current.imagePath && (current.imagePath.startsWith('/') || current.imagePath.startsWith('http') 
-                      ? current.imagePath 
-                      : `/api/files/serve?path=${encodeURIComponent(current.imagePath)}`)
+                current.imageUrl ||
+                (current.imagePath &&
+                  (current.imagePath.startsWith('/') || current.imagePath.startsWith('http')
+                    ? current.imagePath
+                    : `/api/files/serve?path=${encodeURIComponent(current.imagePath)}`)) ||
+                ''
               }
+              
               alt={
                 typeof current.title === 'string' 
                   ? current.title 

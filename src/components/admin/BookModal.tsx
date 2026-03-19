@@ -80,7 +80,7 @@ const BookModal: React.FC<BookModalProps> = ({
     price: 0,
     stock: 0,
     coverPath: '',
-    isbn: '',
+    // isbn: '', // removed – not in Book interface
     category: 'general',
     publishedYear: new Date().getFullYear(),
     pages: 0,
