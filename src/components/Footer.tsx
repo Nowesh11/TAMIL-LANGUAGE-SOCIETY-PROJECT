@@ -280,7 +280,7 @@ export default function Footer({ page = 'home', data: initialData }: { page?: st
           <div className="flex items-center gap-6">
              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-foreground-muted">
                Made with <i className="fa-solid fa-heart text-red-500 animate-pulse"></i> by 
-               <span className="text-primary hover:text-secondary cursor-pointer transition-colors">TLS Tech Team</span>
+               <span className="text-primary hover:text-secondary cursor-pointer transition-colors">Nowesh Kumar</span>
              </div>
           </div>
         </div>
