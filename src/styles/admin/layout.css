@@ -763,19 +763,46 @@
 
 @media (max-width: 768px) {
   .admin-header {
-    padding: 0 var(--admin-space-4);
+    padding: 0 var(--admin-space-3);
+    height: 64px;
   }
   
   .admin-content {
-    padding: var(--admin-space-4);
+    padding: var(--admin-space-3);
   }
   
   .admin-search-input {
-    width: 160px;
+    width: 140px;
+    padding-left: var(--admin-space-8);
+  }
+
+  .admin-header-right {
+    gap: var(--admin-space-2);
   }
   
   .admin-breadcrumb {
     display: none;
+  }
+  
+  .admin-sidebar-toggle {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-sidebar {
+    width: 100%;
+  }
+  
+  .admin-sidebar-logo-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+  
+  .admin-sidebar-title {
+    font-size: 1.25rem;
   }
 }
 

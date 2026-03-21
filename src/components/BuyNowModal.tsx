@@ -190,7 +190,7 @@ export default function BuyNowModal({ book, open, onClose, onPurchased }: {
                   ? book.title 
                   : book.title?.[lang] || book.title?.en || 'Book'
               }</div>
-              <div className="font-bold text-xl text-primary">RM {(book.price || 0).toFixed(2)}</div>
+              <div className="font-bold text-xl text-primary">MYR {(book.price || 0).toFixed(2)}</div>
             </div>
             <div className="flex flex-col space-y-2">
               <label className="text-sm font-medium text-foreground-secondary">Quantity</label>
@@ -391,20 +391,20 @@ export default function BuyNowModal({ book, open, onClose, onPurchased }: {
             <div className="p-4 bg-surface border border-border rounded-xl space-y-3">
               <div className="flex justify-between text-foreground-secondary">
                 <span>Subtotal</span>
-                <span className="font-semibold text-foreground">RM {subtotal.toFixed(2)}</span>
+                <span className="font-semibold text-foreground">MYR {subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-foreground-secondary">
                 <span>Tax ({settings?.taxRate || 0}%)</span>
-                <span className="font-semibold text-foreground">RM {tax.toFixed(2)}</span>
+                <span className="font-semibold text-foreground">MYR {tax.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-foreground-secondary">
                 <span>Shipping</span>
-                <span className="font-semibold text-foreground">RM {shippingFee.toFixed(2)}</span>
+                <span className="font-semibold text-foreground">MYR {shippingFee.toFixed(2)}</span>
               </div>
               <div className="border-t border-border pt-3 mt-2">
                 <div className="flex justify-between text-lg font-bold">
                   <span className="text-foreground">Total</span>
-                  <span className="text-primary">RM {finalTotal.toFixed(2)}</span>
+                  <span className="text-primary">MYR {finalTotal.toFixed(2)}</span>
                 </div>
               </div>
             </div>

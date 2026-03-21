@@ -140,7 +140,7 @@ const ShippingSettingsSchema = new Schema<IShippingSettings>({
     required: [true, 'Currency is required'],
     trim: true,
     uppercase: true,
-    default: 'RM',
+    default: 'MYR',
     validate: {
       validator: function(v: string) {
         return /^[A-Z]{3}$/.test(v);
@@ -209,7 +209,7 @@ const PaymentSettingsSchema = new Schema<IPaymentSettings>({
     required: [true, 'Default currency is required'],
     trim: true,
     uppercase: true,
-    default: 'RM',
+    default: 'MYR',
     validate: {
       validator: function(v: string) {
         return /^[A-Z]{3}$/.test(v);

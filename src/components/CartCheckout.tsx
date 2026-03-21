@@ -232,14 +232,14 @@ export default function CartCheckout({
                       : (it.title as any)?.[lang] || it.title?.en || 'Book'
                     }
                   </div>
-                  <div className="text-sm text-primary font-bold">RM {it.price.toFixed(2)}</div>
+                  <div className="text-sm text-primary font-bold">MYR {it.price.toFixed(2)}</div>
                 </div>
                 <div className="flex items-center gap-2">
                   <input 
                     type="number" 
                     min={1} 
                     value={it.quantity} 
-                    className="w-16 px-2 py-1 bg-surface border border-border rounded-lg text-center text-foreground focus:ring-2 focus:ring-primary/50 outline-none" 
+                    className="w-16 px-2 py-1 bg-surface border border-border rounded-lg text-center text-foreground focus:ring-2 focus:ring-primary/50 outline-none font-bold" 
                     onChange={(e) => updateQty(idx, Number(e.target.value))} 
                   />
                   <button 
@@ -258,31 +258,31 @@ export default function CartCheckout({
          
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Shipping Section */}
-        <div className="bg-surface border border-border rounded-2xl p-6 backdrop-blur-md">
-          <h4 className="text-lg font-bold mb-4 text-foreground">Shipping Address</h4>
+        <div className="bg-surface border border-border rounded-2xl p-6 backdrop-blur-md card-morphism">
+          <h4 className="text-lg font-black mb-4 text-foreground uppercase tracking-widest">Shipping Address</h4>
           <div className="space-y-4">
             <div className="space-y-1">
-              <label className="text-sm font-semibold text-foreground-secondary">Full Name <span className="text-error">*</span></label>
+              <label className="text-xs font-black text-foreground-secondary uppercase tracking-widest">Full Name <span className="text-error">*</span></label>
               <input 
-                className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50" 
+                className="w-full px-4 py-3 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50 font-medium" 
                 placeholder="Full Name" 
                 value={shipping.fullName} 
                 onChange={(e) => setShipping({ ...shipping, fullName: e.target.value })} 
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-semibold text-foreground-secondary">Address Line 1 <span className="text-error">*</span></label>
+              <label className="text-xs font-black text-foreground-secondary uppercase tracking-widest">Address Line 1 <span className="text-error">*</span></label>
               <input 
-                className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50" 
+                className="w-full px-4 py-3 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50 font-medium" 
                 placeholder="Address Line 1" 
                 value={shipping.addressLine1} 
                 onChange={(e) => setShipping({ ...shipping, addressLine1: e.target.value })} 
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-semibold text-foreground-secondary">Address Line 2</label>
+              <label className="text-xs font-black text-foreground-secondary uppercase tracking-widest">Address Line 2</label>
               <input 
-                className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50" 
+                className="w-full px-4 py-3 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50 font-medium" 
                 placeholder="Address Line 2" 
                 value={shipping.addressLine2} 
                 onChange={(e) => setShipping({ ...shipping, addressLine2: e.target.value })} 
@@ -290,18 +290,18 @@ export default function CartCheckout({
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-sm font-semibold text-foreground-secondary">City <span className="text-error">*</span></label>
+                <label className="text-xs font-black text-foreground-secondary uppercase tracking-widest">City <span className="text-error">*</span></label>
                 <input 
-                  className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50" 
+                  className="w-full px-4 py-3 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50 font-medium" 
                   placeholder="City" 
                   value={shipping.city} 
                   onChange={(e) => setShipping({ ...shipping, city: e.target.value })} 
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-semibold text-foreground-secondary">State <span className="text-error">*</span></label>
+                <label className="text-xs font-black text-foreground-secondary uppercase tracking-widest">State <span className="text-error">*</span></label>
                 <input 
-                  className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50" 
+                  className="w-full px-4 py-3 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50 font-medium" 
                   placeholder="State" 
                   value={shipping.state} 
                   onChange={(e) => setShipping({ ...shipping, state: e.target.value })} 
@@ -310,18 +310,18 @@ export default function CartCheckout({
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-sm font-semibold text-foreground-secondary">Postal Code <span className="text-error">*</span></label>
+                <label className="text-xs font-black text-foreground-secondary uppercase tracking-widest">Postal Code <span className="text-error">*</span></label>
                 <input 
-                  className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50" 
+                  className="w-full px-4 py-3 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50 font-medium" 
                   placeholder="Postal Code" 
                   value={shipping.postalCode} 
                   onChange={(e) => setShipping({ ...shipping, postalCode: e.target.value })} 
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-semibold text-foreground-secondary">Country <span className="text-error">*</span></label>
+                <label className="text-xs font-black text-foreground-secondary uppercase tracking-widest">Country <span className="text-error">*</span></label>
                 <input 
-                  className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50" 
+                  className="w-full px-4 py-3 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50 font-medium" 
                   placeholder="Country" 
                   value={shipping.country} 
                   onChange={(e) => setShipping({ ...shipping, country: e.target.value })} 
@@ -329,9 +329,9 @@ export default function CartCheckout({
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-semibold text-foreground-secondary">Phone <span className="text-error">*</span></label>
+              <label className="text-xs font-black text-foreground-secondary uppercase tracking-widest">Phone <span className="text-error">*</span></label>
               <input 
-                className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50" 
+                className="w-full px-4 py-3 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all focus:border-primary/50 font-medium" 
                 placeholder="Phone" 
                 value={shipping.phone} 
                 onChange={(e) => setShipping({ ...shipping, phone: e.target.value })} 
@@ -342,16 +342,16 @@ export default function CartCheckout({
         
         {/* Payment Section */}
         <div className="space-y-6">
-          <div className="bg-surface border border-border rounded-2xl p-6 backdrop-blur-md">
-            <h4 className="text-lg font-bold flex items-center gap-2 mb-4 text-foreground">
+          <div className="bg-surface border border-border rounded-2xl p-6 backdrop-blur-md card-morphism">
+            <h4 className="text-lg font-black flex items-center gap-2 mb-4 text-foreground uppercase tracking-widest">
               <FaCreditCard className="text-primary" />
               <span>Payment</span>
             </h4>
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="text-sm font-semibold text-foreground-secondary">Payment Method <span className="text-error">*</span></label>
+                <label className="text-xs font-black text-foreground-secondary uppercase tracking-widest">Payment Method <span className="text-error">*</span></label>
                 <select 
-                  className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all appearance-none" 
+                  className="w-full px-4 py-3 bg-surface-hover border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 outline-none transition-all appearance-none font-bold" 
                   value={method} 
                   onChange={(e) => setMethod(e.target.value as any)}
                 >
@@ -362,24 +362,24 @@ export default function CartCheckout({
               </div>
                
               {method === 'epayum' && settings?.epayum && (
-                <div className="p-4 bg-primary/10 border border-primary/20 rounded-xl">
-                  <h5 className="font-semibold text-primary mb-2">E-PAY UM Payment Details</h5>
+                <div className="p-5 bg-primary/10 border border-primary/20 rounded-2xl">
+                  <h5 className="font-black text-primary mb-3 uppercase tracking-wider text-xs">E-PAY UM Payment Details</h5>
                   {settings.epayum.link && (
-                    <div className="mb-2">
-                      <strong className="text-foreground-secondary">Payment Link: </strong>
+                    <div className="mb-3">
+                      <strong className="text-foreground font-black text-xs uppercase tracking-widest block mb-1">Payment Link</strong>
                       <a 
                         href={settings.epayum.link} 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="text-primary hover:text-primary/80 underline break-all"
+                        className="text-primary hover:text-primary/80 underline break-all font-bold"
                       >
                         {settings.epayum.link}
                       </a>
                     </div>
                   )}
                   {settings.epayum.instructions && (
-                    <div className="text-sm text-foreground-secondary">
-                      <span className="font-medium">Instructions: </span>
+                    <div className="text-sm text-foreground-secondary leading-relaxed">
+                      <span className="font-black text-xs uppercase tracking-widest block mb-1 text-foreground">Instructions</span>
                       {settings.epayum.instructions}
                     </div>
                   )}
@@ -387,21 +387,30 @@ export default function CartCheckout({
               )}
 
               {method === 'fpx' && settings?.fpx && (
-                <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-xl">
-                  <h5 className="font-semibold text-green-500 mb-2">Bank Transfer Details</h5>
-                  <div className="space-y-1 text-sm text-foreground-secondary">
-                    <div><strong>Bank Name:</strong> {settings.fpx.bankName}</div>
-                    <div><strong>Account Number:</strong> {settings.fpx.accountNumber}</div>
-                    <div><strong>Account Holder:</strong> {settings.fpx.accountHolder}</div>
+                <div className="p-5 bg-green-500/10 border border-green-500/20 rounded-2xl">
+                  <h5 className="font-black text-green-500 mb-3 uppercase tracking-wider text-xs">Bank Transfer Details</h5>
+                  <div className="space-y-2 text-sm text-foreground-secondary">
+                    <div className="flex justify-between border-b border-green-500/10 pb-1">
+                      <span className="font-black text-[10px] uppercase tracking-widest text-foreground">Bank Name</span>
+                      <span className="font-bold text-foreground">{settings.fpx.bankName}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-green-500/10 pb-1">
+                      <span className="font-black text-[10px] uppercase tracking-widest text-foreground">Account Number</span>
+                      <span className="font-bold text-foreground">{settings.fpx.accountNumber}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-green-500/10 pb-1">
+                      <span className="font-black text-[10px] uppercase tracking-widest text-foreground">Account Holder</span>
+                      <span className="font-bold text-foreground">{settings.fpx.accountHolder}</span>
+                    </div>
                   </div>
                   {settings.fpx.image && (
-                    <div className="mt-2">
-                      <img src={settings.fpx.image} alt="QR Code" className="max-w-32 h-auto rounded-lg shadow-sm" />
+                    <div className="mt-4 flex justify-center">
+                      <img src={settings.fpx.image} alt="QR Code" className="max-w-40 h-auto rounded-2xl shadow-lg border border-green-500/20" />
                     </div>
                   )}
                   {settings.fpx.instructions && (
-                    <div className="mt-2 text-sm text-foreground-secondary">
-                      <span className="font-medium">Instructions: </span>
+                    <div className="mt-4 text-sm text-foreground-secondary leading-relaxed">
+                      <span className="font-black text-[10px] uppercase tracking-widest block mb-1 text-foreground">Instructions</span>
                       {settings.fpx.instructions}
                     </div>
                   )}
@@ -409,39 +418,39 @@ export default function CartCheckout({
               )}
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground-secondary">Upload Transaction Proof <span className="text-error">*</span></label>
-                <div className="space-y-2">
+                <label className="text-xs font-black text-foreground-secondary uppercase tracking-widest">Upload Transaction Proof <span className="text-error">*</span></label>
+                <div className="space-y-3">
                   <input
                     type="file"
                     accept=".jpg,.jpeg,.png,.pdf"
                     onChange={handleFileUpload}
-                    className="w-full px-4 py-2 bg-surface-hover border border-border rounded-xl text-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all"
+                    className="w-full px-4 py-3 bg-surface-hover border border-border rounded-xl text-foreground file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-primary file:text-white hover:file:bg-primary-dark transition-all cursor-pointer"
                   />
-                  <p className="text-xs text-foreground-muted">
-                    Upload your payment receipt (JPG, PNG, or PDF, max 5MB)
+                  <p className="text-[10px] font-bold text-foreground-muted uppercase tracking-widest">
+                    JPG, PNG, or PDF, max 5MB
                   </p>
                   {receiptFile && (
-                    <div className="text-sm text-green-500 flex items-center gap-2 font-medium">
+                    <div className="text-xs text-green-500 flex items-center gap-2 font-black uppercase tracking-widest">
                       <FaCheckCircle />
-                      Selected: {receiptFile.name}
+                      {receiptFile.name}
                     </div>
                   )}
                   {uploadStatus === 'uploading' && (
-                    <div className="text-sm text-primary flex items-center gap-2 font-medium">
+                    <div className="text-xs text-primary flex items-center gap-2 font-black uppercase tracking-widest animate-pulse">
                       <FaSpinner className="animate-spin" />
                       Uploading...
                     </div>
                   )}
                   {uploadStatus === 'success' && (
-                    <div className="text-sm text-green-500 flex items-center gap-2 font-medium">
+                    <div className="text-xs text-green-500 flex items-center gap-2 font-black uppercase tracking-widest">
                       <FaCheckCircle />
-                      Upload successful
+                      Successful
                     </div>
                   )}
                   {uploadStatus === 'error' && (
-                    <div className="text-sm text-error flex items-center gap-2 font-medium">
+                    <div className="text-xs text-error flex items-center gap-2 font-black uppercase tracking-widest">
                       <FaExclamationTriangle />
-                      Upload failed
+                      Failed
                     </div>
                   )}
                 </div>
@@ -449,43 +458,43 @@ export default function CartCheckout({
             </div>
           </div>
 
-          <div className="bg-surface border border-border rounded-2xl p-6 backdrop-blur-md">
-            <h4 className="text-lg font-bold mb-4 text-foreground">Order Summary</h4>
-            <div className="p-4 bg-surface-hover border border-border rounded-xl space-y-3">
-              <div className="flex justify-between text-foreground-secondary">
+          <div className="bg-surface border border-border rounded-2xl p-6 backdrop-blur-md card-morphism">
+            <h4 className="text-lg font-black mb-4 text-foreground uppercase tracking-widest">Order Summary</h4>
+            <div className="p-5 bg-surface-hover border border-border rounded-2xl space-y-4 shadow-inner">
+              <div className="flex justify-between text-xs font-black uppercase tracking-widest text-foreground-muted">
                 <span>Subtotal</span>
-                <span className="font-semibold text-foreground">RM {subtotal.toFixed(2)}</span>
+                <span className="text-foreground">MYR {subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-foreground-secondary">
+              <div className="flex justify-between text-xs font-black uppercase tracking-widest text-foreground-muted">
                 <span>Tax ({settings?.taxRate || 0}%)</span>
-                <span className="font-semibold text-foreground">RM {tax.toFixed(2)}</span>
+                <span className="text-foreground">MYR {tax.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-foreground-secondary">
+              <div className="flex justify-between text-xs font-black uppercase tracking-widest text-foreground-muted">
                 <span>Shipping</span>
-                <span className="font-semibold text-foreground">RM {shippingFee.toFixed(2)}</span>
+                <span className="text-foreground">MYR {shippingFee.toFixed(2)}</span>
               </div>
-              <div className="border-t border-border pt-3 mt-1">
-                <div className="flex justify-between text-lg font-bold">
+              <div className="border-t border-border pt-4 mt-2">
+                <div className="flex justify-between text-xl font-black uppercase tracking-tighter">
                   <span className="text-foreground">Total</span>
-                  <span className="text-primary">RM {finalTotal.toFixed(2)}</span>
+                  <span className="text-primary text-2xl">MYR {finalTotal.toFixed(2)}</span>
                 </div>
               </div>
             </div>
 
             <button 
-              className="w-full px-6 py-4 rounded-xl mt-6 flex items-center justify-center gap-2 text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_30px_rgba(168,85,247,0.5)] transform hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
+              className="w-full px-6 py-5 rounded-2xl mt-6 flex items-center justify-center gap-3 text-lg font-black uppercase tracking-[0.2em] bg-gradient-to-r from-primary to-secondary text-white shadow-lg hover:shadow-primary/40 transform hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
               disabled={submitting || !items.length} 
               onClick={checkout}
             >
               {submitting ? (
                 <>
                   <FaSpinner className="animate-spin" />
-                  Processing...
+                  <span>Processing...</span>
                 </>
               ) : (
                 <>
                   <FaCheckCircle />
-                  Complete Purchase
+                  <span>Place Order</span>
                 </>
               )}
             </button>

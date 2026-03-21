@@ -270,18 +270,19 @@ export default function NavBar({ page = 'home', data: initialData }: { page?: st
   };
 
   return (
-    <div className={`sticky top-0 z-50 w-full transition-all duration-300 flex flex-col ${
+    <div className={`sticky top-0 z-50 w-full transition-all duration-500 flex flex-col ${
       scrolled 
-        ? 'card-morphism !rounded-none !border-x-0 !border-t-0 shadow-md' 
+        ? 'card-morphism !rounded-none !border-x-0 !border-t-0 shadow-lg !bg-surface/80 backdrop-blur-xl' 
         : 'bg-transparent'
     }`}>
       {/* Main Navbar */}
-      <div className={`w-full ${scrolled ? 'py-2' : 'py-4'}`}>
+      <div className={`w-full transition-all duration-500 ${scrolled ? 'py-3' : 'py-5'}`}>
         <div className="layout-container flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
+          <Link href="/" className="flex items-center gap-4 group">
             {(typeof (navData as any)?.logo === 'string' || (navData as any)?.logo?.image || (navData as any)?.logo?.src) && (
-              <div className="relative w-10 h-10 transition-transform duration-300 group-hover:rotate-12">
+              <div className="relative w-12 h-12 transition-all duration-500 group-hover:scale-110 group-hover:rotate-[10deg]">
+                <div className="absolute inset-0 bg-primary/20 rounded-xl blur-lg group-hover:bg-primary/40 transition-all duration-500"></div>
                 <Image
                   src={
                     overrideLogoUrl ||
@@ -291,26 +292,27 @@ export default function NavBar({ page = 'home', data: initialData }: { page?: st
                         : ((navData as any)?.logo?.image?.src || (navData as any)?.logo?.src || '')
                     )
                   }
-                  alt={
-                    typeof (navData as any)?.logo?.image?.alt === 'string'
-                      ? (navData as any)?.logo?.image?.alt
-                      : ((navData as any)?.logo?.image?.alt?.[lang] ||
-                         (navData as any)?.logo?.image?.alt?.en ||
-                         displayTitle)
-                  }
+                  alt={displayTitle}
                   fill
-                  className="object-contain"
+                  className="object-contain relative z-10 drop-shadow-md"
                   unoptimized
                 />
               </div>
             )}
-            <span className="text-xl font-bold gradient-title">
-              {displayTitle}
-            </span>
+            <div className="flex flex-col">
+              <span className="text-xl md:text-2xl font-black gradient-title tracking-tighter">
+                {displayTitle}
+              </span>
+              {!scrolled && (
+                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-foreground-muted animate-fade-in">
+                  Official Website
+                </span>
+              )}
+            </div>
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-1">
             {navData.menu?.map((m, idx) => {
               if (user && (m.href === '/login' || m.href === '/signup' || m.href === '/sign' || m.href === '/auth/login' || m.href === '/auth/signup')) {
                 return null;
@@ -322,143 +324,149 @@ export default function NavBar({ page = 'home', data: initialData }: { page?: st
                 <Link 
                   href={m.href} 
                   key={idx} 
-                  className={`relative text-sm font-medium transition-all duration-300 hover:text-primary ${
-                    active ? 'text-primary font-bold' : 'text-foreground-secondary'
-                  } ${m.variant === 'neon' ? 'btn-neon !text-white hover:!text-white' : ''}`}
+                  className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 relative group ${
+                    active ? 'text-primary' : 'text-foreground-secondary hover:text-primary hover:bg-primary/5'
+                  } ${m.variant === 'neon' ? 'btn-neon !px-6 ml-2' : ''}`}
                 >
                   {m.isNotification ? (
-                    <span className="relative">
-                      <i className="fa-solid fa-bell text-lg" />
+                    <span className="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-primary/10 transition-colors">
+                      <i className="fa-solid fa-bell text-xl" />
                       {unreadCount > 0 && (
-                        <span className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full animate-pulse shadow-md shadow-red-500/30">
+                        <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full animate-bounce shadow-glow ring-2 ring-background">
                           {unreadCount > 99 ? '99+' : unreadCount}
                         </span>
                       )}
                     </span>
                   ) : (
-                    <span className="relative group">
+                    <>
                       {m.label[lang]}
                       {active && m.variant !== 'neon' && (
-                        <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full animate-fade-in shadow-glow" />
+                        <span className="absolute bottom-1 left-4 right-4 h-1 bg-primary rounded-full shadow-glow"></span>
                       )}
-                      {!active && m.variant !== 'neon' && (
-                        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-300 group-hover:w-full" />
-                      )}
-                    </span>
+                    </>
                   )}
                 </Link>
               );
             })}
 
-            {/* User Info */}
+            {/* User Profile / Logout */}
             {user && (
-              <div className="flex items-center gap-4 border-l border-border pl-4">
-                <span className="text-sm font-bold text-foreground">
-                  {typeof user.name === 'string' ? user.name : user.name?.[lang] || user.name?.en || 'User'}
-                </span>
-                <button 
-                  onClick={logout} 
-                  className="text-sm font-medium text-red-500 hover:text-red-600 transition-colors flex items-center gap-1"
-                >
-                  <i className="fa-solid fa-right-from-bracket"></i>
-                  {lang === 'en' ? 'Logout' : 'வெளியேறு'}
-                </button>
+              <div className="flex items-center gap-3 ml-4 pl-4 border-l border-border">
+                <div className="flex flex-col items-end mr-2">
+                  <span className="text-xs font-black text-foreground uppercase tracking-wider">
+                    {typeof user.name === 'string' ? user.name : user.name?.[lang] || user.name?.en || 'User'}
+                  </span>
+                  <button 
+                    onClick={logout}
+                    className="text-[10px] font-bold text-red-500 hover:text-red-600 transition-colors uppercase tracking-widest"
+                  >
+                    {lang === 'en' ? 'Logout' : 'வெளியேறு'}
+                  </button>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary p-[2px] shadow-md hover:scale-105 transition-transform cursor-pointer">
+                   <div className="w-full h-full rounded-[10px] bg-background flex items-center justify-center font-black text-primary">
+                     {(typeof user.name === 'string' ? user.name : 'U').charAt(0).toUpperCase()}
+                   </div>
+                </div>
               </div>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center gap-4">
+          {/* Mobile Menu Toggle */}
+          <div className="md:hidden flex items-center gap-3">
             <button 
               onClick={() => setMenuOpen(!menuOpen)}
-              className="w-10 h-10 flex items-center justify-center rounded-lg bg-surface hover:bg-surface-hover text-foreground transition-all shadow-sm border border-border"
+              className="w-12 h-12 flex items-center justify-center rounded-2xl bg-surface border border-border text-foreground shadow-sm hover:shadow-md transition-all active:scale-95"
             >
-              <i className={`fa-solid ${menuOpen ? 'fa-xmark' : 'fa-bars'} text-lg`}></i>
+              <div className="relative w-6 h-6">
+                <span className={`absolute left-0 top-1/2 w-6 h-0.5 bg-current transition-all duration-300 ${menuOpen ? 'rotate-45' : '-translate-y-2'}`}></span>
+                <span className={`absolute left-0 top-1/2 w-6 h-0.5 bg-current transition-all duration-300 ${menuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+                <span className={`absolute left-0 top-1/2 w-6 h-0.5 bg-current transition-all duration-300 ${menuOpen ? '-rotate-45' : 'translate-y-2'}`}></span>
+              </div>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Utility Bar (Below Navbar) */}
-      <div className={`w-full border-b border-white/5 backdrop-blur-sm transition-colors ${scrolled ? 'bg-black/60' : 'bg-black/30'}`}>
-        <div className="layout-container py-1.5 flex justify-end items-center gap-3">
-           <span className="text-[10px] uppercase tracking-wider font-bold text-cyan-400 mr-2 flex items-center gap-1">
-             <i className="fa-solid fa-sliders"></i> Settings
-           </span>
-           
-           {navData.languageToggle?.enabled && (
+      {/* Settings Bar */}
+      <div className={`w-full border-y border-border transition-all duration-300 ${scrolled ? 'h-0 opacity-0 overflow-hidden' : 'h-10 opacity-100'}`}>
+        <div className="layout-container h-full flex items-center justify-between">
+          <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-foreground-muted">
+             <span className="flex items-center gap-1.5 text-primary">
+               <i className="fa-solid fa-circle-check animate-pulse"></i> System Active
+             </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {navData.languageToggle?.enabled && (
               <button
                 onClick={() => setLang(lang === 'en' ? 'ta' : 'en')}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter transition-all border ${
                   lang === 'ta' 
-                    ? 'bg-cyan-500/20 text-cyan-300 ring-1 ring-cyan-500/30 shadow-sm' 
-                    : 'text-gray-400 hover:bg-white/10 hover:text-white'
+                    ? 'bg-primary text-white border-primary shadow-glow' 
+                    : 'bg-surface text-foreground-muted border-border hover:border-primary/50'
                 }`}
-                title="Switch Language"
               >
-                <i className="fa-solid fa-language"></i>
-                <span>{lang === 'en' ? 'தமிழ்' : 'English'}</span>
+                {lang === 'en' ? 'தமிழ்' : 'English'}
               </button>
             )}
-
             {navData.themeToggle && (
               <button
                 onClick={toggleTheme}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-gray-400 hover:bg-white/10 hover:text-white transition-all"
-                title="Toggle Theme"
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-surface border border-border text-foreground-muted hover:text-primary hover:border-primary transition-all"
               >
-                <i className={`fa-solid ${isDark ? 'fa-sun' : 'fa-moon'} ${isDark ? 'text-yellow-400' : 'text-cyan-400'}`}></i>
-                <span>{isDark ? 'Light' : 'Dark'}</span>
+                <i className={`fa-solid ${isDark ? 'fa-sun text-yellow-500' : 'fa-moon text-indigo-500'}`}></i>
               </button>
             )}
           </div>
         </div>
-      {/* Mobile Menu Dropdown */}
+      </div>
+
+      {/* Mobile Menu Overlay */}
       {menuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-[#0a0a0f]/95 backdrop-blur-xl border-t border-white/10 shadow-xl animate-slide-in-up z-40 m-0">
-          <div className="p-4 space-y-2">
+        <div className="md:hidden fixed inset-0 top-[calc(5rem+1px)] bg-background/95 backdrop-blur-2xl z-40 animate-fade-in overflow-y-auto">
+          <div className="p-6 space-y-3">
+            <div className="text-[10px] font-black text-foreground-muted uppercase tracking-[0.3em] mb-4 pl-4">Navigation</div>
             {navData.menu?.map((m, idx) => {
               if (user && (m.href === '/login' || m.href === '/signup' || m.href === '/sign' || m.href === '/auth/login' || m.href === '/auth/signup')) return null;
-              
+              const active = isActive(m.href);
               return (
                 <Link 
                   href={m.href} 
                   key={idx} 
-                  className={`block px-4 py-3 rounded-xl transition-all ${
-                    isActive(m.href) 
-                      ? 'bg-primary/10 text-primary font-bold border border-primary/20' 
-                      : 'text-gray-300 hover:bg-white/5 hover:text-white font-medium'
-                  }`}
                   onClick={() => setMenuOpen(false)}
+                  className={`flex items-center justify-between px-6 py-4 rounded-2xl transition-all duration-300 ${
+                    active 
+                      ? 'bg-primary/10 text-primary border border-primary/20 shadow-sm' 
+                      : 'text-foreground-secondary hover:bg-surface border border-transparent'
+                  }`}
                 >
-                  {m.isNotification ? (
-                    <span className="flex items-center gap-3">
-                      <i className="fa-solid fa-bell" />
-                      Notifications
-                      {unreadCount > 0 && (
-                        <span className="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full shadow-md shadow-red-500/30">
-                          {unreadCount}
-                        </span>
-                      )}
+                  <span className="text-lg font-bold">{m.label[lang]}</span>
+                  {active && <i className="fa-solid fa-chevron-right text-sm"></i>}
+                  {m.isNotification && unreadCount > 0 && (
+                    <span className="bg-red-500 text-white text-[10px] px-2 py-1 rounded-full font-black">
+                      {unreadCount}
                     </span>
-                  ) : (
-                    m.label[lang]
                   )}
                 </Link>
               );
             })}
-            
+
             {user && (
-              <div className="pt-4 border-t border-white/10 mt-2">
-                 <div className="px-4 py-2 text-sm font-bold text-white flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white">
-                    {typeof user.name === 'string' ? (user.name as string).charAt(0).toUpperCase() : 'U'}
-                    </div>
-                    {typeof user.name === 'string' ? user.name : user.name?.[lang] || user.name?.en || 'User'}
-                 </div>
-                 <button 
+              <div className="mt-8 pt-8 border-t border-border space-y-4">
+                <div className="flex items-center gap-4 px-4">
+                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-black text-xl shadow-lg">
+                     {(typeof user.name === 'string' ? user.name : 'U').charAt(0).toUpperCase()}
+                   </div>
+                   <div className="flex flex-col">
+                     <span className="text-sm font-black uppercase tracking-wider text-foreground">
+                       {typeof user.name === 'string' ? user.name : user.name?.[lang] || user.name?.en || 'User'}
+                     </span>
+                     <span className="text-[10px] text-foreground-muted uppercase tracking-widest">Logged In</span>
+                   </div>
+                </div>
+                <button 
                   onClick={() => { logout(); setMenuOpen(false); }}
-                  className="w-full text-left px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors font-medium flex items-center gap-2 mt-2"
+                  className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-red-500/10 text-red-500 font-black uppercase tracking-widest text-xs hover:bg-red-500 hover:text-white transition-all duration-300"
                 >
                   <i className="fa-solid fa-right-from-bracket"></i>
                   {lang === 'en' ? 'Logout' : 'வெளியேறு'}
@@ -470,4 +478,5 @@ export default function NavBar({ page = 'home', data: initialData }: { page?: st
       )}
     </div>
   );
+
 }

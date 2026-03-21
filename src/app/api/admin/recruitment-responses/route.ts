@@ -126,36 +126,62 @@ export async function PUT(request: NextRequest) {
     
     const doc = await RecruitmentResponse.findByIdAndUpdate(id, { $set: update }, { new: true }).populate('formRef')
     
-    // Send notification if status changed to accepted (approved)
-    if (status === 'accepted' && originalDoc.status !== 'accepted' && doc.userRef) {
+    // Send notification if status changed
+    if (status && status !== originalDoc.status && doc.userRef) {
       try {
         const formTitle = doc.formRef?.title?.en || doc.formRef?.title || 'Recruitment';
         
+        const statusConfigs: Record<string, { title: any, message: any, type: any }> = {
+          accepted: {
+            title: { en: 'Application Approved', ta: 'விண்ணப்பம் அங்கீகரிக்கப்பட்டது' },
+            message: { 
+              en: `Your application for "${formTitle}" has been approved.`, 
+              ta: `"${formTitle}" க்கான உங்கள் விண்ணப்பம் அங்கீகரிக்கப்பட்டது.` 
+            },
+            type: 'success'
+          },
+          rejected: {
+            title: { en: 'Application Update', ta: 'விண்ணப்பம் புதுப்பிக்கப்பட்டது' },
+            message: { 
+              en: `Your application for "${formTitle}" has been reviewed and rejected.`, 
+              ta: `"${formTitle}" க்கான உங்கள் விண்ணப்பம் பரிசீலிக்கப்பட்டு நிராகரிக்கப்பட்டது.` 
+            },
+            type: 'error'
+          },
+          waitlisted: {
+            title: { en: 'Application Shortlisted', ta: 'விண்ணப்பம் தேர்வு செய்யப்பட்டது' },
+            message: { 
+              en: `Your application for "${formTitle}" has been shortlisted.`, 
+              ta: `"${formTitle}" க்கான உங்கள் விண்ணப்பம் தேர்வு செய்யப்பட்டுள்ளது.` 
+            },
+            type: 'info'
+          }
+        };
+
+        const config = statusConfigs[status] || {
+          title: { en: 'Application Updated', ta: 'விண்ணப்பம் புதுப்பிக்கப்பட்டது' },
+          message: { en: `Your application for "${formTitle}" status is now ${status}.`, ta: `"${formTitle}" க்கான உங்கள் விண்ணப்பத்தின் நிலை இப்போது ${status}.` },
+          type: 'info'
+        };
+        
         await NotificationService.createNotification({
-          title: {
-            en: 'Application Approved',
-            ta: 'விண்ணப்பம் அங்கீகரிக்கப்பட்டது'
-          },
-          message: {
-            en: `Your application for "${formTitle}" has been approved.`,
-            ta: `"${formTitle}" க்கான உங்கள் விண்ணப்பம் அங்கீகரிக்கப்பட்டது.`
-          },
-          type: 'success',
+          title: config.title,
+          message: config.message,
+          type: config.type,
           priority: 'high',
           targetAudience: 'specific',
           userRef: doc.userRef,
-          actionUrl: `/profile/applications`, // Assuming this exists or generic profile
+          actionUrl: `/profile/applications`, 
           actionText: {
             en: 'View Status',
             ta: 'நிலையைப் பார்க்க'
           },
-          tags: ['recruitment', 'application', 'approved'],
-          sendEmail: false, // Website only as requested
+          tags: ['recruitment', 'application', status],
+          sendEmail: false, 
           createdBy: user._id
         });
       } catch (notifError) {
-        console.error('Failed to send approval notification:', notifError);
-        // Continue execution, don't fail the request
+        console.error('Failed to send status notification:', notifError);
       }
     }
 

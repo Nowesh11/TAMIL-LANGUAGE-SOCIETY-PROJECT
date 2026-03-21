@@ -51,93 +51,91 @@ export default function LoginPage() {
       <Head>
         <title>Login - Tamil Language Society</title>
       </Head>
-      <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-        {/* Animated Background Elements */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[100px] animate-pulse"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/10 blur-[100px] animate-pulse delay-1000"></div>
-        </div>
-
+      <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden aurora-bg">
         <div className="w-full max-w-md relative z-10">
-          <div className="bg-surface/60 backdrop-blur-md border border-border rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden">
-            <div className="p-8 sm:p-10">
-              <div className="text-center mb-10">
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2 tracking-tight">Welcome Back</h1>
-                <p className="text-foreground-secondary">Sign in to continue to TLS</p>
+          <div className="card-morphism p-8 sm:p-12 overflow-hidden relative group">
+            {/* Decorative Top Bar */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary via-secondary to-accent"></div>
+            
+            <div className="text-center mb-12">
+              <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-primary/20 transform group-hover:rotate-12 transition-transform duration-500 shadow-glow">
+                <FiLock className="text-3xl text-primary" />
+              </div>
+              <h1 className="text-4xl font-black text-foreground mb-3 tracking-tighter uppercase">Welcome Back</h1>
+              <p className="text-foreground-secondary font-bold uppercase tracking-widest text-[10px] opacity-60">Access your TLS account</p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-foreground-secondary uppercase tracking-[0.2em] ml-1">Email Address</label>
+                <div className="relative group/input">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <FiMail className="text-foreground-muted group-focus-within/input:text-primary transition-colors text-lg" />
+                  </div>
+                  <input
+                    type="email"
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full pl-12 pr-4 py-4 bg-surface-hover/50 border-2 border-border rounded-2xl text-foreground placeholder-foreground-muted focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all font-bold shadow-inner"
+                    placeholder="name@example.com"
+                  />
+                </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground-secondary ml-1">Email Address</label>
-                  <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FiMail className="text-foreground-muted group-focus-within:text-primary transition-colors" />
-                    </div>
-                    <input
-                      type="email"
-                      name="email"
-                      required
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-3 bg-surface/50 border border-border rounded-xl text-foreground placeholder-foreground-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                      placeholder="you@example.com"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center ml-1">
-                    <label className="text-sm font-medium text-foreground-secondary">Password</label>
-                    <Link href="/forgot-password" className="text-xs text-primary hover:text-primary-dark transition-colors">
-                      Forgot password?
-                    </Link>
-                  </div>
-                  <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FiLock className="text-foreground-muted group-focus-within:text-primary transition-colors" />
-                    </div>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      name="password"
-                      required
-                      value={formData.password}
-                      onChange={handleChange}
-                      className="w-full pl-10 pr-10 py-3 bg-surface/50 border border-border rounded-xl text-foreground placeholder-foreground-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                      placeholder="••••••••"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-foreground-muted hover:text-foreground transition-colors"
-                    >
-                      {showPassword ? <FiEyeOff /> : <FiEye />}
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading || authLoading}
-                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:from-primary-dark hover:to-secondary-dark transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  {loading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      Sign In <FiArrowRight />
-                    </>
-                  )}
-                </button>
-              </form>
-
-              <div className="mt-8 text-center">
-                <p className="text-foreground-secondary text-sm">
-                  Don't have an account?{' '}
-                  <Link href="/sign" className="text-primary font-medium hover:underline decoration-primary decoration-2 underline-offset-4">
-                    Sign up
+              <div className="space-y-2">
+                <div className="flex justify-between items-center ml-1">
+                  <label className="text-[10px] font-black text-foreground-secondary uppercase tracking-[0.2em]">Password</label>
+                  <Link href="/forgot-password" virtual-link="true" className="text-[10px] font-black text-primary hover:text-secondary transition-colors uppercase tracking-widest">
+                    Forgot?
                   </Link>
-                </p>
+                </div>
+                <div className="relative group/input">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <FiLock className="text-foreground-muted group-focus-within/input:text-primary transition-colors text-lg" />
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    required
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full pl-12 pr-12 py-4 bg-surface-hover/50 border-2 border-border rounded-2xl text-foreground placeholder-foreground-muted focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all font-bold shadow-inner"
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-foreground-muted hover:text-primary transition-colors"
+                  >
+                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  </button>
+                </div>
               </div>
+
+              <button
+                type="submit"
+                disabled={loading || authLoading}
+                className="w-full py-5 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/25 hover:shadow-primary/40 transform hover:-translate-y-1 active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    Sign In <FiArrowRight size={20} />
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="mt-12 pt-8 border-t border-border/50 text-center">
+              <p className="text-foreground-secondary font-bold text-sm">
+                New to Tamil Language Society?{' '}
+                <Link href="/sign" virtual-link="true" className="text-primary font-black hover:text-secondary transition-colors uppercase tracking-widest ml-1">
+                  Create Account
+                </Link>
+              </p>
             </div>
           </div>
         </div>

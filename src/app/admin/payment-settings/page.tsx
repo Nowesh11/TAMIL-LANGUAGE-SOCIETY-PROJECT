@@ -113,13 +113,13 @@ const PaymentSettingsPage: React.FC = () => {
     },
     shipping: {
       fee: 0,
-      currency: 'RM',
+      currency: 'MYR',
       freeShippingThreshold: 0,
       estimatedDays: 7,
       availableCountries: ['Malaysia']
     },
     taxRate: 6,
-    currency: 'RM',
+    currency: 'MYR',
     isMaintenanceMode: false,
     maintenanceMessage: '',
     supportEmail: '',
@@ -133,7 +133,7 @@ const PaymentSettingsPage: React.FC = () => {
   const [uploadingQR, setUploadingQR] = useState(false);
 
   const currencies = [
-    { value: 'RM', label: 'Malaysian Ringgit (RM)' },
+    { value: 'MYR', label: 'Malaysian Ringgit (MYR)' },
     { value: 'USD', label: 'US Dollar (USD)' },
     { value: 'SGD', label: 'Singapore Dollar (SGD)' },
     { value: 'EUR', label: 'Euro (EUR)' }
@@ -308,13 +308,13 @@ const PaymentSettingsPage: React.FC = () => {
       },
       shipping: {
         fee: 0,
-        currency: 'RM',
+        currency: 'MYR',
         freeShippingThreshold: 0,
         estimatedDays: 7,
         availableCountries: ['Malaysia']
       },
       taxRate: 6,
-      currency: 'RM',
+      currency: 'MYR',
       isMaintenanceMode: false,
       maintenanceMessage: '',
       supportEmail: '',

@@ -10,6 +10,25 @@ import { sendEmail } from '../../../lib/emailService';
 
 export const runtime = 'nodejs';
 
+export async function GET(req: NextRequest) {
+  try {
+    await dbConnect();
+    const user = await getUserFromAccessToken(req);
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const purchases = await Purchase.find({ userRef: user._id })
+      .populate('bookRef')
+      .sort({ createdAt: -1 });
+
+    return NextResponse.json({ success: true, items: purchases });
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e.message : 'Failed to fetch purchases';
+    return NextResponse.json({ success: false, error }, { status: 500 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();

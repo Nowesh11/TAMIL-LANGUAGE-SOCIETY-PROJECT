@@ -187,191 +187,225 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subtitle }) 
   return (
     <AdminProtectedRoute>
       <div className={`admin-layout ${theme === 'dark' ? 'dark theme-dark' : 'theme-light'} accent-${accent}`}>
-      <Toaster position="top-right" toastOptions={{
-        className: 'modern-toast',
-        style: {
-          background: '#1a1a20',
-          color: '#fff',
-          border: '1px solid rgba(255,255,255,0.1)',
-        }
-      }} />
-      {/* Sidebar */}
-      <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <div className="admin-sidebar-header">
-          <Link href="/admin/dashboard" className="admin-sidebar-logo">
-            <div className="admin-sidebar-logo-icon">TLS</div>
-            <div>
-              <h2 className="admin-sidebar-title">Admin Panel</h2>
-              <p className="admin-sidebar-subtitle">Management Console</p>
-            </div>
-          </Link>
-        </div>
-        
-        <nav className="admin-nav">
-          {Object.entries(groupedNavItems).map(([section, items]) => (
-            <div key={section} className="admin-nav-section">
-              <div className="admin-nav-section-title">{section}</div>
-              {items.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname === item.href;
-                
-                return (
-                  <div key={item.href} className="admin-nav-item">
-                   <Link
-                     href={item.href}
-                     prefetch={false}
-                     className={`admin-nav-link ${isActive ? 'active' : ''}`}
-                     onClick={() => setSidebarOpen(false)}
-                   >
-                      <div className="admin-nav-icon">
-                        <Icon />
-                      </div>
-                      <span className="admin-nav-text">{item.name}</span>
-                    </Link>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-        </nav>
-      </aside>
+        <Toaster position="top-right" toastOptions={{
+          className: 'modern-toast',
+          style: {
+            background: '#1a1a20',
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.1)',
+          }
+        }} />
 
-      {/* Main Content */}
-      <main className="admin-main">
-        {/* Header */}
-        <header className="admin-header">
-          <div className="admin-header-left">
-            <button
-              className="admin-sidebar-toggle"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
+        {/* Mobile Sidebar Overlay */}
+        <div 
+          className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] transition-opacity duration-300 md:hidden ${
+            sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
+          onClick={() => setSidebarOpen(false)}
+        />
+
+        {/* Sidebar */}
+        <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
+          <div className="admin-sidebar-header">
+            <Link href="/admin/dashboard" className="admin-sidebar-logo">
+              <div className="admin-sidebar-logo-icon">TLS</div>
+              <div>
+                <h2 className="admin-sidebar-title">Admin Panel</h2>
+                <p className="admin-sidebar-subtitle">Management Console</p>
+              </div>
+            </Link>
+            {/* Mobile Close Button */}
+            <button 
+              className="md:hidden absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60 hover:text-white"
+              onClick={() => setSidebarOpen(false)}
             >
-              {sidebarOpen ? <FiX /> : <FiMenu />}
+              <FiX className="text-xl" />
             </button>
-            
-            <nav className="admin-breadcrumb">
-              {getBreadcrumb().map((item, index) => (
-                <React.Fragment key={`breadcrumb-${index}-${item.href}`}>
-                  {index > 0 && <span>/</span>}
-                  <Link
-                    href={item.href}
-                    prefetch={false}
-                    className={`admin-breadcrumb-item ${item.active ? 'active' : ''}`}
-                  >
-                    {item.name}
-                  </Link>
-                </React.Fragment>
-              ))}
-            </nav>
           </div>
           
-          <div className="admin-header-right">
-            <div className="admin-search">
-              <FiSearch className="admin-search-icon" />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="admin-search-input"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            
-            <div className="admin-user-menu" style={{ gap: '8px' }}>
+          <nav className="admin-nav">
+            {Object.entries(groupedNavItems).map(([section, items]) => (
+              <div key={section} className="admin-nav-section">
+                <div className="admin-nav-section-title">{section}</div>
+                {items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href;
+                  
+                  return (
+                    <div key={item.href} className="admin-nav-item">
+                     <Link
+                       href={item.href}
+                       prefetch={false}
+                       className={`admin-nav-link ${isActive ? 'active' : ''}`}
+                       onClick={() => {
+                         if (window.innerWidth < 1024) setSidebarOpen(false);
+                       }}
+                     >
+                        <div className="admin-nav-icon">
+                          <Icon />
+                        </div>
+                        <span className="admin-nav-text">{item.name}</span>
+                      </Link>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <main className="admin-main">
+          {/* Header */}
+          <header className="admin-header">
+            <div className="admin-header-left">
               <button
-                className="admin-logout-button relative"
-                onClick={toggleNotifications}
-                title="Notifications"
+                className="admin-sidebar-toggle"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                aria-label="Toggle Sidebar"
               >
-                <FiBell />
-                {notificationCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
-                    {notificationCount}
-                  </span>
-                )}
+                {sidebarOpen ? <FiX /> : <FiMenu />}
               </button>
               
-              <button
-                onClick={toggleTheme}
-                className="admin-logout-button"
-                title={theme === 'light' ? 'Switch to Dark' : 'Switch to Light'}
-              >
-                {theme === 'light' ? <FiMoon /> : <FiSun />}
-              </button>
-              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <nav className="admin-breadcrumb hidden sm:flex">
+                {getBreadcrumb().map((item, index) => (
+                  <React.Fragment key={`breadcrumb-${index}-${item.href}`}>
+                    {index > 0 && <span className="mx-2 text-admin-text-muted">/</span>}
+                    <Link
+                      href={item.href}
+                      prefetch={false}
+                      className={`admin-breadcrumb-item ${item.active ? 'active' : ''}`}
+                    >
+                      {item.name}
+                    </Link>
+                  </React.Fragment>
+                ))}
+              </nav>
+            </div>
+            
+            <div className="admin-header-right">
+              <div className="admin-search hidden lg:block">
+                <FiSearch className="admin-search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="admin-search-input"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="relative">
+                  <button
+                    className="admin-notifications"
+                    onClick={toggleNotifications}
+                    title="Notifications"
+                  >
+                    <FiBell />
+                    {notificationCount > 0 && (
+                      <span className="admin-notification-badge">
+                        {notificationCount}
+                      </span>
+                    )}
+                  </button>
+                  
+                  {showNotifications && (
+                    <div className="admin-notifications-panel animate-in">
+                      <div className="admin-notifications-header">
+                        Notifications
+                      </div>
+                      <div className="admin-notifications-list">
+                        {notifications.length > 0 ? (
+                          notifications.map((notif, idx) => (
+                            <div key={idx} className="admin-notification-item">
+                              <div className={`admin-notification-type ${notif.type}`}>
+                                {notif.type}
+                              </div>
+                              <div className="admin-notification-content">
+                                <div className="admin-notification-title">{notif.title}</div>
+                                <div className="admin-notification-message">{notif.message}</div>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-8 text-center text-admin-text-muted text-sm font-medium">
+                            No new notifications
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
                 <button
-                  onClick={() => changeAccent('indigo')}
-                  className="admin-logout-button"
-                  title="Indigo"
-                  style={{ background: 'rgba(99,102,241,0.15)', borderColor: 'rgba(99,102,241,0.35)' }}
+                  onClick={toggleTheme}
+                  className="admin-notifications"
+                  title={theme === 'light' ? 'Switch to Dark' : 'Switch to Light'}
                 >
-                  <FiDroplet />
+                  {theme === 'light' ? <FiMoon /> : <FiSun />}
                 </button>
+
+                <div className="hidden sm:flex items-center gap-1.5">
+                  <button
+                    onClick={() => changeAccent('indigo')}
+                    className="w-6 h-6 rounded-full border-2 border-transparent transition-all hover:scale-110 shadow-sm"
+                    title="Indigo"
+                    style={{ background: '#6366f1', borderColor: accent === 'indigo' ? '#fff' : 'transparent' }}
+                  />
+                  <button
+                    onClick={() => changeAccent('emerald')}
+                    className="w-6 h-6 rounded-full border-2 border-transparent transition-all hover:scale-110 shadow-sm"
+                    title="Emerald"
+                    style={{ background: '#10b981', borderColor: accent === 'emerald' ? '#fff' : 'transparent' }}
+                  />
+                  <button
+                    onClick={() => changeAccent('orange')}
+                    className="w-6 h-6 rounded-full border-2 border-transparent transition-all hover:scale-110 shadow-sm"
+                    title="Orange"
+                    style={{ background: '#f59e0b', borderColor: accent === 'orange' ? '#fff' : 'transparent' }}
+                  />
+                  <button
+                    onClick={() => changeAccent('sky')}
+                    className="w-6 h-6 rounded-full border-2 border-transparent transition-all hover:scale-110 shadow-sm"
+                    title="Sky"
+                    style={{ background: '#0ea5e9', borderColor: accent === 'sky' ? '#fff' : 'transparent' }}
+                  />
+                </div>
+
+                <div className="admin-user-menu">
+                  <div className="admin-user-avatar">{getAdminInitials()}</div>
+                  <div className="admin-user-info hidden xl:flex">
+                    <div className="admin-user-name">{getAdminName()}</div>
+                    <div className="admin-user-role">Administrator</div>
+                  </div>
+                </div>
+                
                 <button
-                  onClick={() => changeAccent('emerald')}
                   className="admin-logout-button"
-                  title="Emerald"
-                  style={{ background: 'rgba(16,185,129,0.15)', borderColor: 'rgba(16,185,129,0.35)' }}
+                  onClick={handleLogout}
+                  title="Logout"
                 >
-                  <FiDroplet />
-                </button>
-                <button
-                  onClick={() => changeAccent('orange')}
-                  className="admin-logout-button"
-                  title="Orange"
-                  style={{ background: 'rgba(245,158,11,0.15)', borderColor: 'rgba(245,158,11,0.35)' }}
-                >
-                  <FiDroplet />
-                </button>
-                <button
-                  onClick={() => changeAccent('sky')}
-                  className="admin-logout-button"
-                  title="Sky"
-                  style={{ background: 'rgba(14,165,233,0.15)', borderColor: 'rgba(14,165,233,0.35)' }}
-                >
-                  <FiDroplet />
+                  <FiLogOut />
                 </button>
               </div>
             </div>
-            
-            <div className="admin-user-menu">
-              <div className="admin-user-avatar">{getAdminInitials()}</div>
-              <div className="admin-user-info">
-                <div className="admin-user-name">{getAdminName()}</div>
-                <div className="admin-user-role">Administrator</div>
-              </div>
+          </header>
+
+          {/* Content Area */}
+          <div className="admin-content">
+            <div className="admin-modern-container">
+              {(title || subtitle) && (
+                <div className="admin-page-header">
+                  <h1 className="admin-page-title">{getCurrentPageTitle()}</h1>
+                  {subtitle && <p className="admin-page-subtitle">{subtitle}</p>}
+                </div>
+              )}
+              {children}
             </div>
-            
-            <button
-              className="admin-logout-button"
-              onClick={handleLogout}
-              title="Logout"
-            >
-              <FiLogOut />
-            </button>
           </div>
-        </header>
-
-        {/* Content */}
-        <div className="admin-content">
-          {(title || subtitle) && (
-            <div className="admin-page-header">
-              <h1 className="admin-page-title">{getCurrentPageTitle()}</h1>
-              {subtitle && <p className="admin-page-subtitle">{subtitle}</p>}
-            </div>
-          )}
-          {children}
-        </div>
-      </main>
-
-      {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
-        <div
-          className="admin-modal-overlay"
-          onClick={() => setSidebarOpen(false)}
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
-        />
-      )}
-    </div>
+        </main>
+      </div>
     </AdminProtectedRoute>
   );
 };

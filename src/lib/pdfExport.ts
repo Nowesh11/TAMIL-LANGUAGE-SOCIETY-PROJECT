@@ -129,7 +129,7 @@ export class PDFExporter {
       `Total Posters: ${data.totalPosters}`,
       `Components: ${data.totalComponents}`,
       `Total Purchases: ${data.totalPurchases}`,
-      `Total Revenue: ₹${data.totalRevenue.toLocaleString()}`,
+      `Total Revenue: MYR ${data.totalRevenue.toLocaleString()}`,
       `Average Rating: ${data.averageRating.toFixed(1)}/5.0`,
       `Active Users: ${data.activeUsers}`
     ];
@@ -177,7 +177,7 @@ export class PDFExporter {
         book.author.length > 20 ? book.author.substring(0, 20) + '...' : book.author,
         book.type,
         book.downloads.toString(),
-        `₹${book.revenue}`,
+        `MYR ${book.revenue}`,
         book.rating.toFixed(1)
       ]);
       

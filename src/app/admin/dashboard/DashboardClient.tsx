@@ -177,7 +177,7 @@ export default function DashboardClient({ initialData }: { initialData: any }) {
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--modern-border)" />
                   <XAxis dataKey="name" stroke="var(--modern-text-secondary)" fontSize={12} />
                   <YAxis stroke="var(--modern-text-secondary)" fontSize={12} />
-                  <Tooltip contentStyle={{ backgroundColor: 'var(--modern-bg-primary)', border: '1px solid var(--modern-border)', borderRadius: 'var(--modern-radius-lg)', boxShadow: 'var(--modern-shadow-lg)' }} formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']} />
+                  <Tooltip contentStyle={{ backgroundColor: 'var(--modern-bg-primary)', border: '1px solid var(--modern-border)', borderRadius: 'var(--modern-radius-lg)', boxShadow: 'var(--modern-shadow-lg)' }} formatter={(value) => [`MYR ${Number(value).toLocaleString()}`, 'Revenue']} />
                   <Legend />
                   <Line type="monotone" dataKey="revenue" stroke="#F59E0B" strokeWidth={3} dot={{ fill: '#F59E0B', strokeWidth: 2, r: 4 }} name="Revenue" />
                   <Line type="monotone" dataKey="purchases" stroke="#EC4899" strokeWidth={2} dot={{ fill: '#EC4899', strokeWidth: 2, r: 3 }} name="Purchases" />

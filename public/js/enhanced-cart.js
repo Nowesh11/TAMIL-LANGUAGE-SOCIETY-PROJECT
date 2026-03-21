@@ -185,7 +185,7 @@ class EnhancedCart {
         // Update cart total
         const cartTotalElement = document.getElementById('cart-total-amount');
         if (cartTotalElement) {
-            cartTotalElement.textContent = `₹${this.getCartTotal().toFixed(2)}`;
+            cartTotalElement.textContent = `MYR ${this.getCartTotal().toFixed(2)}`;
         }
 
         // Update cart items if cart is visible
@@ -213,7 +213,7 @@ class EnhancedCart {
             <div class="cart-item">
                 <div class="cart-item-info">
                     <h4 class="cart-item-title">${item.tamilTitle || item.title}</h4>
-                    <p class="cart-item-price">₹${item.price.toFixed(2)}</p>
+                    <p class="cart-item-price">MYR ${item.price.toFixed(2)}</p>
                 </div>
                 <div class="cart-item-controls">
                     <button onclick="enhancedCart.updateQuantity('${item.id}', ${item.quantity - 1})" class="cart-btn cart-btn-decrease">-</button>

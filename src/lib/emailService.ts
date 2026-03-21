@@ -1,4 +1,7 @@
+import { Resend } from 'resend'
 import nodemailer from 'nodemailer'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 type EmailPayload = {
   to: string
@@ -181,9 +184,10 @@ function renderTemplate(name: string, data: Record<string, any> = {}) {
 }
 
 export async function sendEmail({ to, subject, template, data = {} }: EmailPayload) {
-  const apiKey = process.env.RESEND_API_KEY;
-
-  if (!apiKey) throw new Error('Resend API key missing');
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpPort = process.env.SMTP_PORT;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
 
   const html = renderTemplate(template || 'notification', {
     ad: data.ad || {
@@ -195,31 +199,53 @@ export async function sendEmail({ to, subject, template, data = {} }: EmailPaylo
     ...data
   });
   
-  // Resend requires a verified domain. If 'unimalayatls@gmail.com' is not verified, it will fail.
-  // Using 'onboarding@resend.dev' for testing if you don't have a custom domain verified in Resend.
-  const from = process.env.NODE_ENV === 'production' && process.env.EMAIL_FROM 
-    ? process.env.EMAIL_FROM 
-    : 'onboarding@resend.dev';
+  const from = process.env.EMAIL_FROM || 'onboarding@resend.dev';
 
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      from: 'onboarding@resend.dev', // Hardcoding to onboarding domain as unimalayatls@gmail.com is likely not verified on Resend
-      to,
-      subject,
-      html
-    })
-  });
+  // If SMTP is configured, use it instead of Resend
+  if (smtpHost && smtpUser && smtpPass) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: parseInt(smtpPort || '587'),
+        secure: smtpPort === '465',
+        auth: {
+          user: smtpUser,
+          pass: smtpPass
+        }
+      });
 
-  if (!res.ok) {
-    const errorText = await res.text();
-    console.error('Failed to send email via Resend:', errorText);
-    throw new Error(`Failed to send email: ${errorText}`);
+      await transporter.sendMail({
+        from,
+        to,
+        subject,
+        html
+      });
+      return true;
+    } catch (smtpError) {
+      console.error('Failed to send email via SMTP:', smtpError);
+      // Fallback to Resend if SMTP fails
+      if (!process.env.RESEND_API_KEY) throw smtpError;
+    }
   }
 
+  // Official Resend Node.js SDK integration
+  // Use a verified domain in the from address for production. 
+  // onboarding@resend.dev is for testing only.
+  const { data: resendData, error } = await resend.emails.send({
+    from: from,
+    to: Array.isArray(to) ? to : [to],
+    subject: subject,
+    html: html,
+  });
+
+  if (error) {
+    console.error('Resend SDK Error:', error);
+    // If the error is related to unverified domain, and we are using a custom domain, 
+    // maybe it's worth logging a more specific message or fallback?
+    // But the user's instructions say to follow these guardrails.
+    return false;
+  }
+
+  console.log('Email sent successfully via Resend:', resendData);
   return true;
 }

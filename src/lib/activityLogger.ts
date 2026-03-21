@@ -92,7 +92,7 @@ export class ActivityLogger {
       entityType: 'purchase',
       entityId: bookId,
       action: 'purchased',
-      description: `Purchased book: ${bookTitle} for ₹${amount}`,
+      description: `Purchased book: ${bookTitle} for MYR ${amount}`,
       metadata: { ...metadata, amount, bookTitle }
     });
   }

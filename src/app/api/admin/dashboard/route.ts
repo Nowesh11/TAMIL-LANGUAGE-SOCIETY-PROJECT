@@ -164,8 +164,9 @@ export async function GET(req: NextRequest) {
     ]);
 
     // Calculate statistics
-    const totalRevenue = purchases.reduce((sum, purchase) => sum + (purchase.finalAmount || 0), 0);
-    const totalPurchases = purchases.length;
+    const approvedPurchases = purchases.filter(p => p.status === 'approved');
+    const totalRevenue = approvedPurchases.reduce((sum, purchase) => sum + (purchase.finalAmount || 0), 0);
+    const totalPurchases = approvedPurchases.length;
     
     // Calculate average rating from both book and ebook ratings
     const allRatings = [...bookRatings, ...ebookRatings];
@@ -230,7 +231,9 @@ export async function GET(req: NextRequest) {
       ).length;
       
       const periodPurchases = purchases.filter(purchase => 
-        new Date(purchase.createdAt) >= rangeStart && new Date(purchase.createdAt) <= rangeEnd
+        new Date(purchase.createdAt) >= rangeStart && 
+        new Date(purchase.createdAt) <= rangeEnd && 
+        purchase.status === 'approved'
       );
       
       const periodRevenue = periodPurchases.reduce((sum, purchase) => sum + (purchase.finalAmount || 0), 0);

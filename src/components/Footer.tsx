@@ -138,154 +138,150 @@ export default function Footer({ page = 'home', data: initialData }: { page?: st
   if (!content) return null;
 
   return (
-    <footer className="bg-surface border-t border-border pt-20 pb-10 relative overflow-hidden">
+    <footer className="bg-surface border-t border-border pt-24 pb-12 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-[100px] pointer-events-none"></div>
+      
       <div className="layout-container relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
           {/* Brand Column */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
+          <div className="space-y-8">
+            <div className="flex items-center gap-4">
               {content.logo?.image ? (
-                <div className="relative w-12 h-12">
+                <div className="relative w-14 h-14 p-2 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-border">
                   <Image 
                     src={overrideLogoUrl || resolveUploadUrl(content.logo.image.src)} 
-                    alt={content.logo.image.alt?.[lang] || content.logo.image.alt?.en || ''} 
+                    alt={content.logo.image.alt?.[lang] || content.logo.image.alt?.en || ''}
                     fill
-                    className="object-contain" 
+                    className="object-contain p-2" 
                     unoptimized 
                   />
                 </div>
               ) : null}
               {content.logo?.text ? (
-                <span className="text-xl font-bold gradient-title">
-                  {content.logo.text?.[lang] || content.logo.text?.en || ''}
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-2xl font-black gradient-title tracking-tighter">
+                    {content.logo.text?.[lang] || content.logo.text?.en || ''}
+                  </span>
+                  <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-foreground-muted">
+                    Preserving Culture
+                  </span>
+                </div>
               ) : null}
             </div>
             
             {content.description ? (
-              <p className="text-foreground-secondary leading-relaxed">
+              <p className="text-foreground-secondary leading-relaxed font-medium text-sm">
                 {content.description?.[lang] || content.description?.en || ''}
               </p>
             ) : null}
             
-            <div className="flex gap-4">
-              {content.socialLinks?.facebookUrl && (
-                <Link href={content.socialLinks.facebookUrl} className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-foreground-secondary hover:bg-[#1877F2] hover:text-white transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-md" aria-label="Facebook">
-                  <i className="fa-brands fa-facebook fa-fw"></i>
+            <div className="flex gap-3">
+              {[
+                { url: content.socialLinks?.facebookUrl, icon: 'fa-facebook', color: '#1877F2' },
+                { url: content.socialLinks?.twitterUrl, icon: 'fa-twitter', iconClass: 'fa-x-twitter', color: '#000000' },
+                { url: content.socialLinks?.instagramUrl, icon: 'fa-instagram', color: '#E4405F' },
+                { url: content.socialLinks?.youtubeUrl, icon: 'fa-youtube', color: '#FF0000' }
+              ].map((social, i) => social.url && (
+                <Link 
+                  key={i}
+                  href={social.url} 
+                  className="w-11 h-11 rounded-xl bg-surface border border-border flex items-center justify-center text-foreground-secondary hover:text-white transition-all duration-500 hover:-translate-y-2 shadow-sm hover:shadow-xl group relative overflow-hidden"
+                  aria-label={social.icon}
+                >
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ backgroundColor: social.color }}></div>
+                  <i className={`fa-brands ${social.iconClass || social.icon} fa-fw relative z-10 text-lg`}></i>
                 </Link>
-              )}
-              {content.socialLinks?.twitterUrl && (
-                <Link href={content.socialLinks.twitterUrl} className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-foreground-secondary hover:bg-[#1DA1F2] hover:text-white transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-md" aria-label="Twitter">
-                  <i className="fa-brands fa-twitter fa-fw"></i>
-                </Link>
-              )}
-              {content.socialLinks?.instagramUrl && (
-                <Link href={content.socialLinks.instagramUrl} className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-foreground-secondary hover:bg-[#E4405F] hover:text-white transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-md" aria-label="Instagram">
-                  <i className="fa-brands fa-instagram fa-fw"></i>
-                </Link>
-              )}
-              {content.socialLinks?.youtubeUrl && (
-                <Link href={content.socialLinks.youtubeUrl} className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-foreground-secondary hover:bg-[#FF0000] hover:text-white transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-md" aria-label="YouTube">
-                  <i className="fa-brands fa-youtube fa-fw"></i>
-                </Link>
-              )}
+              ))}
             </div>
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h3 className="text-lg font-bold mb-6 text-foreground">
-              {content.quickLinksTitle ? (content.quickLinksTitle?.[lang] || content.quickLinksTitle?.en || '') : ''}
+          <div className="lg:pl-8">
+            <h3 className="text-sm font-black uppercase tracking-[0.2em] mb-8 text-foreground flex items-center gap-2">
+              <span className="w-8 h-[2px] bg-primary rounded-full"></span>
+              {content.quickLinksTitle ? (content.quickLinksTitle?.[lang] || content.quickLinksTitle?.en || '') : 'Explore'}
             </h3>
             <ul className="space-y-4">
-              {content.quickLinks?.aboutLink && (
-                <li>
-                  <Link href={content.quickLinks.aboutLink.url} className="text-foreground-secondary hover:text-primary transition-colors inline-flex items-center group">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary/40 mr-2 group-hover:bg-primary transition-colors"></span>
-                    {content.quickLinks.aboutLink.text?.[lang] || content.quickLinks.aboutLink.text?.en || ''}
+              {[
+                content.quickLinks?.aboutLink,
+                content.quickLinks?.projectsLink,
+                content.quickLinks?.ebooksLink,
+                content.quickLinks?.bookstoreLink
+              ].map((link, i) => link && (
+                <li key={i}>
+                  <Link href={link.url} className="text-foreground-secondary hover:text-primary transition-all font-bold text-sm inline-flex items-center group">
+                    <span className="w-0 group-hover:w-4 h-[2px] bg-primary mr-0 group-hover:mr-3 transition-all duration-300 rounded-full"></span>
+                    {link.text?.[lang] || link.text?.en || ''}
                   </Link>
                 </li>
-              )}
-              {content.quickLinks?.projectsLink && (
-                <li>
-                  <Link href={content.quickLinks.projectsLink.url} className="text-foreground-secondary hover:text-primary transition-colors inline-flex items-center group">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary/40 mr-2 group-hover:bg-primary transition-colors"></span>
-                    {content.quickLinks.projectsLink.text?.[lang] || content.quickLinks.projectsLink.text?.en || ''}
-                  </Link>
-                </li>
-              )}
-              {content.quickLinks?.ebooksLink && (
-                <li>
-                  <Link href={content.quickLinks.ebooksLink.url} className="text-foreground-secondary hover:text-primary transition-colors inline-flex items-center group">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary/40 mr-2 group-hover:bg-primary transition-colors"></span>
-                    {content.quickLinks.ebooksLink.text?.[lang] || content.quickLinks.ebooksLink.text?.en || ''}
-                  </Link>
-                </li>
-              )}
-              {content.quickLinks?.bookstoreLink && (
-                <li>
-                  <Link href={content.quickLinks.bookstoreLink.url} className="text-foreground-secondary hover:text-primary transition-colors inline-flex items-center group">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary/40 mr-2 group-hover:bg-primary transition-colors"></span>
-                    {content.quickLinks.bookstoreLink.text?.[lang] || content.quickLinks.bookstoreLink.text?.en || ''}
-                  </Link>
-                </li>
-              )}
+              ))}
             </ul>
           </div>
 
           {/* Support Links */}
-          <div>
-            <h3 className="text-lg font-bold mb-6 text-foreground">
-              {content.supportTitle ? (content.supportTitle?.[lang] || content.supportTitle?.en || '') : ''}
+          <div className="lg:pl-8">
+            <h3 className="text-sm font-black uppercase tracking-[0.2em] mb-8 text-foreground flex items-center gap-2">
+              <span className="w-8 h-[2px] bg-secondary rounded-full"></span>
+              {content.supportTitle ? (content.supportTitle?.[lang] || content.supportTitle?.en || '') : 'Support'}
             </h3>
             <ul className="space-y-4">
-              {content.supportLinks?.contactLink && (
-                <li>
-                  <Link href={content.supportLinks.contactLink.url} className="text-foreground-secondary hover:text-primary transition-colors inline-flex items-center group">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary/40 mr-2 group-hover:bg-primary transition-colors"></span>
-                    {content.supportLinks.contactLink.text?.[lang] || content.supportLinks.contactLink.text?.en || ''}
+              {[
+                content.supportLinks?.contactLink,
+                content.supportLinks?.notificationsLink
+              ].map((link, i) => link && (
+                <li key={i}>
+                  <Link href={link.url} className="text-foreground-secondary hover:text-secondary transition-all font-bold text-sm inline-flex items-center group">
+                    <span className="w-0 group-hover:w-4 h-[2px] bg-secondary mr-0 group-hover:mr-3 transition-all duration-300 rounded-full"></span>
+                    {link.text?.[lang] || link.text?.en || ''}
                   </Link>
                 </li>
-              )}
-              {content.supportLinks?.notificationsLink && (
-                <li>
-                  <Link href={content.supportLinks.notificationsLink.url} className="text-foreground-secondary hover:text-primary transition-colors inline-flex items-center group">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary/40 mr-2 group-hover:bg-primary transition-colors"></span>
-                    {content.supportLinks.notificationsLink.text?.[lang] || content.supportLinks.notificationsLink.text?.en || ''}
-                  </Link>
-                </li>
-              )}
+              ))}
             </ul>
           </div>
 
           {/* Newsletter */}
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-border">
-            <h3 className="text-lg font-bold mb-2 text-foreground">
-              {content.newsletter?.title ? (content.newsletter.title?.[lang] || content.newsletter.title?.en || 'Newsletter') : 'Newsletter'}
-            </h3>
-            <p className="text-sm text-foreground-secondary mb-4">
-              {content.newsletter?.description ? (content.newsletter.description?.[lang] || content.newsletter.description?.en || '') : ''}
-            </p>
-            <div className="flex gap-2">
-              <input 
-                type="email" 
-                placeholder={content.newsletter?.emailPlaceholder ? (content.newsletter.emailPlaceholder?.[lang] || content.newsletter.emailPlaceholder?.en || 'Enter your email') : 'Enter your email'} 
-                className="flex-1 bg-white dark:bg-slate-900 border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
-                aria-label="Email" 
-              />
-              <button className="bg-primary hover:bg-primary-dark text-white rounded-lg px-4 py-2 transition-colors duration-300" aria-label="Subscribe to newsletter">
-                <IconRenderer iconName={content.newsletter?.buttonIcon || 'fa-solid fa-paper-plane'} className="fa-fw" />
-              </button>
+          <div className="relative group">
+            <div className="absolute -inset-4 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-[2rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative bg-surface dark:bg-slate-900/50 p-8 rounded-[2rem] border border-border shadow-sm group-hover:shadow-xl transition-all duration-500">
+              <h3 className="text-lg font-black mb-2 text-foreground">
+                {content.newsletter?.title ? (content.newsletter.title?.[lang] || content.newsletter.title?.en || 'Newsletter') : 'Newsletter'}
+              </h3>
+              <p className="text-xs text-foreground-muted mb-6 font-medium leading-relaxed">
+                {content.newsletter?.description ? (content.newsletter.description?.[lang] || content.newsletter.description?.en || '') : 'Stay updated with our latest news and events.'}
+              </p>
+              <div className="flex flex-col gap-3">
+                <input 
+                  type="email" 
+                  placeholder={content.newsletter?.emailPlaceholder ? (content.newsletter.emailPlaceholder?.[lang] || content.newsletter.emailPlaceholder?.en || 'Enter your email') : 'Enter your email'} 
+                  className="w-full bg-background border border-border rounded-xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                  aria-label="Email" 
+                />
+                <button className="w-full bg-primary hover:bg-primary-dark text-white rounded-xl px-5 py-3 font-bold text-sm transition-all duration-300 shadow-lg shadow-primary/20 flex items-center justify-center gap-2 group/btn">
+                  <span>Subscribe</span>
+                  <IconRenderer iconName={content.newsletter?.buttonIcon || 'fa-solid fa-paper-plane'} className="fa-fw group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-foreground-muted text-center md:text-left">
-            {content.copyright ? (typeof content.copyright === 'string' ? content.copyright : (content.copyright?.[lang] || content.copyright?.en || '')) : ''}
-          </p>
-          <div className="text-xs text-foreground-muted">
-            Made with <span className="text-red-500">♥</span> by Tamil Language Society
+        <div className="pt-12 border-t border-border flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex flex-col items-center md:items-start gap-2">
+            <p className="text-xs font-bold text-foreground-muted text-center md:text-left">
+              {content.copyright ? (typeof content.copyright === 'string' ? content.copyright : (content.copyright?.[lang] || content.copyright?.en || '')) : ''}
+            </p>
+            <div className="text-[10px] font-black uppercase tracking-widest text-foreground-muted/60">
+              Preserving Tamil Language & Culture Since 19XX
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-6">
+             <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-foreground-muted">
+               Made with <i className="fa-solid fa-heart text-red-500 animate-pulse"></i> by 
+               <span className="text-primary hover:text-secondary cursor-pointer transition-colors">TLS Tech Team</span>
+             </div>
           </div>
         </div>
       </div>

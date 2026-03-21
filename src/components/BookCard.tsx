@@ -85,21 +85,21 @@ export default function BookCard({ book, onAddToCart, onBuyNow }: {
           {description}
         </p>
         
-        <div className="mt-auto pt-4 border-t border-border/50 flex items-center justify-between gap-4">
+        <div className="mt-auto pt-4 border-t border-border flex items-center justify-between gap-4">
           <div className="flex flex-col">
-             <span className="text-[10px] text-foreground-muted uppercase tracking-wider font-bold">
+             <span className="text-[10px] text-foreground-muted uppercase tracking-[0.2em] font-black">
                {lang === 'ta' ? 'விலை' : 'Price'}
              </span>
-             <span className="text-xl font-black text-foreground">
-               RM {book.price?.toFixed(2)}
+             <span className="text-xl font-black text-primary">
+               MYR {book.price?.toFixed(2)}
              </span>
           </div>
 
           <button 
-            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all shadow-md ${
+            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-lg ${
               outOfStock 
-                ? 'bg-surface border border-border text-foreground-muted cursor-not-allowed' 
-                : 'bg-primary text-white hover:bg-primary-dark hover:scale-105 hover:shadow-primary/30 active:scale-95'
+                ? 'bg-surface border border-border text-foreground-muted cursor-not-allowed opacity-50' 
+                : 'bg-gradient-to-br from-primary to-secondary text-white hover:scale-110 hover:shadow-primary/40 active:scale-95 border border-white/10'
             }`}
             onClick={() => onAddToCart(book._id)} 
             disabled={outOfStock}

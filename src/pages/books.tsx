@@ -8,6 +8,7 @@ import BuyNowModal from '../components/BuyNowModal';
 import CartModal from '../components/CartModal';
 import UserPurchasesModal from '../components/UserPurchasesModal';
 import { useLanguage } from '../hooks/LanguageContext';
+import { toast } from 'react-hot-toast';
 
 export default function BooksPage() {
   const { lang } = useLanguage();
@@ -120,7 +121,10 @@ export default function BooksPage() {
     });
   }
   function openBuyNow(book: any) { setModalBook(book); setModalOpen(true); }
-  function onPurchased(_result: any) { /* optionally refresh purchases */ }
+  function onPurchased(_result: any) { 
+    toast.success(lang === 'en' ? 'Purchase successful!' : 'கொள்முதல் வெற்றி!');
+    setPurchasesModalOpen(true);
+  }
 
   if (loading) {
     return (

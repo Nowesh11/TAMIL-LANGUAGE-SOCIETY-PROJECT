@@ -416,8 +416,9 @@
   background: var(--admin-card);
   border: 1px solid var(--admin-border);
   border-radius: var(--admin-radius-2xl);
-  overflow: hidden;
+  overflow-x: auto;
   box-shadow: var(--admin-shadow-lg);
+  -webkit-overflow-scrolling: touch;
 }
 
 .admin-modern-table-header {
@@ -701,43 +702,64 @@
 
 @media (max-width: 1024px) {
   .admin-modern-stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: var(--admin-space-4);
   }
   
   .admin-modern-controls-row {
     flex-direction: column;
     align-items: stretch;
+    gap: var(--admin-space-4);
   }
   
   .admin-modern-search-container {
     max-width: none;
+    min-width: 0;
   }
   .admin-modern-filters-panel { position: static; }
-  .admin-modern-container { padding: 0 var(--admin-space-4); }
-  .admin-modern-table-header { position: sticky; top: calc(var(--admin-header-height) + 8px); z-index: 40; }
+  .admin-modern-container { padding: 0 var(--admin-space-2); }
+  .admin-modern-table-header { position: sticky; top: 0; z-index: 40; }
 }
 
 @media (max-width: 768px) {
   .admin-modern-header h1 {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
   
   .admin-modern-stats-grid {
     grid-template-columns: 1fr;
+    gap: var(--admin-space-3);
   }
   
   .admin-modern-table-container {
     overflow-x: auto;
+    border-radius: var(--admin-radius-lg);
+  }
+  
+  .admin-modern-table th, 
+  .admin-modern-table td {
+    padding: var(--admin-space-3) var(--admin-space-3);
+    font-size: 0.8125rem;
   }
   
   .admin-modern-pagination {
     flex-direction: column;
-    gap: var(--admin-space-4);
+    gap: var(--admin-space-3);
+    padding: var(--admin-space-4);
   }
+  
   .admin-modern-search-input { font-size: 0.8125rem; }
-  .admin-modern-btn, .admin-btn { padding: var(--admin-space-2) var(--admin-space-4); }
-  .admin-modern-card-icon { width: 48px; height: 48px; font-size: 1.5rem; }
+  .admin-modern-btn, .admin-btn { padding: var(--admin-space-2) var(--admin-space-3); font-size: 0.8125rem; }
+  .admin-modern-card-icon { width: 44px; height: 44px; font-size: 1.25rem; }
+  .admin-modern-card-value { font-size: 1.75rem; }
+}
+
+@media (max-width: 480px) {
+  .admin-modern-header h1 { font-size: 1.5rem; }
+  .admin-modern-stats-grid { gap: var(--admin-space-2); }
+  .admin-modern-card { padding: var(--admin-space-4); }
+  .admin-modern-controls { padding: var(--admin-space-4); }
+  .admin-modern-table-actions { flex-direction: column; gap: 0.5rem; }
 }
 /* Notifications Panel */
 .admin-notifications-panel {

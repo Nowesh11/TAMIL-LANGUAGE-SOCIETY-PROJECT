@@ -189,24 +189,24 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
       
       return (
         <div className="scale-container flex justify-between items-center gap-4 overflow-x-auto py-4">
-           <span className="text-sm text-gray-400 font-medium">{f.options?.[0]?.[lang] || f.options?.[0]?.en || min}</span>
+           <span className="text-sm text-foreground font-black uppercase tracking-widest">{f.options?.[0]?.[lang] || f.options?.[0]?.en || min}</span>
            <div className="flex gap-6">
              {range.map(val => (
                <label key={val} className="flex flex-col items-center cursor-pointer group">
-                 <span className="mb-2 text-sm text-gray-300 group-hover:text-cyan-400 transition-colors font-medium">{val}</span>
+                 <span className="mb-2 text-sm text-foreground font-black group-hover:text-primary transition-colors">{val}</span>
                  <input
                    type="radio"
                    name={f.id}
                    value={val}
                    checked={answers[f.id] === String(val)}
                    onChange={(e) => setAnswers(prev => ({ ...prev, [f.id]: e.target.value }))}
-                   className="w-5 h-5 accent-primary"
+                   className="w-6 h-6 accent-primary"
                    required={isRequired}
                  />
                </label>
              ))}
            </div>
-           <span className="text-sm text-gray-400 font-medium">{f.options?.[1]?.[lang] || f.options?.[1]?.en || max}</span>
+           <span className="text-sm text-foreground font-black uppercase tracking-widest">{f.options?.[1]?.[lang] || f.options?.[1]?.en || max}</span>
         </div>
       );
     };
@@ -216,27 +216,27 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
       const columns = ['1', '2', '3', '4', '5']; 
       
       return (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[500px] border-collapse">
+        <div className="overflow-x-auto rounded-2xl border border-border shadow-inner">
+          <table className="w-full min-w-[500px] border-collapse bg-surface">
             <thead>
-              <tr>
-                <th className="text-left p-3"></th>
-                {columns.map(c => <th key={c} className="text-center p-3 text-foreground-muted font-medium">{c}</th>)}
+              <tr className="bg-surface-hover/50">
+                <th className="text-left p-4"></th>
+                {columns.map(c => <th key={c} className="text-center p-4 text-foreground font-black uppercase tracking-widest text-xs">{c}</th>)}
               </tr>
             </thead>
             <tbody>
               {f.options?.map((opt, idx) => (
-                <tr key={idx} className="border-b border-border hover:bg-surface-hover transition-colors">
-                  <td className="p-3 font-medium text-foreground-secondary">{opt[lang] || opt.en}</td>
+                <tr key={idx} className="border-b border-border hover:bg-surface-hover/30 transition-colors">
+                  <td className="p-4 font-bold text-foreground">{opt[lang] || opt.en}</td>
                   {columns.map(c => (
-                    <td key={c} className="text-center p-3">
+                    <td key={c} className="text-center p-4">
                       <input
                         type={type}
                         name={`${f.id}_${opt.value}`} // Unique name per row
                         value={c}
                         checked={answers[`${f.id}::${opt.value}`] === c}
                         onChange={(e) => setAnswers(prev => ({ ...prev, [`${f.id}::${opt.value}`]: e.target.value }))}
-                        className={type === 'radio' ? 'modern-radio w-5 h-5 accent-cyan-500' : 'modern-checkbox w-5 h-5 accent-cyan-500'}
+                        className={type === 'radio' ? 'w-6 h-6 accent-primary' : 'w-6 h-6 accent-primary'}
                       />
                     </td>
                   ))}
@@ -293,7 +293,7 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
                   required={isRequired}
                   className="w-5 h-5 accent-primary"
                 />
-                <span className="text-foreground-secondary group-hover:text-foreground font-medium transition-colors">{opt[lang] || opt.en}</span>
+                <span className="text-foreground font-bold group-hover:text-primary transition-colors">{opt[lang] || opt.en}</span>
               </label>
             ))}
           </div>
@@ -317,7 +317,7 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
                   }}
                   className="w-5 h-5 accent-primary"
                 />
-                <span className="text-foreground-secondary group-hover:text-foreground font-medium transition-colors">{opt[lang] || opt.en}</span>
+                <span className="text-foreground font-bold group-hover:text-primary transition-colors">{opt[lang] || opt.en}</span>
               </label>
             ))}
           </div>
@@ -563,7 +563,7 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
               ? item.title 
               : item.title?.[lang] || item.title?.en || ''}
           </h1>
-          <p className="text-xl text-foreground-secondary max-w-3xl">
+          <p className="text-xl text-foreground font-medium max-w-3xl drop-shadow-sm">
             {typeof item.shortDesc === 'string' 
               ? item.shortDesc 
               : item.shortDesc?.[lang] || item.shortDesc?.en || ''}
@@ -576,35 +576,35 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Bureau */}
-            <div className="card-morphism p-6 rounded-2xl border border-border/10 bg-surface/60 backdrop-blur-md">
+            <div className="card-morphism p-6 rounded-2xl border border-border/20 bg-surface/80 backdrop-blur-md shadow-xl">
               <div className="flex flex-col h-full">
-                <span className="text-sm font-semibold text-primary mb-2 uppercase tracking-wider">{lang === 'en' ? 'Bureau' : 'துறை'}</span>
+                <span className="text-sm font-black text-primary mb-2 uppercase tracking-wider">{lang === 'en' ? 'Bureau' : 'துறை'}</span>
                 <h3 className="text-lg font-bold text-foreground mb-1">{bureauLabel || (lang === 'en' ? 'N/A' : 'தகவல் இல்லை')}</h3>
-                <p className="text-sm text-foreground-muted mt-auto">{lang === 'en' ? 'Responsible department' : 'பெறுப்பான துறை'}</p>
+                <p className="text-sm text-foreground font-medium mt-auto">{lang === 'en' ? 'Responsible department' : 'பெறுப்பான துறை'}</p>
               </div>
             </div>
 
             {/* Director */}
-            <div className="card-morphism p-6 rounded-2xl border border-border/10 bg-surface/60 backdrop-blur-md">
+            <div className="card-morphism p-6 rounded-2xl border border-border/20 bg-surface/80 backdrop-blur-md shadow-xl">
               <div className="flex flex-col h-full">
-                <span className="text-sm font-semibold text-secondary mb-2 uppercase tracking-wider">{lang === 'en' ? 'Director' : 'இயக்குநர்'}</span>
+                <span className="text-sm font-black text-secondary mb-2 uppercase tracking-wider">{lang === 'en' ? 'Director' : 'இயக்குநர்'}</span>
                 <h3 className="text-lg font-bold text-foreground mb-1">{(item.directorName && (item.directorName?.[lang] || item.directorName?.en)) || (lang === 'en' ? 'N/A' : 'தகவல் இல்லை')}</h3>
-                <p className="text-sm text-foreground-muted mt-auto">{lang === 'en' ? 'Lead person' : 'முன்னணி பொறுப்பாளர்'}</p>
+                <p className="text-sm text-foreground font-medium mt-auto">{lang === 'en' ? 'Lead person' : 'முன்னணி பொறுப்பாளர்'}</p>
               </div>
             </div>
 
             {/* Status */}
-            <div className="card-morphism p-6 rounded-2xl border border-border/10 bg-surface/60 backdrop-blur-md">
+            <div className="card-morphism p-6 rounded-2xl border border-border/20 bg-surface/80 backdrop-blur-md shadow-xl">
               <div className="flex flex-col h-full">
-                <span className="text-sm font-semibold text-success mb-2 uppercase tracking-wider">{lang === 'en' ? 'Status' : 'நிலை'}</span>
+                <span className="text-sm font-black text-success mb-2 uppercase tracking-wider">{lang === 'en' ? 'Status' : 'நிலை'}</span>
                 <h3 className="text-lg font-bold text-foreground mb-3 text-capitalize">{(item.progress || item.status || '').replace(/-/g, ' ')}</h3>
                 {typeof pct === 'number' ? (
                   <div className="w-full mt-auto">
-                    <div className="flex justify-between text-xs text-foreground-muted mb-1">
+                    <div className="flex justify-between text-xs text-foreground font-bold mb-1">
                       <span>{lang === 'en' ? 'Progress' : 'முனேற்றம்'}</span>
                       <span className="text-primary">{pct}%</span>
                     </div>
-                    <div className="h-2 bg-gray-700/50 rounded-full overflow-hidden">
+                    <div className="h-2 bg-gray-300 dark:bg-gray-700/50 rounded-full overflow-hidden">
                       {typeof roundedPct === 'number' ? (
                         <div 
                           className="h-full bg-gradient-to-r from-primary to-secondary rounded-full relative"
@@ -620,11 +620,11 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
             </div>
 
             {/* Timeline */}
-            <div className="card-morphism p-6 rounded-2xl border border-border/10 bg-surface/60 backdrop-blur-md">
+            <div className="card-morphism p-6 rounded-2xl border border-border/20 bg-surface/80 backdrop-blur-md shadow-xl">
               <div className="flex flex-col h-full">
-                <span className="text-sm font-semibold text-warning mb-2 uppercase tracking-wider">{lang === 'en' ? 'Timeline' : 'காலக்கெடு'}</span>
-                <h3 className="text-base text-foreground mb-1"><span className="text-foreground-muted">{lang === 'en' ? 'Start' : 'தொடக்கம்'}:</span> {item.startDate ? new Date(item.startDate).toLocaleDateString() : (lang === 'en' ? 'N/A' : 'தகவல் இல்லை')}</h3>
-                <h4 className="text-base text-foreground"><span className="text-foreground-muted">{lang === 'en' ? 'End' : 'முடிவு'}:</span> {item.endDate ? new Date(item.endDate).toLocaleDateString() : (lang === 'en' ? 'N/A' : 'தகவல் இல்லை')}</h4>
+                <span className="text-sm font-black text-warning mb-2 uppercase tracking-wider">{lang === 'en' ? 'Timeline' : 'காலக்கெடு'}</span>
+                <h3 className="text-base text-foreground font-bold mb-1"><span className="text-foreground/70">{lang === 'en' ? 'Start' : 'தொடக்கம்'}:</span> {item.startDate ? new Date(item.startDate).toLocaleDateString() : (lang === 'en' ? 'N/A' : 'தகவல் இல்லை')}</h3>
+                <h4 className="text-base text-foreground font-bold"><span className="text-foreground/70">{lang === 'en' ? 'End' : 'முடிவு'}:</span> {item.endDate ? new Date(item.endDate).toLocaleDateString() : (lang === 'en' ? 'N/A' : 'தகவல் இல்லை')}</h4>
               </div>
             </div>
           </div>
@@ -721,10 +721,10 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="modern-field-group">
-                            <label className="modern-label text-foreground-secondary">{lang === 'en' ? 'Your Name' : 'உங்கள் பெயர்'} <span className="text-error">*</span></label>
+                            <label className="modern-label text-foreground font-bold">{lang === 'en' ? 'Your Name' : 'உங்கள் பெயர்'} <span className="text-error">*</span></label>
                             <div className="relative">
                               <input 
-                                className={`modern-input pl-10 bg-surface text-foreground border-border ${fieldErrors.applicantName ? 'invalid' : ''}`}
+                                className={`modern-input pl-10 bg-surface text-foreground border-border font-medium ${fieldErrors.applicantName ? 'invalid' : ''}`}
                                 type="text" 
                                 value={applicantName} 
                                 onChange={(e) => {
@@ -733,7 +733,7 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
                                 }} 
                                 placeholder={lang === 'en' ? 'Enter your full name' : 'உங்கள் முழு பெயரை உள்ளிடவும்'}
                               />
-                              <FaUser className="absolute left-3 top-3.5 text-foreground-muted pointer-events-none" />
+                              <FaUser className="absolute left-3 top-3.5 text-primary pointer-events-none" />
                             </div>
                             {fieldErrors.applicantName && (
                               <div className="error-message text-error">
@@ -743,10 +743,10 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
                             )}
                           </div>
                           <div className="modern-field-group">
-                            <label className="modern-label text-foreground-secondary">{lang === 'en' ? 'Email' : 'மின்னஞ்சல்'} <span className="text-error">*</span></label>
+                            <label className="modern-label text-foreground font-bold">{lang === 'en' ? 'Email' : 'மின்னஞ்சல்'} <span className="text-error">*</span></label>
                             <div className="relative">
                               <input 
-                                className={`modern-input pl-10 bg-surface text-foreground border-border ${fieldErrors.applicantEmail ? 'invalid' : ''}`}
+                                className={`modern-input pl-10 bg-surface text-foreground border-border font-medium ${fieldErrors.applicantEmail ? 'invalid' : ''}`}
                                 type="email" 
                                 value={applicantEmail} 
                                 onChange={(e) => {
@@ -755,7 +755,7 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
                                 }} 
                                 placeholder={lang === 'en' ? 'Enter your email address' : 'உங்கள் மின்னஞ்சல் முகவரியை உள்ளிடவும்'}
                               />
-                              <FaEnvelope className="absolute left-3 top-3.5 text-foreground-muted pointer-events-none" />
+                              <FaEnvelope className="absolute left-3 top-3.5 text-primary pointer-events-none" />
                             </div>
                             {fieldErrors.applicantEmail && (
                               <div className="error-message">
@@ -773,16 +773,16 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
                             {lang === 'en' ? 'Additional Information' : 'கூடுதல் தகவல்கள்'}
                           </h3>
                           <div className="space-y-6">
-                            {(form.fields || []).map((f) => (
-                              <div key={f.id} className="modern-field-group">
-                                <label className="modern-label">
-                                  {f.label?.[lang] || f.id}
-                                  {f.required && <span className="text-error ml-1">*</span>}
-                                </label>
-                                {renderField(f)}
-                              </div>
-                            ))}
-                          </div>
+                          {(form.fields || []).map((f) => (
+                            <div key={f.id} className="modern-field-group">
+                              <label className="modern-label text-foreground font-black uppercase tracking-widest text-xs mb-3 block">
+                                {f.label?.[lang] || f.id}
+                                {f.required && <span className="text-error ml-1">*</span>}
+                              </label>
+                              {renderField(f)}
+                            </div>
+                          ))}
+                        </div>
                         </div>
                       )}
 
@@ -883,7 +883,7 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
               <div className="card-morphism p-6 rounded-2xl border border-border/10 bg-surface/60 backdrop-blur-md hover:border-success/30 transition-colors">
                 <div className="flex flex-col h-full">
                   <span className="text-sm font-semibold text-success mb-2 uppercase tracking-wider">{lang === 'en' ? 'Budget' : 'நிதி'}</span>
-                  <p className="text-2xl font-bold text-foreground">{new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(item.budget)}</p>
+                  <p className="text-2xl font-bold text-foreground">{new Intl.NumberFormat('en-MY', { style: 'currency', currency: 'MYR' }).format(item.budget)}</p>
                 </div>
               </div>
             )}

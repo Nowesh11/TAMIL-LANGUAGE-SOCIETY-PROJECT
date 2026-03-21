@@ -58,25 +58,25 @@ export default function Modal({
       onClick={dismissOnBackdrop ? onClose : undefined}
     >
       <div
-        className={`w-full ${sizeClasses[size]} bg-surface/95 border border-border/50 rounded-2xl shadow-2xl backdrop-blur-xl animate-slide-in-up flex flex-col max-h-[90vh]`}
+        className={`w-full ${sizeClasses[size]} bg-surface border-2 border-border rounded-3xl shadow-2xl backdrop-blur-2xl animate-slide-in-up flex flex-col max-h-[95vh] overflow-hidden card-morphism`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border/50 bg-surface sticky top-0 z-10">
-          <h2 id={titleId} className="text-xl font-bold text-foreground">
+        <div className="flex items-center justify-between px-8 py-6 border-b border-border bg-surface-hover/50 sticky top-0 z-10">
+          <h2 id={titleId} className="text-2xl font-black text-foreground uppercase tracking-tighter">
             {title}
           </h2>
           <button 
             aria-label="Close" 
-            className="w-8 h-8 rounded-full flex items-center justify-center bg-surface-hover hover:bg-white/10 text-foreground-secondary hover:text-white transition-colors"
+            className="w-10 h-10 rounded-xl flex items-center justify-center bg-surface hover:bg-error/10 text-foreground-secondary hover:text-error transition-all border border-border shadow-sm active:scale-95"
             onClick={onClose}
           >
-            <i className="fa-solid fa-xmark"></i>
+            <i className="fa-solid fa-xmark text-lg"></i>
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-6 overflow-y-auto custom-scrollbar text-foreground-secondary">
+        <div className="p-8 overflow-y-auto custom-scrollbar text-foreground-secondary font-medium">
           {children}
         </div>
       </div>
