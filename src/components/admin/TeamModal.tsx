@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Upload, Trash2, Globe, Linkedin, Twitter, Github, Check } from 'lucide-react';
+import { X, Save } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import MediaUploader from './MediaUploader';
 import { useAuth } from '../../hooks/useAuth';
@@ -35,6 +35,27 @@ interface TeamModalProps {
   mode?: 'create' | 'edit';
 }
 
+const teamRoles = [
+  { value: 'President', en: 'President', ta: 'தலைவர்' },
+  { value: 'Vice President', en: 'Vice President', ta: 'துணை தலைவர்' },
+  { value: 'Secretary', en: 'Secretary', ta: 'செயலாளர்' },
+  { value: 'Treasurer', en: 'Treasurer', ta: 'பொருளாளர்' },
+  { value: 'Executive Committee', en: 'Executive Committee', ta: 'நிர்வாக குழு' },
+  { value: 'Chief Auditor', en: 'Chief Auditor', ta: 'முதன்மை கணக்காய்வாளர்' },
+  { value: 'Auditor', en: 'Auditor', ta: 'கணக்காய்வாளர்' }
+];
+
+const teamDepartments = [
+  { value: 'High Council', en: 'High Council', ta: 'உயர் குழு' },
+  { value: 'Media and Public Relations Committee Member', en: 'Media & Public Relations', ta: 'ஊடகம் மற்றும் பொது தொடர்பு' },
+  { value: 'Sports and Leadership Committee Member', en: 'Sports & Leadership', ta: 'விளையாட்டு மற்றும் தலைமைத்துவம்' },
+  { value: 'Education and Intellectual Committee Member', en: 'Education & Intellectual', ta: 'கல்வி மற்றும் அறிவுத்துறை' },
+  { value: 'Arts & Culture Committee Member', en: 'Arts & Culture', ta: 'கலை மற்றும் கலாசாரம்' },
+  { value: 'Social Welfare & Voluntary Committee Member', en: 'Social Welfare & Voluntary', ta: 'சமூக நலன் மற்றும் தன்னார்வம்' },
+  { value: 'Language and Literature Committee Member', en: 'Language & Literature', ta: 'மொழி மற்றும் இலக்கியம்' },
+  { value: 'Auditors', en: 'Auditors', ta: 'கணக்காய்வாளர்கள்' }
+];
+
 const TeamModal: React.FC<TeamModalProps> = ({
   isOpen,
   onClose,
@@ -47,7 +68,7 @@ const TeamModal: React.FC<TeamModalProps> = ({
   const [activeTab, setActiveTab] = useState<'content' | 'settings' | 'media'>('content');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
+
   const [formData, setFormData] = useState<Partial<TeamMember>>({
     name: { en: '', ta: '' },
     position: { en: '', ta: '' },
@@ -56,7 +77,7 @@ const TeamModal: React.FC<TeamModalProps> = ({
     phone: '',
     role: '',
     department: '',
-    orderNum: 0,
+    orderNum: 1,
     isActive: true,
     imagePath: '',
     specializations: [],
@@ -64,38 +85,17 @@ const TeamModal: React.FC<TeamModalProps> = ({
     achievements: []
   });
 
-  const teamRoles = [
-    { value: 'President', label: 'President' },
-    { value: 'Vice President', label: 'Vice President' },
-    { value: 'Secretary', label: 'Secretary' },
-    { value: 'Treasurer', label: 'Treasurer' },
-    { value: 'Executive Committee', label: 'Executive Committee' },
-    { value: 'Chief Auditor', label: 'Chief Auditor' },
-    { value: 'Auditor', label: 'Auditor' }
-  ];
-
-  const teamDepartments = [
-    { value: 'High Council', label: 'High Council' },
-    { value: 'Media and Public Relations Committee Member', label: 'Media and Public Relations' },
-    { value: 'Sports and Leadership Committee Member', label: 'Sports and Leadership' },
-    { value: 'Education and Intellectual Committee Member', label: 'Education and Intellectual' },
-    { value: 'Arts & Culture Committee Member', label: 'Arts & Culture' },
-    { value: 'Social Welfare & Voluntary Committee Member', label: 'Social Welfare & Voluntary' },
-    { value: 'Language and Literature Committee Member', label: 'Language and Literature' },
-    { value: 'Auditors', label: 'Auditors' }
-  ];
-
   useEffect(() => {
     if (member && (mode === 'edit' || member._id)) {
       setFormData({
         name: member.name || { en: '', ta: '' },
-        position: (member as any).position || { en: '', ta: '' },
+        position: member.position || { en: '', ta: '' },
         bio: member.bio || { en: '', ta: '' },
         email: member.email || '',
         phone: member.phone || '',
         role: member.role || '',
         department: member.department || '',
-        orderNum: member.orderNum || 0,
+        orderNum: member.orderNum || 1,
         isActive: member.isActive ?? true,
         imagePath: member.imagePath || '',
         specializations: member.specializations || [],
@@ -111,7 +111,7 @@ const TeamModal: React.FC<TeamModalProps> = ({
         phone: '',
         role: '',
         department: '',
-        orderNum: 0,
+        orderNum: 1,
         isActive: true,
         imagePath: '',
         specializations: [],
@@ -119,15 +119,16 @@ const TeamModal: React.FC<TeamModalProps> = ({
         achievements: []
       });
     }
+
     setErrors({});
     setActiveTab('content');
   }, [member, mode, isOpen]);
 
-  const updateBilingualText = (field: string, lang: 'en' | 'ta', value: string) => {
+  const updateBilingualText = (field: keyof TeamMember, lang: 'en' | 'ta', value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: {
-        ...(prev[field as keyof typeof prev] as BilingualText),
+        ...((prev[field] as BilingualText) || { en: '', ta: '' }),
         [lang]: value
       }
     }));
@@ -135,6 +136,7 @@ const TeamModal: React.FC<TeamModalProps> = ({
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
+
     if (!formData.name?.en?.trim()) newErrors.nameEn = 'English name is required';
     if (!formData.name?.ta?.trim()) newErrors.nameTa = 'Tamil name is required';
     if (!formData.position?.en?.trim()) newErrors.positionEn = 'English position is required';
@@ -142,7 +144,8 @@ const TeamModal: React.FC<TeamModalProps> = ({
     if (!formData.role) newErrors.role = 'Role is required';
     if (!formData.department) newErrors.department = 'Department is required';
     if (!formData.email?.trim()) newErrors.email = 'Email is required';
-    
+    if (!formData.orderNum || formData.orderNum < 1) newErrors.orderNum = 'Display order must be at least 1';
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -159,7 +162,7 @@ const TeamModal: React.FC<TeamModalProps> = ({
         const isCreate = mode === 'create';
         const url = '/api/admin/team';
         const method = isCreate ? 'POST' : 'PUT';
-        
+
         const response = await fetch(url, {
           method,
           headers: {
@@ -171,14 +174,16 @@ const TeamModal: React.FC<TeamModalProps> = ({
 
         const raw = await response.text();
         let data: any = {};
-        try { data = JSON.parse(raw); } catch {}
+        try {
+          data = JSON.parse(raw);
+        } catch {}
 
         if (!response.ok) {
           throw new Error(data.error || data.message || `Failed to ${mode === 'create' ? 'create' : 'update'} team member`);
         }
       }
 
-      if (onSuccess) onSuccess();
+      onSuccess?.();
       onClose();
     } catch (error: any) {
       console.error('Error saving team member:', error);
@@ -192,13 +197,12 @@ const TeamModal: React.FC<TeamModalProps> = ({
 
   const modalContent = (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-      <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" 
+      <div
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
-      
+
       <div className="relative w-full max-w-4xl bg-[#0a0a0f] border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-scaleIn">
-        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10 bg-white/5">
           <div>
             <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
@@ -214,7 +218,6 @@ const TeamModal: React.FC<TeamModalProps> = ({
           </button>
         </div>
 
-        {/* Tabs */}
         <div className="flex border-b border-white/10 px-6">
           <button
             onClick={() => setActiveTab('content')}
@@ -248,10 +251,8 @@ const TeamModal: React.FC<TeamModalProps> = ({
           </button>
         </div>
 
-        {/* Body */}
         <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
           <form id="team-form" onSubmit={handleSubmit} className="space-y-6">
-            
             {activeTab === 'content' && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -259,18 +260,19 @@ const TeamModal: React.FC<TeamModalProps> = ({
                     <label className="block text-sm font-medium text-gray-400 mb-1">Name (English)</label>
                     <input
                       type="text"
-                      value={formData.name?.en}
+                      value={formData.name?.en || ''}
                       onChange={(e) => updateBilingualText('name', 'en', e.target.value)}
                       className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
                       placeholder="John Doe"
                     />
                     {errors.nameEn && <p className="mt-1 text-xs text-red-500">{errors.nameEn}</p>}
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1">Name (Tamil)</label>
                     <input
                       type="text"
-                      value={formData.name?.ta}
+                      value={formData.name?.ta || ''}
                       onChange={(e) => updateBilingualText('name', 'ta', e.target.value)}
                       className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
                       placeholder="ஜான் டோ"
@@ -284,18 +286,19 @@ const TeamModal: React.FC<TeamModalProps> = ({
                     <label className="block text-sm font-medium text-gray-400 mb-1">Position (English)</label>
                     <input
                       type="text"
-                      value={formData.position?.en}
+                      value={formData.position?.en || ''}
                       onChange={(e) => updateBilingualText('position', 'en', e.target.value)}
                       className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
                       placeholder="President"
                     />
                     {errors.positionEn && <p className="mt-1 text-xs text-red-500">{errors.positionEn}</p>}
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1">Position (Tamil)</label>
                     <input
                       type="text"
-                      value={formData.position?.ta}
+                      value={formData.position?.ta || ''}
                       onChange={(e) => updateBilingualText('position', 'ta', e.target.value)}
                       className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
                       placeholder="தலைவர்"
@@ -308,16 +311,17 @@ const TeamModal: React.FC<TeamModalProps> = ({
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1">Bio (English)</label>
                     <textarea
-                      value={formData.bio?.en}
+                      value={formData.bio?.en || ''}
                       onChange={(e) => updateBilingualText('bio', 'en', e.target.value)}
                       className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors h-32 resize-none"
                       placeholder="Short biography..."
                     />
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1">Bio (Tamil)</label>
                     <textarea
-                      value={formData.bio?.ta}
+                      value={formData.bio?.ta || ''}
                       onChange={(e) => updateBilingualText('bio', 'ta', e.target.value)}
                       className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors h-32 resize-none"
                       placeholder="சுயவிவரம்..."
@@ -330,18 +334,19 @@ const TeamModal: React.FC<TeamModalProps> = ({
                     <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
                     <input
                       type="email"
-                      value={formData.email}
+                      value={formData.email || ''}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
                       placeholder="email@example.com"
                     />
                     {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1">Phone</label>
                     <input
                       type="tel"
-                      value={formData.phone}
+                      value={formData.phone || ''}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
                       placeholder="+60 12-345 6789"
@@ -357,13 +362,15 @@ const TeamModal: React.FC<TeamModalProps> = ({
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1">Role</label>
                     <select
-                      value={formData.role}
+                      value={formData.role || ''}
                       onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                       className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors appearance-none"
                     >
                       <option value="">Select Role</option>
-                      {teamRoles.map(role => (
-                        <option key={role.value} value={role.value} className="bg-[#0a0a0f]">{role.label}</option>
+                      {teamRoles.map((role) => (
+                        <option key={role.value} value={role.value} className="bg-[#0a0a0f]">
+                          {role.en} / {role.ta}
+                        </option>
                       ))}
                     </select>
                     {errors.role && <p className="mt-1 text-xs text-red-500">{errors.role}</p>}
@@ -372,13 +379,15 @@ const TeamModal: React.FC<TeamModalProps> = ({
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1">Department</label>
                     <select
-                      value={formData.department}
+                      value={formData.department || ''}
                       onChange={(e) => setFormData({ ...formData, department: e.target.value })}
                       className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors appearance-none"
                     >
                       <option value="">Select Department</option>
-                      {teamDepartments.map(dept => (
-                        <option key={dept.value} value={dept.value} className="bg-[#0a0a0f]">{dept.label}</option>
+                      {teamDepartments.map((dept) => (
+                        <option key={dept.value} value={dept.value} className="bg-[#0a0a0f]">
+                          {dept.en} / {dept.ta}
+                        </option>
                       ))}
                     </select>
                     {errors.department && <p className="mt-1 text-xs text-red-500">{errors.department}</p>}
@@ -389,10 +398,17 @@ const TeamModal: React.FC<TeamModalProps> = ({
                   <label className="block text-sm font-medium text-gray-400 mb-1">Display Order</label>
                   <input
                     type="number"
-                    value={formData.orderNum}
-                    onChange={(e) => setFormData({ ...formData, orderNum: parseInt(e.target.value) || 0 })}
+                    min={1}
+                    value={formData.orderNum ?? 1}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        orderNum: Math.max(1, parseInt(e.target.value, 10) || 1)
+                      })
+                    }
                     className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
                   />
+                  {errors.orderNum && <p className="mt-1 text-xs text-red-500">{errors.orderNum}</p>}
                   <p className="text-xs text-gray-500 mt-1">Lower numbers appear first</p>
                 </div>
 
@@ -404,7 +420,7 @@ const TeamModal: React.FC<TeamModalProps> = ({
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={formData.isActive}
+                      checked={!!formData.isActive}
                       onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
                       className="sr-only peer"
                     />
@@ -427,7 +443,9 @@ const TeamModal: React.FC<TeamModalProps> = ({
                       label="Upload Profile Photo"
                       initialUrl={formData.imagePath}
                       onUploaded={(r) => {
-                        const url = r.url || (r.filePath ? `/api/files/serve?path=${encodeURIComponent(r.filePath)}` : '');
+                        const url =
+                          r.url ||
+                          (r.filePath ? `/api/files/serve?path=${encodeURIComponent(r.filePath)}` : '');
                         setFormData({ ...formData, imagePath: url });
                       }}
                     />
@@ -444,7 +462,6 @@ const TeamModal: React.FC<TeamModalProps> = ({
           </form>
         </div>
 
-        {/* Footer */}
         <div className="p-6 border-t border-white/10 bg-white/5 flex justify-end gap-3">
           <button
             onClick={onClose}

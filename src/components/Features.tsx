@@ -32,36 +32,34 @@ interface ComponentRecord {
   content: FeaturesContent;
 }
 
-export default function Features({ page = 'home', data: propData, alignment = 'center' }: { page?: string; data?: any; alignment?: 'left' | 'center' | 'right' }) {
+export default function Features({
+  page = 'home',
+  data: propData,
+  alignment = 'center'
+}: {
+  page?: string;
+  data?: any;
+  alignment?: 'left' | 'center' | 'right';
+}) {
   const { lang } = useLanguage();
   const [data, setData] = useState<FeaturesContent | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const alignmentClasses = {
-    left: 'text-left items-start',
-    center: 'text-center items-center',
-    right: 'text-right items-end'
-  };
-
-  const justifyClasses = {
-    left: 'justify-start',
-    center: 'justify-center',
-    right: 'justify-end'
-  };
-
   useEffect(() => {
-    // If data is provided as prop, use it directly
     if (propData) {
       setData(propData as FeaturesContent);
       setLoading(false);
       return;
     }
 
-    // Fallback to API call if no data prop provided
     async function load() {
       try {
-        const json = await safeFetchJson<{ components?: ComponentRecord[] }>(`/api/components/page?page=${encodeURIComponent(page)}`);
-        const list = Array.isArray(json.components) ? (json.components as ComponentRecord[]) : [];
+        const json = await safeFetchJson<{ components?: ComponentRecord[] }>(
+          `/api/components/page?page=${encodeURIComponent(page)}`
+        );
+        const list = Array.isArray(json.components)
+          ? (json.components as ComponentRecord[])
+          : [];
         const record = list.find((c) => c.type === 'features');
         if (record?.content) setData(record.content);
       } catch (e) {
@@ -70,18 +68,18 @@ export default function Features({ page = 'home', data: propData, alignment = 'c
         setLoading(false);
       }
     }
+
     load();
   }, [page, propData]);
 
   if (loading) {
     return (
       <section className="py-20 relative overflow-hidden aurora-bg">
-        <div className="layout-container relative z-10">
+        <div className="layout-container relative z-10 flex justify-center">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="card-morphism h-64 animate-pulse rounded-2xl border border-white/10" />
-            <div className="card-morphism h-64 animate-pulse rounded-2xl border border-white/10" />
-            <div className="card-morphism h-64 animate-pulse rounded-2xl border border-white/10" />
-            <div className="card-morphism h-64 animate-pulse rounded-2xl border border-white/10" />
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="card-morphism h-64 animate-pulse rounded-2xl border border-white/10" />
+            ))}
           </div>
         </div>
       </section>
@@ -92,69 +90,89 @@ export default function Features({ page = 'home', data: propData, alignment = 'c
   if (!content) return null;
 
   const cols = content.columns || 4;
-  const gridColsClass = cols === 2 ? 'lg:grid-cols-2' : cols === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4';
+  const gridColsClass =
+    cols === 2
+      ? 'lg:grid-cols-2'
+      : cols === 3
+      ? 'lg:grid-cols-3'
+      : 'lg:grid-cols-4';
 
   return (
     <section className="py-20 relative overflow-hidden aurora-bg">
       <div className="layout-container relative z-10">
-        {content.title ? (
-          <div className={`mb-16 animate-slide-in-up flex flex-col ${alignmentClasses[alignment]}`}>
-            <h2 className={`text-3xl md:text-4xl font-bold inline-block text-white drop-shadow-lg ${alignmentClasses[alignment]}`}>
-              <span className="animate-text-glow">{content.title?.[lang] || content.title?.en || ''}</span>
+
+        {/* TITLE */}
+        {content.title && (
+          <div className="mb-16 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white drop-shadow-lg">
+              <span className="animate-text-glow">
+                {content.title?.[lang] || content.title?.en || ''}
+              </span>
             </h2>
+
             {content.subtitle && (
-              <p className={`mt-4 text-lg text-gray-300 max-w-2xl drop-shadow-md ${alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto'}`}>
+              <p className="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">
                 {content.subtitle?.[lang] || content.subtitle?.en || ''}
               </p>
             )}
           </div>
-        ) : null}
-        
-        <div className={`grid grid-cols-1 sm:grid-cols-2 ${gridColsClass} gap-8 ${justifyClasses[alignment]}`}>
-          {content.features.map((f, idx) => (
-            <div 
-              key={idx} 
-              className={`card-morphism p-8 hover-lift transition-all duration-300 group animate-slide-in-up rounded-3xl border border-white/10 shadow-xl hover:shadow-primary/20 hover:border-primary/30 flex flex-col ${alignmentClasses[alignment]}`}
-              style={{ animationDelay: `${idx * 0.1}s` }}
-            >
-              <div className="mb-6 p-4 rounded-2xl bg-white/5 inline-block group-hover:bg-primary/10 transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-3 border border-white/10 group-hover:border-primary/30 relative overflow-hidden">
-                {f.image ? (
-                   <div className="relative w-16 h-16 flex items-center justify-center">
-                     <Image 
-                       src={typeof f.image === 'string' ? f.image : f.image.src} 
-                       alt={f.title?.[lang] || 'Feature icon'} 
-                       fill 
-                       className="object-contain"
-                       unoptimized
-                     />
-                   </div>
-                ) : (
-                  <div className="text-4xl text-primary drop-shadow-sm flex items-center justify-center">
-                    {f.icon ? <IconRenderer iconName={f.icon} /> : null}
-                  </div>
+        )}
+
+        {/* GRID CENTER FIX */}
+        <div className="flex justify-center">
+          <div
+            className={`grid grid-cols-1 sm:grid-cols-2 ${gridColsClass} gap-8 justify-center`}
+          >
+            {content.features.map((f, idx) => (
+              <div
+                key={idx}
+                className="card-morphism p-8 rounded-3xl border border-white/10 shadow-xl hover:shadow-primary/20 hover:border-primary/30 transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center max-w-sm mx-auto"
+                style={{ animationDelay: `${idx * 0.1}s` }}
+              >
+                {/* ICON */}
+                <div className="mb-6 p-4 rounded-2xl bg-white/5 group-hover:bg-primary/10 transition-all duration-300 border border-white/10 group-hover:border-primary/30">
+                  {f.image ? (
+                    <div className="relative w-16 h-16">
+                      <Image
+                        src={typeof f.image === 'string' ? f.image : f.image.src}
+                        alt={f.title?.[lang] || 'Feature icon'}
+                        fill
+                        className="object-contain"
+                        unoptimized
+                      />
+                    </div>
+                  ) : (
+                    <div className="text-4xl text-primary">
+                      {f.icon ? <IconRenderer iconName={f.icon} /> : null}
+                    </div>
+                  )}
+                </div>
+
+                {/* TITLE */}
+                <h3 className="text-xl font-bold mb-3 text-white">
+                  {f.title?.[lang] || f.title?.en || ''}
+                </h3>
+
+                {/* DESCRIPTION */}
+                <p className="text-gray-400 leading-relaxed mb-6">
+                  {f.description?.[lang] || f.description?.en || ''}
+                </p>
+
+                {/* LINK */}
+                {f.link && (
+                  <Link
+                    href={f.link.url}
+                    className="inline-flex items-center text-primary font-bold hover:text-white transition-colors text-sm uppercase tracking-wide"
+                  >
+                    {f.link.text?.[lang] || f.link.text?.en || ''}
+                    <i className="fa-solid fa-arrow-right fa-fw ml-2"></i>
+                  </Link>
                 )}
               </div>
-              
-              <h3 className="text-xl font-bold mb-3 text-white group-hover:text-primary transition-colors">
-                {f.title?.[lang] || f.title?.en || ''}
-              </h3>
-              
-              <p className="text-gray-400 leading-relaxed mb-6 group-hover:text-gray-300 transition-colors">
-                {f.description?.[lang] || f.description?.en || ''}
-              </p>
-              
-              {f.link ? (
-                <Link 
-                  href={f.link.url} 
-                  className="inline-flex items-center text-primary font-bold hover:text-white transition-colors group-hover:translate-x-1 duration-300 text-sm uppercase tracking-wide"
-                >
-                  <span>{f.link.text?.[lang] || f.link.text?.en || ''}</span> 
-                  <i className="fa-solid fa-arrow-right fa-fw ml-2"></i>
-                </Link>
-              ) : null}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+
       </div>
     </section>
   );

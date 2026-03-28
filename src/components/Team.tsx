@@ -1,10 +1,15 @@
 "use client";
+
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '../hooks/LanguageContext';
 import { FaLinkedin, FaEnvelope, FaPhone } from 'react-icons/fa';
+import { safeFetchJson } from '../lib/safeFetch';
 
-interface Bilingual { en: string; ta: string }
+interface Bilingual {
+  en: string;
+  ta: string;
+}
 
 interface TeamMember {
   _id: string;
@@ -17,32 +22,37 @@ interface TeamMember {
   email?: string;
   phone?: string;
   orderNum: number;
+  department?: string;
 }
 
-import { safeFetchJson } from '../lib/safeFetch';
-// ...
-export default function Team({ page, data, alignment = 'center' }: { page?: string, data?: any, alignment?: 'left' | 'center' | 'right' }) {
+const roleMap: Record<string, Bilingual> = {
+  President: { en: 'President', ta: 'தலைவர்' },
+  'Vice President': { en: 'Vice President', ta: 'துணை தலைவர்' },
+  Secretary: { en: 'Secretary', ta: 'செயலாளர்' },
+  Treasurer: { en: 'Treasurer', ta: 'பொருளாளர்' },
+  'Executive Committee': { en: 'Executive Committee', ta: 'நிர்வாக குழு' },
+  'Chief Auditor': { en: 'Chief Auditor', ta: 'முதன்மை கணக்காய்வாளர்' },
+  Auditor: { en: 'Auditor', ta: 'கணக்காய்வாளர்' }
+};
+
+export default function Team({
+  page,
+  data,
+  alignment = 'center'
+}: {
+  page?: string;
+  data?: any;
+  alignment?: 'left' | 'center' | 'right';
+}) {
   const [members, setMembers] = useState<TeamMember[]>([]);
   const { lang } = useLanguage();
-
-  const alignmentClasses = {
-    left: 'text-left items-start',
-    center: 'text-center items-center',
-    right: 'text-right items-end'
-  };
-
-  const justifyClasses = {
-    left: 'justify-start',
-    center: 'justify-center',
-    right: 'justify-end'
-  };
 
   useEffect(() => {
     async function loadTeam() {
       try {
         const json = await safeFetchJson<{ members?: TeamMember[] }>('/api/team');
         if (json.members) {
-           setMembers(json.members);
+          setMembers(json.members);
         }
       } catch (e) {
         console.error('Failed to load team', e);
@@ -53,96 +63,119 @@ export default function Team({ page, data, alignment = 'center' }: { page?: stri
 
   if (!members.length) return null;
 
-  // Filter members by role
-  const president = members.find(m => m.role === 'President');
-  
-  // Leadership: Vice President, Secretary, Treasurer
-  const leadership = members.filter(m => ['Vice President', 'Secretary', 'Treasurer'].includes(m.role))
+  const president = members.find((m) => m.role === 'President');
+
+  const leadership = members
+    .filter((m) => ['Vice President', 'Secretary', 'Treasurer'].includes(m.role))
     .sort((a, b) => {
       const order = ['Vice President', 'Secretary', 'Treasurer'];
       return order.indexOf(a.role) - order.indexOf(b.role);
     });
-  
-  // Executive Committee
-  // Exclude President, VP, Secretary, Treasurer, and Auditors
-  const allExecutives = members.filter(m => 
-    !['President', 'Vice President', 'Secretary', 'Treasurer', 'Auditor', 'Chief Auditor'].includes(m.role)
-  ).sort((a, b) => a.orderNum - b.orderNum);
-  
+
+  const allExecutives = members
+    .filter((m) => !['President', 'Vice President', 'Secretary', 'Treasurer', 'Auditor', 'Chief Auditor'].includes(m.role))
+    .sort((a, b) => a.orderNum - b.orderNum);
+
   const topExecutives = allExecutives.slice(0, 3);
   const midExecutives = allExecutives.slice(3, 6);
-  const remainingExecutives = allExecutives.slice(6); // Any extras
-  
-  // Auditors
-  const allAuditors = members.filter(m => ['Auditor', 'Chief Auditor'].includes(m.role))
-    .sort((a) => (a.role === 'Chief Auditor' ? -1 : 1)); // Chief first if exists
-  
-  const mainAuditors = allAuditors.slice(0, 3);
-  const remainingAuditors = allAuditors.slice(3); // Any extras
-  const textAlignClass = alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left';
-  const maxWidthAlignClass = alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto';
+  const remainingExecutives = allExecutives.slice(6);
 
-  const MemberCard = ({ member, className = '' }: { member: TeamMember, className?: string }) => (
+  const allAuditors = members
+    .filter((m) => ['Auditor', 'Chief Auditor'].includes(m.role))
+    .sort((a, b) => {
+      if (a.role === 'Chief Auditor' && b.role !== 'Chief Auditor') return -1;
+      if (a.role !== 'Chief Auditor' && b.role === 'Chief Auditor') return 1;
+      return a.orderNum - b.orderNum;
+    });
+
+  const mainAuditors = allAuditors.slice(0, 3);
+  const remainingAuditors = allAuditors.slice(3);
+
+  const textAlignClass =
+    alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left';
+
+  const maxWidthAlignClass =
+    alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto';
+
+  const getDisplayRole = (role: string) => {
+    return roleMap[role]?.[lang] || roleMap[role]?.en || role;
+  };
+
+  const getImageSrc = (member: TeamMember) => {
+    const path = member.imagePath || member.imageUrl || '';
+    const s = String(path);
+
+    const pos = s.toLowerCase().lastIndexOf('uploads');
+    if (pos >= 0) {
+      const rest = s.slice(pos).replace(/^[\\/]+/, '').replace(/\\/g, '/');
+      return `/api/files/serve?path=${encodeURIComponent(rest)}`;
+    }
+
+    return s;
+  };
+
+  const MemberCard = ({ member, className = '' }: { member: TeamMember; className?: string }) => (
     <div className={`group relative w-72 h-96 card-morphism overflow-hidden hover-lift hover-glow ${className}`}>
       <div className="absolute inset-0 w-full h-full">
         {(member.imagePath || member.imageUrl) && (
           <Image
-            src={
-              (function(){
-                const path = member.imagePath || member.imageUrl || '';
-                const s = String(path);
-                const pos = s.toLowerCase().lastIndexOf('uploads');
-                if (pos >= 0) {
-                  const rest = s.slice(pos).replace(/^[\\/]+/, '').replace(/\\/g, '/');
-                  return `/api/files/serve?path=${encodeURIComponent(rest)}`;
-                }
-                return s;
-              })()
-            }
-            alt={typeof member.name === 'string' ? member.name : (member.name?.[lang] || 'Team Member')}
+            src={getImageSrc(member)}
+            alt={member.name?.[lang] || member.name?.en || 'Team Member'}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-110"
             unoptimized
           />
         )}
-        
-        {/* Always visible name tag at bottom */}
+
         <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent text-white text-center transition-all duration-300 group-hover:opacity-0 translate-y-0 group-hover:translate-y-4">
-            <h3 className="text-xl font-bold mb-1 drop-shadow-md">
-              {typeof member.name === 'string' ? member.name : member.name?.[lang]}
-            </h3>
-            <p className="text-sm font-medium text-white/90 drop-shadow-sm uppercase tracking-wider">
-              {(member.position?.[lang] || member.position?.en) || (typeof member.role === 'string' ? member.role : (member.role as any)?.[lang])}
-            </p>
+          <h3 className="text-xl font-bold mb-1 drop-shadow-md">
+            {member.name?.[lang] || member.name?.en}
+          </h3>
+          <p className="text-sm font-medium text-white/90 drop-shadow-sm uppercase tracking-wider">
+            {(member.position?.[lang] || member.position?.en) || getDisplayRole(member.role)}
+          </p>
         </div>
 
-        {/* Overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-dark/95 to-secondary-dark/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-6 text-center transform scale-95 group-hover:scale-100 transition-transform backdrop-blur-sm">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-dark/95 to-secondary-dark/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-6 text-center transform scale-95 group-hover:scale-100 backdrop-blur-sm">
           <h3 className="text-2xl font-bold text-white mb-2">
-            {typeof member.name === 'string' ? member.name : member.name?.[lang]}
+            {member.name?.[lang] || member.name?.en}
           </h3>
           <p className="text-sm font-semibold text-primary-light uppercase tracking-widest mb-4">
-            {typeof member.role === 'string' ? member.role : (member.role as any)?.[lang]}
+            {getDisplayRole(member.role)}
           </p>
-          
+
           {member.bio && (
             <p className="text-white/80 text-sm mb-6 line-clamp-4 leading-relaxed">
-              {typeof member.bio === 'string' ? member.bio : member.bio?.[lang]}
+              {member.bio?.[lang] || member.bio?.en}
             </p>
           )}
-          
+
           <div className="flex gap-4 mt-auto">
             {member.email && (
-              <a href={`mailto:${member.email}`} className="w-10 h-10 rounded-full bg-white/10 hover:bg-white text-white hover:text-primary flex items-center justify-center transition-all duration-300" title="Email">
+              <a
+                href={`mailto:${member.email}`}
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white text-white hover:text-primary flex items-center justify-center transition-all duration-300"
+                title="Email"
+              >
                 <FaEnvelope />
               </a>
             )}
+
             {member.phone && (
-              <a href={`tel:${member.phone}`} className="w-10 h-10 rounded-full bg-white/10 hover:bg-white text-white hover:text-primary flex items-center justify-center transition-all duration-300" title="Phone">
+              <a
+                href={`tel:${member.phone}`}
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white text-white hover:text-primary flex items-center justify-center transition-all duration-300"
+                title="Phone"
+              >
                 <FaPhone />
               </a>
             )}
-            <a href="#" className="w-10 h-10 rounded-full bg-white/10 hover:bg-white text-white hover:text-primary flex items-center justify-center transition-all duration-300" title="LinkedIn">
+
+            <a
+              href="#"
+              className="w-10 h-10 rounded-full bg-white/10 hover:bg-white text-white hover:text-primary flex items-center justify-center transition-all duration-300"
+              title="LinkedIn"
+            >
               <FaLinkedin />
             </a>
           </div>
@@ -155,65 +188,62 @@ export default function Team({ page, data, alignment = 'center' }: { page?: stri
     <section className="py-20 bg-background relative overflow-hidden aurora-bg">
       <div className="layout-container relative z-10">
         <div className={`mb-16 animate-slide-in-up ${textAlignClass}`}>
-           <h2 className="text-4xl md:text-5xl font-bold mb-4 gradient-title inline-block">
-             <span className="animate-text-glow">{data?.title?.[lang] || 'Our Leadership'}</span>
-           </h2>
-           <p className={`text-xl text-foreground-muted max-w-2xl ${maxWidthAlignClass}`}>
-             {data?.subtitle?.[lang] || 'Meet the dedicated team behind our success'}
-           </p>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 gradient-title inline-block">
+            <span className="animate-text-glow">{data?.title?.[lang] || 'Our Leadership'}</span>
+          </h2>
+          <p className={`text-xl text-foreground-muted max-w-2xl ${maxWidthAlignClass}`}>
+            {data?.subtitle?.[lang] || 'Meet the dedicated team behind our success'}
+          </p>
         </div>
 
         <div className="flex flex-col items-center gap-12">
-          {/* Level 1: President */}
           {president && (
             <div className="flex justify-center w-full animate-slide-in-up">
-              <MemberCard member={president} className="scale-110 shadow-2xl border-2 border-primary/20 shadow-primary/20" />
+              <MemberCard
+                member={president}
+                className="scale-110 shadow-2xl border-2 border-primary/20 shadow-primary/20"
+              />
             </div>
           )}
 
-          {/* Level 2: VP, Secretary, Treasurer */}
           {leadership.length > 0 && (
             <div className="flex flex-wrap justify-center gap-8 md:gap-12 w-full animate-slide-in-up" style={{ animationDelay: '0.1s' }}>
-              {leadership.map(member => (
+              {leadership.map((member) => (
                 <MemberCard key={member._id} member={member} />
               ))}
             </div>
           )}
 
-          {/* Level 3: First 3 Executives */}
           {topExecutives.length > 0 && (
             <div className="flex flex-wrap justify-center gap-8 w-full animate-slide-in-up" style={{ animationDelay: '0.2s' }}>
-              {topExecutives.map(member => (
+              {topExecutives.map((member) => (
                 <MemberCard key={member._id} member={member} />
               ))}
             </div>
           )}
 
-          {/* Level 4: Next 3 Executives */}
           {midExecutives.length > 0 && (
             <div className="flex flex-wrap justify-center gap-8 w-full animate-slide-in-up" style={{ animationDelay: '0.3s' }}>
-              {midExecutives.map(member => (
+              {midExecutives.map((member) => (
                 <MemberCard key={member._id} member={member} />
               ))}
             </div>
           )}
 
-          {/* Level 5: Auditors (Max 3) */}
           {mainAuditors.length > 0 && (
             <div className="flex flex-wrap justify-center gap-8 w-full border-t border-border pt-12 mt-4 animate-slide-in-up" style={{ animationDelay: '0.4s' }}>
-              {mainAuditors.map(member => (
+              {mainAuditors.map((member) => (
                 <MemberCard key={member._id} member={member} />
               ))}
             </div>
           )}
-          
-          {/* Remaining Members (if any) */}
+
           {(remainingExecutives.length > 0 || remainingAuditors.length > 0) && (
-             <div className="flex flex-wrap justify-center gap-8 w-full pt-8 animate-slide-in-up" style={{ animationDelay: '0.5s' }}>
-               {[...remainingExecutives, ...remainingAuditors].map(member => (
-                 <MemberCard key={member._id} member={member} />
-               ))}
-             </div>
+            <div className="flex flex-wrap justify-center gap-8 w-full pt-8 animate-slide-in-up" style={{ animationDelay: '0.5s' }}>
+              {[...remainingExecutives, ...remainingAuditors].map((member) => (
+                <MemberCard key={member._id} member={member} />
+              ))}
+            </div>
           )}
         </div>
       </div>
