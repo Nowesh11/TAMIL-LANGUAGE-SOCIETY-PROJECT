@@ -12,6 +12,7 @@ interface BilingualText {
 interface TeamMember {
   _id?: string;
   name: BilingualText;
+  position: BilingualText;
   bio: BilingualText;
   email: string;
   phone?: string;
@@ -49,6 +50,7 @@ const TeamModal: React.FC<TeamModalProps> = ({
   
   const [formData, setFormData] = useState<Partial<TeamMember>>({
     name: { en: '', ta: '' },
+    position: { en: '', ta: '' },
     bio: { en: '', ta: '' },
     email: '',
     phone: '',
@@ -87,6 +89,7 @@ const TeamModal: React.FC<TeamModalProps> = ({
     if (member && (mode === 'edit' || member._id)) {
       setFormData({
         name: member.name || { en: '', ta: '' },
+        position: (member as any).position || { en: '', ta: '' },
         bio: member.bio || { en: '', ta: '' },
         email: member.email || '',
         phone: member.phone || '',
@@ -102,6 +105,7 @@ const TeamModal: React.FC<TeamModalProps> = ({
     } else {
       setFormData({
         name: { en: '', ta: '' },
+        position: { en: '', ta: '' },
         bio: { en: '', ta: '' },
         email: '',
         phone: '',
@@ -133,6 +137,8 @@ const TeamModal: React.FC<TeamModalProps> = ({
     const newErrors: Record<string, string> = {};
     if (!formData.name?.en?.trim()) newErrors.nameEn = 'English name is required';
     if (!formData.name?.ta?.trim()) newErrors.nameTa = 'Tamil name is required';
+    if (!formData.position?.en?.trim()) newErrors.positionEn = 'English position is required';
+    if (!formData.position?.ta?.trim()) newErrors.positionTa = 'Tamil position is required';
     if (!formData.role) newErrors.role = 'Role is required';
     if (!formData.department) newErrors.department = 'Department is required';
     if (!formData.email?.trim()) newErrors.email = 'Email is required';
@@ -150,8 +156,9 @@ const TeamModal: React.FC<TeamModalProps> = ({
       if (onSave) {
         await onSave(formData);
       } else {
-        const url = mode === 'create' ? '/api/admin/team' : `/api/admin/team/${member?._id}`;
-        const method = mode === 'create' ? 'POST' : 'PUT';
+        const isCreate = mode === 'create';
+        const url = '/api/admin/team';
+        const method = isCreate ? 'POST' : 'PUT';
         
         const response = await fetch(url, {
           method,
@@ -159,10 +166,12 @@ const TeamModal: React.FC<TeamModalProps> = ({
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${accessToken}`
           },
-          body: JSON.stringify(formData)
+          body: JSON.stringify(isCreate ? formData : { ...formData, _id: member?._id })
         });
 
-        const data = await response.json();
+        const raw = await response.text();
+        let data: any = {};
+        try { data = JSON.parse(raw); } catch {}
 
         if (!response.ok) {
           throw new Error(data.error || data.message || `Failed to ${mode === 'create' ? 'create' : 'update'} team member`);
@@ -267,6 +276,31 @@ const TeamModal: React.FC<TeamModalProps> = ({
                       placeholder="ஜான் டோ"
                     />
                     {errors.nameTa && <p className="mt-1 text-xs text-red-500">{errors.nameTa}</p>}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">Position (English)</label>
+                    <input
+                      type="text"
+                      value={formData.position?.en}
+                      onChange={(e) => updateBilingualText('position', 'en', e.target.value)}
+                      className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
+                      placeholder="President"
+                    />
+                    {errors.positionEn && <p className="mt-1 text-xs text-red-500">{errors.positionEn}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">Position (Tamil)</label>
+                    <input
+                      type="text"
+                      value={formData.position?.ta}
+                      onChange={(e) => updateBilingualText('position', 'ta', e.target.value)}
+                      className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
+                      placeholder="தலைவர்"
+                    />
+                    {errors.positionTa && <p className="mt-1 text-xs text-red-500">{errors.positionTa}</p>}
                   </div>
                 </div>
 

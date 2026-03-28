@@ -39,7 +39,9 @@ async function main() {
   const members = [
     {
       name: { en: 'K. Sundaram', ta: 'கே. சுந்தரம்' },
+      position: { en: 'President', ta: 'தலைவர்' },
       role: 'President',
+      department: 'High Council',
       slug: 'president-k-sundaram',
       bio: { en: 'Leading our society with vision and integrity.', ta: 'பார்வையுடனும் நேர்மையுடனும் எங்கள் சங்கத்தை வழிநடத்துகிறார்.' },
       email: 'president@tamilsociety.org',
@@ -51,7 +53,9 @@ async function main() {
     },
     {
       name: { en: 'R. Valli', ta: 'ஆர். வள்ளி' },
+      position: { en: 'Vice President', ta: 'துணை தலைவர்' },
       role: 'Vice President',
+      department: 'High Council',
       slug: 'vice-president-r-valli',
       bio: { en: 'Supporting initiatives and empowering our committees.', ta: 'எங்கள் குழுக்களை வலுப்படுத்தி முயற்சிகளுக்கு துணை நிற்பவர்.' },
       email: 'vp@tamilsociety.org',
@@ -63,7 +67,9 @@ async function main() {
     },
     {
       name: { en: 'S. Mani', ta: 'எஸ். மணி' },
+      position: { en: 'Secretary', ta: 'செயலாளர்' },
       role: 'Secretary',
+      department: 'High Council',
       slug: 'secretary-s-mani',
       bio: { en: 'Coordinating events, records, and communications.', ta: 'நிகழ்வுகள், பதிவுகள், தொடர்புகளை ஒருங்கிணைப்பவர்.' },
       email: 'secretary@tamilsociety.org',
@@ -75,7 +81,9 @@ async function main() {
     },
     {
       name: { en: 'P. Devi', ta: 'பி. தேவி' },
+      position: { en: 'Treasurer', ta: 'பொருளாளர்' },
       role: 'Treasurer',
+      department: 'High Council',
       slug: 'treasurer-p-devi',
       bio: { en: 'Managing finances and sustaining operations.', ta: 'நிதிகளைப் பராமரித்து செயல்பாடுகளைத் தொடர்ந்து நடத்துபவர்.' },
       email: 'treasurer@tamilsociety.org',

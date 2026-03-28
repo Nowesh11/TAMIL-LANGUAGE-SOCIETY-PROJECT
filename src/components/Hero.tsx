@@ -156,7 +156,7 @@ export default function Hero({ page = 'home', bureau, data: propData, alignment 
   }
 
   return (
-    <section className="relative w-full min-h-[90vh] flex items-center justify-center overflow-hidden bg-background">
+    <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-background">
       {/* Dynamic Background Slider */}
       <div className="absolute inset-0 z-0 w-full h-full">
         {allImages.length > 0 ? (
@@ -171,7 +171,7 @@ export default function Hero({ page = 'home', bureau, data: propData, alignment 
                 src={resolveUploadSrc(img.src)}
                 alt={typeof img.alt === 'string' ? img.alt : (img.alt?.[lang] || img.alt?.en || '')}
                 fill
-                className="object-cover"
+                className="object-cover object-center"
                 priority={i === 0}
                 unoptimized
               />

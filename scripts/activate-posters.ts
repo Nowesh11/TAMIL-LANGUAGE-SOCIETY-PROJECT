@@ -1,12 +1,16 @@
 import mongoose from 'mongoose';
 import Poster from '../src/models/Poster';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tamil-language-society';
+const MONGODB_URI = process.env.MONGODB_URI;
 
 async function activatePosters() {
   try {
     console.log('🔄 ACTIVATING ALL POSTERS...\n');
     
+    if (!MONGODB_URI) {
+      throw new Error('MONGODB_URI is not set. Please configure it in .env/.env.local before running this script.');
+    }
+
     // Connect to MongoDB
     await mongoose.connect(MONGODB_URI);
     console.log('✅ Connected to MongoDB');
@@ -16,7 +20,7 @@ async function activatePosters() {
       {},
       { 
         $set: { 
-          active: true
+          isActive: true
         } 
       }
     );
@@ -24,7 +28,7 @@ async function activatePosters() {
     console.log(`✅ Activated ${result.modifiedCount} posters`);
 
     // Verify the update
-    const activePosters = await Poster.find({ active: true });
+    const activePosters = await Poster.find({ isActive: true });
     console.log(`\n📊 Active posters: ${activePosters.length}`);
     
     for (const poster of activePosters) {

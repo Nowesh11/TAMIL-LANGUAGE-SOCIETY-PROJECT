@@ -72,6 +72,8 @@ export default function Testimonials({ page, slug = 'testimonials', data, alignm
   const layout = content.layout || 'grid';
   const showRatings = content.showRatings !== false; // Default to true
   const testimonials = content.testimonials || [];
+  const textAlignClass = alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left';
+  const maxWidthAlignClass = alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto';
 
   const getLayoutClasses = (layout: string) => {
     switch (layout) {
@@ -88,14 +90,14 @@ export default function Testimonials({ page, slug = 'testimonials', data, alignm
   return (
     <section className="py-20 relative overflow-hidden aurora-bg">
       <div className="layout-container relative z-10">
-        <div className="text-center mb-16">
+        <div className={`mb-16 flex flex-col ${alignmentClasses[alignment]} ${textAlignClass}`}>
           {title && (
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-lg inline-block">
               {title}
             </h2>
           )}
           {subtitle && (
-            <p className="text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
+            <p className={`text-lg text-gray-300 max-w-2xl leading-relaxed drop-shadow-md ${maxWidthAlignClass} ${textAlignClass}`}>
               {subtitle}
             </p>
           )}

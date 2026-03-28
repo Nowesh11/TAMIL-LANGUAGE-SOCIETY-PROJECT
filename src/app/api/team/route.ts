@@ -33,6 +33,7 @@ export async function GET(req: NextRequest) {
     const result = members.map((m) => ({
       _id: String(m._id),
       name: m.name,
+      position: (m as any).position,
       role: m.role,
       slug: m.slug,
       bio: m.bio,

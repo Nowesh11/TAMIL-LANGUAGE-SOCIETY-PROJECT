@@ -628,6 +628,19 @@ const ComponentModal: React.FC<ComponentModalProps> = ({
                       placeholder="Component display order"
                     />
                   </div>
+
+                  <div className="modern-field-group">
+                    <label className="modern-label">Alignment</label>
+                    <select
+                      className="modern-select"
+                      value={formData.alignment || 'center'}
+                      onChange={(e) => updateFormData('alignment', e.target.value)}
+                    >
+                      <option value="left">Left</option>
+                      <option value="center">Center</option>
+                      <option value="right">Right</option>
+                    </select>
+                  </div>
                 </div>
 
                 {/* Dynamic Content Fields */}

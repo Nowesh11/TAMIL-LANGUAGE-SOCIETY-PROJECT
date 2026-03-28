@@ -75,6 +75,8 @@ export default function Gallery({ page = 'about', slug, data: propData, alignmen
 
   const cols = (content?.columns) || 3;
   const gridCols = cols === 2 ? 'grid-cols-2' : cols === 4 ? 'grid-cols-4' : cols === 5 ? 'grid-cols-5' : 'grid-cols-3';
+  const textAlignClass = alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left';
+  const gridAlignClass = alignment === 'center' ? 'justify-items-center' : alignment === 'right' ? 'justify-items-end' : 'justify-items-start';
 
   useEffect(() => {
     async function maybeLoadFallback() {
@@ -94,11 +96,11 @@ export default function Gallery({ page = 'about', slug, data: propData, alignmen
   }, [content?.images]);
 
   return (
-    <section className="mx-auto max-w-6xl px-6 py-16">
+    <section className={`mx-auto max-w-6xl px-6 py-16 ${textAlignClass}`}>
       {loading ? (
         <div className="space-y-4 animate-pulse">
           <div className="h-8 bg-white/10 rounded w-1/3 mx-auto mb-8" />
-          <div className={`grid ${gridCols} gap-6`}>
+          <div className={`grid ${gridCols} gap-6 ${gridAlignClass}`}>
             {Array.from({ length: cols }).map((_, i) => (
               <div key={i} className="rounded-2xl h-56 md:h-64 lg:h-72 bg-white/5 border border-white/10" />
             ))}
@@ -111,11 +113,11 @@ export default function Gallery({ page = 'about', slug, data: propData, alignmen
       ) : content ? (
         <>
           {content.title && (
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-10 text-center drop-shadow-lg">
+            <h2 className={`text-3xl md:text-4xl font-bold tracking-tight text-white mb-10 drop-shadow-lg ${textAlignClass}`}>
               {content.title?.[lang] || content.title?.en || ''}
             </h2>
           )}
-          <div className={`grid ${gridCols} gap-6`}>
+          <div className={`grid ${gridCols} gap-6 ${gridAlignClass}`}>
             {(content.images?.length ? content.images : fallbackImages).map((img: any, idx: number) => (
               <div key={idx} className="card-morphism rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border border-white/10 group">
                 <div className="relative h-56 md:h-64 lg:h-72 w-full overflow-hidden">

@@ -79,11 +79,13 @@ export default function Video({ page, slug = 'video', data, alignment = 'center'
     : isVimeo 
     ? getVimeoEmbedUrl(videoUrl)
     : videoUrl;
+  const textAlignClass = alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left';
+  const maxWidthAlignClass = alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto';
 
   return (
-    <section className="video-section py-16 px-4">
+    <section className={`video-section py-16 px-4 ${textAlignClass}`}>
       <div className="video-container max-w-6xl mx-auto">
-        <div className="video-content text-center mb-8">
+        <div className={`video-content mb-8 ${textAlignClass}`}>
           {title && (
             <h2 className="video-title text-3xl md:text-4xl font-bold mb-4 text-gray-900">
               {title}
@@ -95,7 +97,7 @@ export default function Video({ page, slug = 'video', data, alignment = 'center'
             </h3>
           )}
           {description && (
-            <p className="video-description text-lg text-gray-600 max-w-3xl mx-auto mb-8">
+            <p className={`video-description text-lg text-gray-600 max-w-3xl mb-8 ${maxWidthAlignClass}`}>
               {description}
             </p>
           )}
@@ -140,7 +142,7 @@ export default function Video({ page, slug = 'video', data, alignment = 'center'
 
         {/* Video metadata */}
         {(content.duration || content.views) && (
-          <div className="video-metadata flex justify-center gap-6 mt-6 text-sm text-gray-500">
+          <div className={`video-metadata flex gap-6 mt-6 text-sm text-gray-500 ${alignment === 'center' ? 'justify-center' : alignment === 'right' ? 'justify-end' : 'justify-start'}`}>
             {content.duration && (
               <span className="video-duration">
                 {lang === 'ta' ? 'கால அளவு: ' : 'Duration: '}{content.duration}

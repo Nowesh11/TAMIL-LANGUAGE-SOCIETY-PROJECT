@@ -63,6 +63,8 @@ export default function FAQ({ page = 'contacts', data: propData, alignment = 'ce
     return question.toLowerCase().includes(searchTerm.toLowerCase()) ||
            answer.toLowerCase().includes(searchTerm.toLowerCase());
   }) || [];
+  const textAlignClass = alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left';
+  const maxWidthAlignClass = alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto';
 
   if (loading) {
     return (
@@ -85,19 +87,19 @@ export default function FAQ({ page = 'contacts', data: propData, alignment = 'ce
   return (
     <section className="py-20 relative overflow-hidden aurora-bg">
       <div className="max-w-3xl mx-auto px-4 relative z-10">
-        <div className="text-center mb-12">
+        <div className={`mb-12 ${textAlignClass}`}>
           {data.title && (
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-lg inline-block">
               {data.title?.[lang] || data.title?.en || 'Frequently Asked Questions'}
             </h2>
           )}
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto drop-shadow-md">
+          <p className={`text-lg text-gray-300 max-w-2xl drop-shadow-md ${maxWidthAlignClass}`}>
             Find answers to common questions about our services and platform.
           </p>
         </div>
 
         {data.searchable && (
-          <div className="mb-8 relative max-w-2xl mx-auto">
+          <div className={`mb-8 relative max-w-2xl ${maxWidthAlignClass}`}>
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</div>
             <input
               type="text"

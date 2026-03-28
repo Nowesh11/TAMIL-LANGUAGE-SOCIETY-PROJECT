@@ -69,6 +69,8 @@ export default function SocialLinks({ page = 'contacts', data: propData, alignme
   }
 
   if (!data || !data.links || data.links.length === 0) return null;
+  const textAlignClass = alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left';
+  const maxWidthAlignClass = alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto';
 
   const getPlatformClass = (url: string) => {
     if (url.includes('facebook.com')) return 'hover:text-blue-500 hover:border-blue-500';
@@ -101,17 +103,17 @@ export default function SocialLinks({ page = 'contacts', data: propData, alignme
   return (
     <section className="mx-auto max-w-5xl px-6 py-16 aurora-bg rounded-3xl my-10 border border-white/5 relative overflow-hidden">
       <div className="absolute inset-0 bg-white/5 backdrop-blur-sm z-0"></div>
-      <div className="relative z-10 text-center">
+      <div className={`relative z-10 ${textAlignClass}`}>
         {data.title ? (
           <h2 className="text-3xl font-bold tracking-tight text-white mb-4 drop-shadow-lg">
             {language === 'ta' ? (data.title?.ta || '') : (data.title?.en || '')}
           </h2>
         ) : null}
         {data.subtitle ? (
-          <p className="text-gray-300 mb-10 max-w-2xl mx-auto">{language === 'ta' ? (data.subtitle?.ta || '') : (data.subtitle?.en || '')}</p>
+          <p className={`text-gray-300 mb-10 max-w-2xl ${maxWidthAlignClass}`}>{language === 'ta' ? (data.subtitle?.ta || '') : (data.subtitle?.en || '')}</p>
         ) : null}
         
-        <div className="flex flex-wrap justify-center gap-6">
+        <div className={`flex flex-wrap gap-6 ${alignment === 'center' ? 'justify-center' : alignment === 'right' ? 'justify-end' : 'justify-start'}`}>
           {data.links.map((l, i) => (
             <a 
               key={i} 

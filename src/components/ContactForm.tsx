@@ -106,18 +106,20 @@ export default function ContactForm({ page, slug = 'contact-form', data, alignme
     subject: true,
     message: true
   };
+  const textAlignClass = alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left';
+  const maxWidthAlignClass = alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto';
 
   return (
     <section className="py-20 relative overflow-hidden aurora-bg">
       <div className="layout-container max-w-4xl mx-auto relative z-10">
-        <div className="text-center mb-12">
+        <div className={`mb-12 ${textAlignClass}`}>
           {title && (
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-lg inline-block">
               {title}
             </h2>
           )}
           {subtitle && (
-            <p className="text-lg text-gray-300 max-w-2xl mx-auto drop-shadow-md">
+            <p className={`text-lg text-gray-300 max-w-2xl drop-shadow-md ${maxWidthAlignClass}`}>
               {subtitle}
             </p>
           )}

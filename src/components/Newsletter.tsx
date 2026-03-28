@@ -116,6 +116,7 @@ export default function Newsletter({ page, slug = 'newsletter', data, alignment 
   const styleClasses = getStyleClasses(style);
   const isDefault = style === 'default' || !style;
   const isCard = style === 'card';
+  const textAlignClass = alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left';
 
   return (
     <section 
@@ -128,7 +129,7 @@ export default function Newsletter({ page, slug = 'newsletter', data, alignment 
       )}
       
       <div className={styleClasses.container}>
-        <div className={style === 'inline' ? 'flex-1 text-left' : ''}>
+        <div className={style === 'inline' ? `flex-1 ${textAlignClass}` : `${textAlignClass}`}>
           {title && (
             <h2 className={`text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-lg`}>
               {title}

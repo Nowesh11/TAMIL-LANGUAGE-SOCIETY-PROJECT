@@ -10,6 +10,7 @@ export interface IBilingualText {
 export interface ITeam extends Document {
   _id: Types.ObjectId;
   name: IBilingualText;
+  position: IBilingualText;
   role: string;
   slug: string;
   bio: IBilingualText;
@@ -49,6 +50,10 @@ const TeamSchema = new Schema<ITeam>({
   name: {
     type: BilingualTextSchema,
     required: [true, 'Name is required']
+  },
+  position: {
+    type: BilingualTextSchema,
+    required: [true, 'Position is required']
   },
   role: {
     type: String,
@@ -199,6 +204,8 @@ TeamSchema.index({ isActive: 1, role: 1, orderNum: 1 });
 TeamSchema.index({ 
   'name.en': 'text', 
   'name.ta': 'text', 
+  'position.en': 'text',
+  'position.ta': 'text',
   'bio.en': 'text', 
   'bio.ta': 'text',
   role: 'text',

@@ -60,6 +60,8 @@ export interface IHeroContent {
   alignment?: 'left' | 'center' | 'right';
 }
 
+export interface IPosterContent {}
+
 // Interface for banner component content
 export interface IBannerContent {
   title: IBilingualContent;
@@ -332,6 +334,7 @@ export interface IFooterContent {
 // Union type for all component content types
 export type ComponentContent = 
   | IHeroContent
+  | IPosterContent
   | IBannerContent
   | ITextContent
   | IImageComponentContent
@@ -354,7 +357,7 @@ export type ComponentContent =
 // TypeScript interface for Component document
 export interface IComponent extends Document {
   _id: Types.ObjectId;
-  type: 'hero' | 'banner' | 'text' | 'image' | 'gallery' | 'testimonials' | 'stats' | 'features' | 'cta' | 'faq' | 'contact-form' | 'newsletter' | 'social-links' | 'video' | 'countdown' | 'navbar' | 'footer' | 'seo' | 'timeline';
+  type: 'hero' | 'poster' | 'banner' | 'text' | 'image' | 'gallery' | 'testimonials' | 'stats' | 'features' | 'cta' | 'faq' | 'contact-form' | 'newsletter' | 'social-links' | 'video' | 'countdown' | 'navbar' | 'footer' | 'seo' | 'timeline';
   page: string;
   // Optional bureau filter for components to support bureau-specific content
   bureau?: 'sports_leadership' | 'education_intellectual' | 'arts_culture' | 'social_welfare_voluntary' | 'language_literature' | 'media_public_relations';
@@ -422,7 +425,7 @@ const ComponentSchema = new Schema<IComponent>({
     type: String,
     required: [true, 'Component type is required'],
     enum: {
-      values: ['hero', 'banner', 'text', 'image', 'gallery', 'testimonials', 'stats', 'features', 'cta', 'faq', 'contact-form', 'newsletter', 'social-links', 'video', 'countdown', 'navbar', 'footer', 'seo', 'timeline'],
+      values: ['hero', 'poster', 'banner', 'text', 'image', 'gallery', 'testimonials', 'stats', 'features', 'cta', 'faq', 'contact-form', 'newsletter', 'social-links', 'video', 'countdown', 'navbar', 'footer', 'seo', 'timeline'],
       message: 'Invalid component type'
     },
     index: true

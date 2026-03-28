@@ -91,11 +91,13 @@ export default function Countdown({ page = 'home', data: propData, alignment = '
 
     return () => clearInterval(timer);
   }, [data?.targetDate]);
+  const textAlignClass = alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left';
+  const gridAlignClass = alignment === 'center' ? 'justify-items-center' : alignment === 'right' ? 'justify-items-end' : 'justify-items-start';
 
   if (!data) {
     return (
       <section className="mx-auto max-w-5xl px-6 py-10">
-        <div className="text-center text-gray-400">
+        <div className={`${textAlignClass} text-gray-400`}>
           {lang === 'en' ? 'Countdown content not available' : 'கவுண்ட்டவுன் உள்ளடக்கம் கிடைக்கவில்லை'}
         </div>
       </section>
@@ -104,7 +106,7 @@ export default function Countdown({ page = 'home', data: propData, alignment = '
 
   if (isExpired) {
     return (
-      <section className="mx-auto max-w-5xl px-6 py-10 text-center">
+      <section className={`mx-auto max-w-5xl px-6 py-10 ${textAlignClass}`}>
         <h2 className="text-3xl font-bold mb-4 text-white">{data.title?.[lang] || data.title?.en || ''}</h2>
         <p className="text-xl text-gray-300">
           {data.expiredMessage?.[lang] || data.expiredMessage?.en || ''}
@@ -114,7 +116,7 @@ export default function Countdown({ page = 'home', data: propData, alignment = '
   }
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-16 text-center">
+    <section className={`mx-auto max-w-5xl px-6 py-16 ${textAlignClass}`}>
       <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-lg">{data.title?.[lang] || data.title?.en || ''}</h2>
       {data.subtitle && (
         <p className="text-lg md:text-xl text-gray-300 mb-10">
@@ -122,7 +124,7 @@ export default function Countdown({ page = 'home', data: propData, alignment = '
         </p>
       )}
       
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
+      <div className={`grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto ${gridAlignClass}`}>
         <div className="card-morphism p-6 rounded-2xl border border-white/10 flex flex-col items-center justify-center transform hover:scale-105 transition-transform duration-300">
           <div className="text-4xl md:text-5xl font-bold text-primary mb-2">{timeLeft.days}</div>
           <div className="text-sm md:text-base font-medium text-gray-400 uppercase tracking-wider">

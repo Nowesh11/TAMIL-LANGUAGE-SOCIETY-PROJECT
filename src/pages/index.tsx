@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DynamicComponent from '../components/DynamicComponent';
+import PosterSlider from '../components/PosterSlider';
 import { IComponent } from '../models/Component';
 import { safeFetchJson } from '../lib/safeFetch';
 
@@ -71,6 +72,7 @@ export default function HomePage() {
     c.type !== 'seo' && c.type !== 'navbar' && c.type !== 'hero' && c.type !== 'footer'
   );
   const footerComponents = sortedComponents.filter(c => c.type === 'footer');
+  const hasPosterComponent = sortedComponents.some(c => c.type === 'poster');
 
   return (
     <>
@@ -95,6 +97,12 @@ export default function HomePage() {
                 </div>
               ))}
             </section>
+          )}
+
+          {!hasPosterComponent && (
+            <div className="layout-card animate-slide-in-up">
+              <PosterSlider page="home" alignment="center" />
+            </div>
           )}
 
           {/* Content Components - Full Width Stack */}

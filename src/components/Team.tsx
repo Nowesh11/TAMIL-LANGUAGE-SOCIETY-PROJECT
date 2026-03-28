@@ -9,6 +9,7 @@ interface Bilingual { en: string; ta: string }
 interface TeamMember {
   _id: string;
   name: Bilingual;
+  position?: Bilingual;
   role: string;
   imagePath?: string;
   imageUrl?: string;
@@ -78,6 +79,8 @@ export default function Team({ page, data, alignment = 'center' }: { page?: stri
   
   const mainAuditors = allAuditors.slice(0, 3);
   const remainingAuditors = allAuditors.slice(3); // Any extras
+  const textAlignClass = alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left';
+  const maxWidthAlignClass = alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto';
 
   const MemberCard = ({ member, className = '' }: { member: TeamMember, className?: string }) => (
     <div className={`group relative w-72 h-96 card-morphism overflow-hidden hover-lift hover-glow ${className}`}>
@@ -109,7 +112,7 @@ export default function Team({ page, data, alignment = 'center' }: { page?: stri
               {typeof member.name === 'string' ? member.name : member.name?.[lang]}
             </h3>
             <p className="text-sm font-medium text-white/90 drop-shadow-sm uppercase tracking-wider">
-              {typeof member.role === 'string' ? member.role : (member.role as any)?.[lang]}
+              {(member.position?.[lang] || member.position?.en) || (typeof member.role === 'string' ? member.role : (member.role as any)?.[lang])}
             </p>
         </div>
 
@@ -151,11 +154,11 @@ export default function Team({ page, data, alignment = 'center' }: { page?: stri
   return (
     <section className="py-20 bg-background relative overflow-hidden aurora-bg">
       <div className="layout-container relative z-10">
-        <div className="text-center mb-16 animate-slide-in-up">
+        <div className={`mb-16 animate-slide-in-up ${textAlignClass}`}>
            <h2 className="text-4xl md:text-5xl font-bold mb-4 gradient-title inline-block">
              <span className="animate-text-glow">{data?.title?.[lang] || 'Our Leadership'}</span>
            </h2>
-           <p className="text-xl text-foreground-muted max-w-2xl mx-auto">
+           <p className={`text-xl text-foreground-muted max-w-2xl ${maxWidthAlignClass}`}>
              {data?.subtitle?.[lang] || 'Meet the dedicated team behind our success'}
            </p>
         </div>

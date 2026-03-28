@@ -103,13 +103,13 @@ export default function PosterSlider({ page, data, alignment = 'center' }: { pag
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
           
           <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 z-10">
-             <div className="transform transition-all duration-500 translate-y-4 group-hover:translate-y-0 opacity-90 group-hover:opacity-100">
-               <h3 className="text-3xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
+             <div className={`transform transition-all duration-500 translate-y-4 group-hover:translate-y-0 opacity-90 group-hover:opacity-100 flex flex-col ${alignmentClasses[alignment]}`}>
+               <h3 className={`text-3xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg ${alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left'}`}>
                 {typeof current.title === 'string' 
                   ? current.title 
                   : current.title?.[lang] || current.title?.en || ''}
               </h3>
-              <p className="text-gray-200 text-lg md:text-xl max-w-3xl drop-shadow-md leading-relaxed">
+              <p className={`text-gray-200 text-lg md:text-xl max-w-3xl drop-shadow-md leading-relaxed ${alignment === 'center' ? 'mx-auto text-center' : alignment === 'right' ? 'ml-auto text-right' : 'mr-auto text-left'}`}>
                 {typeof current.description === 'string' 
                   ? current.description 
                   : current.description?.[lang] || current.description?.en || ''}
@@ -117,7 +117,7 @@ export default function PosterSlider({ page, data, alignment = 'center' }: { pag
              </div>
           </div>
           
-          <div className="absolute bottom-8 right-8 flex gap-3 z-20">
+          <div className={`absolute bottom-8 flex gap-3 z-20 ${alignment === 'center' ? 'left-1/2 -translate-x-1/2' : alignment === 'right' ? 'right-8' : 'left-8'}`}>
             {posters.map((_, i) => (
               <button 
                 key={i} 

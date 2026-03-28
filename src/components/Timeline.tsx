@@ -51,11 +51,12 @@ export default function Timeline({ page = 'about', data: propData, alignment = '
 
   // Handle both 'items' and 'events' properties for backward compatibility
   const timelineItems = content?.items || (content as any)?.events || [];
+  const textAlignClass = alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left';
 
   if (!content || !Array.isArray(timelineItems) || timelineItems.length === 0) {
     return (
       <section className="mx-auto max-w-5xl px-6 py-10">
-        <div className="text-center text-gray-400">
+        <div className={`${textAlignClass} text-gray-400`}>
           {lang === 'en' ? 'Timeline content not available' : 'காலவரிசை உள்ளடக்கம் கிடைக்கவில்லை'}
         </div>
       </section>
@@ -66,7 +67,7 @@ export default function Timeline({ page = 'about', data: propData, alignment = '
     <section className="py-20 relative overflow-hidden aurora-bg">
       <div className="layout-container relative z-10 max-w-5xl">
         {content.title && (
-          <h2 className="text-4xl md:text-5xl font-bold mb-16 text-center text-white drop-shadow-lg animate-slide-in-up">
+          <h2 className={`text-4xl md:text-5xl font-bold mb-16 text-white drop-shadow-lg animate-slide-in-up ${textAlignClass}`}>
             <span className="animate-text-glow">{content.title?.[lang] || content.title?.en || ''}</span>
           </h2>
         )}

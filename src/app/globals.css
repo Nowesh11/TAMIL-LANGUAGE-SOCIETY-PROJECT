@@ -141,38 +141,6 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Global Component Alignment - Centered by default */
-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-section .layout-container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Ensure grid items are also centered */
-section .grid {
-  justify-content: center;
-}
-
-/* Center content within grid items if they are cards */
-section .grid > .card-morphism,
-section .grid > div[class*="card"] {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Poppins', sans-serif;
   color: var(--foreground);
