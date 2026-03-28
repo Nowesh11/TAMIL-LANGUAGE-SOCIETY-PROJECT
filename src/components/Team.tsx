@@ -16,13 +16,14 @@ interface TeamMember {
   name: Bilingual;
   position?: Bilingual;
   role: string;
+  department?: string;
   imagePath?: string;
   imageUrl?: string;
   bio?: Bilingual;
   email?: string;
   phone?: string;
+  linkedin?: string;
   orderNum: number;
-  department?: string;
 }
 
 const roleMap: Record<string, Bilingual> = {
@@ -33,6 +34,35 @@ const roleMap: Record<string, Bilingual> = {
   'Executive Committee': { en: 'Executive Committee', ta: 'நிர்வாக குழு' },
   'Chief Auditor': { en: 'Chief Auditor', ta: 'முதன்மை கணக்காய்வாளர்' },
   Auditor: { en: 'Auditor', ta: 'கணக்காய்வாளர்' }
+};
+
+const departmentMap: Record<string, Bilingual> = {
+  'High Council': { en: 'High Council', ta: 'உயர் குழு' },
+  'Media and Public Relations Committee Member': {
+    en: 'Media & Public Relations',
+    ta: 'ஊடகம் மற்றும் பொது தொடர்பு'
+  },
+  'Sports and Leadership Committee Member': {
+    en: 'Sports & Leadership',
+    ta: 'விளையாட்டு மற்றும் தலைமைத்துவம்'
+  },
+  'Education and Intellectual Committee Member': {
+    en: 'Education & Intellectual',
+    ta: 'கல்வி மற்றும் அறிவுத்துறை'
+  },
+  'Arts & Culture Committee Member': {
+    en: 'Arts & Culture',
+    ta: 'கலை மற்றும் கலாசாரம்'
+  },
+  'Social Welfare & Voluntary Committee Member': {
+    en: 'Social Welfare & Voluntary',
+    ta: 'சமூக நலன் மற்றும் தன்னார்வம்'
+  },
+  'Language and Literature Committee Member': {
+    en: 'Language & Literature',
+    ta: 'மொழி மற்றும் இலக்கியம்'
+  },
+  Auditors: { en: 'Auditors', ta: 'கணக்காய்வாளர்கள்' }
 };
 
 export default function Team({
@@ -73,7 +103,12 @@ export default function Team({
     });
 
   const allExecutives = members
-    .filter((m) => !['President', 'Vice President', 'Secretary', 'Treasurer', 'Auditor', 'Chief Auditor'].includes(m.role))
+    .filter(
+      (m) =>
+        !['President', 'Vice President', 'Secretary', 'Treasurer', 'Auditor', 'Chief Auditor'].includes(
+          m.role
+        )
+    )
     .sort((a, b) => a.orderNum - b.orderNum);
 
   const topExecutives = allExecutives.slice(0, 3);
@@ -101,6 +136,11 @@ export default function Team({
     return roleMap[role]?.[lang] || roleMap[role]?.en || role;
   };
 
+  const getDisplayDepartment = (department?: string) => {
+    if (!department) return '';
+    return departmentMap[department]?.[lang] || departmentMap[department]?.en || department;
+  };
+
   const getImageSrc = (member: TeamMember) => {
     const path = member.imagePath || member.imageUrl || '';
     const s = String(path);
@@ -115,7 +155,7 @@ export default function Team({
   };
 
   const MemberCard = ({ member, className = '' }: { member: TeamMember; className?: string }) => (
-    <div className={`group relative w-72 h-96 card-morphism overflow-hidden hover-lift hover-glow ${className}`}>
+    <div className={`group relative w-72 h-[430px] card-morphism overflow-hidden hover-lift hover-glow ${className}`}>
       <div className="absolute inset-0 w-full h-full">
         {(member.imagePath || member.imageUrl) && (
           <Image
@@ -127,57 +167,80 @@ export default function Team({
           />
         )}
 
-        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent text-white text-center transition-all duration-300 group-hover:opacity-0 translate-y-0 group-hover:translate-y-4">
-          <h3 className="text-xl font-bold mb-1 drop-shadow-md">
+        {/* Default visible bottom content */}
+        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/95 via-black/70 to-transparent text-white text-center transition-all duration-300 group-hover:opacity-0 translate-y-0 group-hover:translate-y-4">
+          <h3 className="text-xl font-bold mb-2 drop-shadow-md">
             {member.name?.[lang] || member.name?.en}
           </h3>
-          <p className="text-sm font-medium text-white/90 drop-shadow-sm uppercase tracking-wider">
-            {(member.position?.[lang] || member.position?.en) || getDisplayRole(member.role)}
-          </p>
-        </div>
 
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-dark/95 to-secondary-dark/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-6 text-center transform scale-95 group-hover:scale-100 backdrop-blur-sm">
-          <h3 className="text-2xl font-bold text-white mb-2">
-            {member.name?.[lang] || member.name?.en}
-          </h3>
-          <p className="text-sm font-semibold text-primary-light uppercase tracking-widest mb-4">
+          <p className="text-sm font-semibold text-white/95 uppercase tracking-wider mb-1">
             {getDisplayRole(member.role)}
           </p>
 
+          {member.department && (
+            <p className="text-xs text-white/80 leading-relaxed">
+              {getDisplayDepartment(member.department)}
+            </p>
+          )}
+        </div>
+
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-dark/95 to-secondary-dark/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-start p-6 text-center backdrop-blur-sm overflow-y-auto">
+          <h3 className="text-2xl font-bold text-white mb-2">
+            {member.name?.[lang] || member.name?.en}
+          </h3>
+
+          <p className="text-sm font-semibold text-primary-light uppercase tracking-widest mb-2">
+            {getDisplayRole(member.role)}
+          </p>
+
+          {member.department && (
+            <p className="text-sm font-medium text-white/80 mb-4">
+              {getDisplayDepartment(member.department)}
+            </p>
+          )}
+
           {member.bio && (
-            <p className="text-white/80 text-sm mb-6 line-clamp-4 leading-relaxed">
+            <p className="text-white/80 text-sm mb-5 leading-relaxed">
               {member.bio?.[lang] || member.bio?.en}
             </p>
           )}
 
-          <div className="flex gap-4 mt-auto">
+          <div className="mt-auto w-full space-y-3 pt-2">
             {member.email && (
               <a
                 href={`mailto:${member.email}`}
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white text-white hover:text-primary flex items-center justify-center transition-all duration-300"
-                title="Email"
+                className="flex items-center justify-center gap-3 w-full rounded-xl bg-white/10 hover:bg-white text-white hover:text-primary px-4 py-3 transition-all duration-300"
+                title={member.email}
               >
                 <FaEnvelope />
+                <span className="text-sm break-all">{member.email}</span>
               </a>
             )}
 
             {member.phone && (
               <a
                 href={`tel:${member.phone}`}
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white text-white hover:text-primary flex items-center justify-center transition-all duration-300"
-                title="Phone"
+                className="flex items-center justify-center gap-3 w-full rounded-xl bg-white/10 hover:bg-white text-white hover:text-primary px-4 py-3 transition-all duration-300"
+                title={member.phone}
               >
                 <FaPhone />
+                <span className="text-sm">{member.phone}</span>
               </a>
             )}
 
-            <a
-              href="#"
-              className="w-10 h-10 rounded-full bg-white/10 hover:bg-white text-white hover:text-primary flex items-center justify-center transition-all duration-300"
-              title="LinkedIn"
-            >
-              <FaLinkedin />
-            </a>
+            {member.linkedin && (
+              <a
+                href={member.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-3 w-full rounded-xl bg-white/10 hover:bg-white text-white hover:text-primary px-4 py-3 transition-all duration-300"
+                title={member.linkedin}
+              >
+                <FaLinkedin />
+                <span className="text-sm break-all">{member.linkedin}</span>
+              </a>
+            )}
           </div>
         </div>
       </div>
@@ -207,7 +270,10 @@ export default function Team({
           )}
 
           {leadership.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-8 md:gap-12 w-full animate-slide-in-up" style={{ animationDelay: '0.1s' }}>
+            <div
+              className="flex flex-wrap justify-center gap-8 md:gap-12 w-full animate-slide-in-up"
+              style={{ animationDelay: '0.1s' }}
+            >
               {leadership.map((member) => (
                 <MemberCard key={member._id} member={member} />
               ))}
@@ -215,7 +281,10 @@ export default function Team({
           )}
 
           {topExecutives.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-8 w-full animate-slide-in-up" style={{ animationDelay: '0.2s' }}>
+            <div
+              className="flex flex-wrap justify-center gap-8 w-full animate-slide-in-up"
+              style={{ animationDelay: '0.2s' }}
+            >
               {topExecutives.map((member) => (
                 <MemberCard key={member._id} member={member} />
               ))}
@@ -223,7 +292,10 @@ export default function Team({
           )}
 
           {midExecutives.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-8 w-full animate-slide-in-up" style={{ animationDelay: '0.3s' }}>
+            <div
+              className="flex flex-wrap justify-center gap-8 w-full animate-slide-in-up"
+              style={{ animationDelay: '0.3s' }}
+            >
               {midExecutives.map((member) => (
                 <MemberCard key={member._id} member={member} />
               ))}
@@ -231,7 +303,10 @@ export default function Team({
           )}
 
           {mainAuditors.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-8 w-full border-t border-border pt-12 mt-4 animate-slide-in-up" style={{ animationDelay: '0.4s' }}>
+            <div
+              className="flex flex-wrap justify-center gap-8 w-full border-t border-border pt-12 mt-4 animate-slide-in-up"
+              style={{ animationDelay: '0.4s' }}
+            >
               {mainAuditors.map((member) => (
                 <MemberCard key={member._id} member={member} />
               ))}
@@ -239,7 +314,10 @@ export default function Team({
           )}
 
           {(remainingExecutives.length > 0 || remainingAuditors.length > 0) && (
-            <div className="flex flex-wrap justify-center gap-8 w-full pt-8 animate-slide-in-up" style={{ animationDelay: '0.5s' }}>
+            <div
+              className="flex flex-wrap justify-center gap-8 w-full pt-8 animate-slide-in-up"
+              style={{ animationDelay: '0.5s' }}
+            >
               {[...remainingExecutives, ...remainingAuditors].map((member) => (
                 <MemberCard key={member._id} member={member} />
               ))}
