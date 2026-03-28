@@ -172,6 +172,13 @@ async function main() {
       shortDesc: { en: 'Connecting donors and beneficiaries efficiently.', ta: 'நன்கொடையாளர்கள் மற்றும் பயனாளர்களை திறமையாக இணைத்தல்.' },
       fullDesc: { en: 'Transparent processes to handle aid and outreach.', ta: 'உதவி மற்றும் அணுகலை கையாள வெளிப்படையான செயல்முறைகள்.' }
     },
+    {
+      type: 'project',
+      bureau: 'media_public_relations',
+      title: { en: 'Digital Media Awareness', ta: 'டிஜிட்டல் ஊடக விழிப்புணர்வு' },
+      shortDesc: { en: 'Educating the community on digital presence and PR.', ta: 'டிஜிட்டல் இருப்பு மற்றும் மக்கள் தொடர்பு குறித்து சமூகத்திற்கு கற்பித்தல்.' },
+      fullDesc: { en: 'A series of workshops on social media ethics and public relations.', ta: 'சமூக ஊடக நெறிமுறைகள் மற்றும் மக்கள் தொடர்பு குறித்த பட்டறைகளின் தொடர்.' }
+    },
   ] as const;
 
   for (const it of items) {

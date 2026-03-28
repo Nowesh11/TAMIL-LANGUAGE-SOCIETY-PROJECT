@@ -5,7 +5,7 @@ import { BilingualText } from './User';
 export interface IProjectItem extends Document {
   _id: Types.ObjectId;
   type: 'project' | 'activity' | 'initiative';
-  bureau?: 'sports_leadership' | 'education_intellectual' | 'arts_culture' | 'social_welfare_voluntary' | 'language_literature';
+  bureau?: 'sports_leadership' | 'education_intellectual' | 'arts_culture' | 'social_welfare_voluntary' | 'language_literature' | 'media_public_relations';
   title: BilingualText;
   shortDesc: BilingualText;
   fullDesc: BilingualText;
@@ -41,7 +41,7 @@ const ProjectItemSchema = new Schema<IProjectItem>({
   bureau: {
     type: String,
     enum: {
-      values: ['sports_leadership', 'education_intellectual', 'arts_culture', 'social_welfare_voluntary', 'language_literature'],
+      values: ['sports_leadership', 'education_intellectual', 'arts_culture', 'social_welfare_voluntary', 'language_literature', 'media_public_relations'],
       message: 'Invalid bureau'
     },
     default: undefined

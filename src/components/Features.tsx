@@ -32,10 +32,22 @@ interface ComponentRecord {
   content: FeaturesContent;
 }
 
-export default function Features({ page = 'home', data: propData }: { page?: string; data?: any }) {
+export default function Features({ page = 'home', data: propData, alignment = 'center' }: { page?: string; data?: any; alignment?: 'left' | 'center' | 'right' }) {
   const { lang } = useLanguage();
   const [data, setData] = useState<FeaturesContent | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+
+  const alignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
 
   useEffect(() => {
     // If data is provided as prop, use it directly
@@ -86,23 +98,23 @@ export default function Features({ page = 'home', data: propData }: { page?: str
     <section className="py-20 relative overflow-hidden aurora-bg">
       <div className="layout-container relative z-10">
         {content.title ? (
-          <div className="text-center mb-16 animate-slide-in-up">
-            <h2 className="text-3xl md:text-4xl font-bold inline-block text-white drop-shadow-lg">
+          <div className={`mb-16 animate-slide-in-up flex flex-col ${alignmentClasses[alignment]}`}>
+            <h2 className={`text-3xl md:text-4xl font-bold inline-block text-white drop-shadow-lg ${alignmentClasses[alignment]}`}>
               <span className="animate-text-glow">{content.title?.[lang] || content.title?.en || ''}</span>
             </h2>
             {content.subtitle && (
-              <p className="mt-4 text-lg text-gray-300 max-w-2xl mx-auto drop-shadow-md">
+              <p className={`mt-4 text-lg text-gray-300 max-w-2xl drop-shadow-md ${alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto'}`}>
                 {content.subtitle?.[lang] || content.subtitle?.en || ''}
               </p>
             )}
           </div>
         ) : null}
         
-        <div className={`grid grid-cols-1 sm:grid-cols-2 ${gridColsClass} gap-8`}>
+        <div className={`grid grid-cols-1 sm:grid-cols-2 ${gridColsClass} gap-8 ${justifyClasses[alignment]}`}>
           {content.features.map((f, idx) => (
             <div 
               key={idx} 
-              className="card-morphism p-8 hover-lift transition-all duration-300 group animate-slide-in-up rounded-3xl border border-white/10 shadow-xl hover:shadow-primary/20 hover:border-primary/30"
+              className={`card-morphism p-8 hover-lift transition-all duration-300 group animate-slide-in-up rounded-3xl border border-white/10 shadow-xl hover:shadow-primary/20 hover:border-primary/30 flex flex-col ${alignmentClasses[alignment]}`}
               style={{ animationDelay: `${idx * 0.1}s` }}
             >
               <div className="mb-6 p-4 rounded-2xl bg-white/5 inline-block group-hover:bg-primary/10 transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-3 border border-white/10 group-hover:border-primary/30 relative overflow-hidden">

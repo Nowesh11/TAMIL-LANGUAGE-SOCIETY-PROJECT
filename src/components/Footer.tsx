@@ -11,7 +11,13 @@ type Bilingual = { en: string; ta: string };
 type FooterContent = {
   logo?: { image?: { src: string; alt: Bilingual }; text?: Bilingual };
   description?: Bilingual;
-  socialLinks?: { facebookUrl?: string; twitterUrl?: string; instagramUrl?: string; youtubeUrl?: string };
+  socialLinks?: { 
+    facebookUrl?: string; 
+    instagramUrl?: string; 
+    youtubeUrl?: string; 
+    tiktokUrl?: string; 
+    linkedinUrl?: string; 
+  };
   quickLinks?: { aboutLink?: { text: Bilingual; url: string }; projectsLink?: { text: Bilingual; url: string }; ebooksLink?: { text: Bilingual; url: string }; bookstoreLink?: { text: Bilingual; url: string } };
   supportLinks?: { contactLink?: { text: Bilingual; url: string }; notificationsLink?: { text: Bilingual; url: string } };
   newsletter?: { title?: Bilingual; description?: Bilingual; emailPlaceholder?: Bilingual; buttonIcon?: string };
@@ -165,7 +171,7 @@ export default function Footer({ page = 'home', data: initialData }: { page?: st
                     {content.logo.text?.[lang] || content.logo.text?.en || ''}
                   </span>
                   <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-foreground-muted">
-                    Preserving Culture
+                    Tamizhodu Uyarvom
                   </span>
                 </div>
               ) : null}
@@ -180,9 +186,10 @@ export default function Footer({ page = 'home', data: initialData }: { page?: st
             <div className="flex gap-3">
               {[
                 { url: content.socialLinks?.facebookUrl, icon: 'fa-facebook', color: '#1877F2' },
-                { url: content.socialLinks?.twitterUrl, icon: 'fa-twitter', iconClass: 'fa-x-twitter', color: '#000000' },
                 { url: content.socialLinks?.instagramUrl, icon: 'fa-instagram', color: '#E4405F' },
-                { url: content.socialLinks?.youtubeUrl, icon: 'fa-youtube', color: '#FF0000' }
+                { url: content.socialLinks?.youtubeUrl, icon: 'fa-youtube', color: '#FF0000' },
+                { url: content.socialLinks?.tiktokUrl, icon: 'fa-tiktok', color: '#000000' },
+                { url: content.socialLinks?.linkedinUrl, icon: 'fa-linkedin', color: '#0A66C2' }
               ].map((social, i) => social.url && (
                 <Link 
                   key={i}
@@ -191,7 +198,7 @@ export default function Footer({ page = 'home', data: initialData }: { page?: st
                   aria-label={social.icon}
                 >
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ backgroundColor: social.color }}></div>
-                  <i className={`fa-brands ${social.iconClass || social.icon} fa-fw relative z-10 text-lg`}></i>
+                  <i className={`fa-brands ${social.icon} fa-fw relative z-10 text-lg`}></i>
                 </Link>
               ))}
             </div>
@@ -273,14 +280,20 @@ export default function Footer({ page = 'home', data: initialData }: { page?: st
               {content.copyright ? (typeof content.copyright === 'string' ? content.copyright : (content.copyright?.[lang] || content.copyright?.en || '')) : ''}
             </p>
             <div className="text-[10px] font-black uppercase tracking-widest text-foreground-muted/60">
-              Preserving Tamil Language & Culture Since 19XX
+              Preserving Tamil Language & Culture Since 1959
             </div>
           </div>
           
           <div className="flex items-center gap-6">
              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-foreground-muted">
                Made with <i className="fa-solid fa-heart text-red-500 animate-pulse"></i> by 
-               <span className="text-primary hover:text-secondary cursor-pointer transition-colors">Nowesh Kumar</span>
+               <Link 
+                 href="https://www.linkedin.com/in/nowesh-kumar-a-l-selvakkumaran-6031382b2" 
+                 target="_blank"
+                 className="text-primary hover:text-secondary cursor-pointer transition-colors"
+               >
+                 Nowesh Kumar
+               </Link>
              </div>
           </div>
         </div>

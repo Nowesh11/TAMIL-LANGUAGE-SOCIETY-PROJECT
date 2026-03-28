@@ -35,6 +35,7 @@ const ComponentModal: React.FC<ComponentModalProps> = ({
     content: {},
     order: 0,
     isActive: true,
+    alignment: 'center',
     slug: '',
     cssClasses: [],
     customStyles: {},
@@ -222,6 +223,7 @@ const ComponentModal: React.FC<ComponentModalProps> = ({
         content: {},
         order: 0,
         isActive: true,
+        alignment: 'center',
         slug: '',
         cssClasses: [],
         customStyles: {},
@@ -607,6 +609,7 @@ const ComponentModal: React.FC<ComponentModalProps> = ({
                       <option value="arts_culture">Arts & Culture</option>
                       <option value="social_welfare_voluntary">Social Welfare & Voluntary</option>
                       <option value="language_literature">Language & Literature</option>
+                      <option value="media_public_relations">Media & Public Relations</option>
                     </select>
                     {errors.bureau && <div className="error-message">{errors.bureau}</div>}
                   </div>
@@ -642,6 +645,36 @@ const ComponentModal: React.FC<ComponentModalProps> = ({
             {/* Settings Tab */}
             {activeTab === 'settings' && (
               <div className="tab-content">
+                <div className="modern-field-group">
+                  <label className="modern-label">Component Alignment</label>
+                  <div className="alignment-controls flex gap-4 mt-2">
+                    <button
+                      type="button"
+                      className={`alignment-btn p-3 rounded-lg border transition-all ${formData.alignment === 'left' ? 'bg-primary text-white border-primary shadow-lg scale-105' : 'bg-surface border-border text-foreground-muted hover:border-primary/50'}`}
+                      onClick={() => updateFormData('alignment', 'left')}
+                      title="Align Left"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="17" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg>
+                    </button>
+                    <button
+                      type="button"
+                      className={`alignment-btn p-3 rounded-lg border transition-all ${formData.alignment === 'center' ? 'bg-primary text-white border-primary shadow-lg scale-105' : 'bg-surface border-border text-foreground-muted hover:border-primary/50'}`}
+                      onClick={() => updateFormData('alignment', 'center')}
+                      title="Align Center"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="10" x2="6" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="18" y1="18" x2="6" y2="18"></line></svg>
+                    </button>
+                    <button
+                      type="button"
+                      className={`alignment-btn p-3 rounded-lg border transition-all ${formData.alignment === 'right' ? 'bg-primary text-white border-primary shadow-lg scale-105' : 'bg-surface border-border text-foreground-muted hover:border-primary/50'}`}
+                      onClick={() => updateFormData('alignment', 'right')}
+                      title="Align Right"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="21" y1="10" x2="7" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="7" y2="18"></line></svg>
+                    </button>
+                  </div>
+                </div>
+
                 <div className="modern-field-group">
                   <label className="modern-label">Component Slug</label>
                   <input

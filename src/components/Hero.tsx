@@ -19,11 +19,23 @@ type HeroContent = {
 
 type ComponentRecord = { type: string; content: HeroContent };
 
-export default function Hero({ page = 'home', bureau, data: propData }: { page?: string; bureau?: string; data?: any }) {
+export default function Hero({ page = 'home', bureau, data: propData, alignment = 'center' }: { page?: string; bureau?: string; data?: any; alignment?: 'left' | 'center' | 'right' }) {
   const { lang } = useLanguage();
   const [data, setData] = useState<HeroContent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+
+  const alignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
 
   useEffect(() => {
     // If data is provided as prop, use it directly
@@ -173,22 +185,22 @@ export default function Hero({ page = 'home', bureau, data: propData }: { page?:
       </div>
       
       {/* Content Container */}
-      <div className="relative z-10 layout-container px-6 flex flex-col justify-center items-center text-center">
+      <div className={`relative z-10 layout-container px-6 flex flex-col ${alignmentClasses[alignment]}`}>
         {loading ? (
-          <div className="animate-pulse space-y-6 w-full max-w-4xl flex flex-col items-center">
+          <div className={`animate-pulse space-y-6 w-full max-w-4xl flex flex-col ${alignmentClasses[alignment]}`}>
             <div className="h-20 bg-surface/30 rounded-2xl w-3/4 backdrop-blur-sm" />
             <div className="h-8 bg-surface/30 rounded-xl w-1/2 backdrop-blur-sm" />
-            <div className="flex gap-4 mt-8">
+            <div className={`flex gap-4 mt-8 ${justifyClasses[alignment]}`}>
                <div className="h-14 w-40 bg-surface/30 rounded-xl backdrop-blur-sm" />
                <div className="h-14 w-40 bg-surface/30 rounded-xl backdrop-blur-sm" />
             </div>
           </div>
         ) : error ? (
-          <div className="mx-auto max-w-xl bg-surface/10 border border-border/20 rounded-2xl p-8 backdrop-blur-md">
+          <div className="max-w-xl bg-surface/10 border border-border/20 rounded-2xl p-8 backdrop-blur-md">
             <p className="text-lg text-foreground/80">{lang === 'en' ? 'Unable to load hero content.' : 'ஹீரோ பகுதியை ஏற்ற முடியவில்லை.'}</p>
           </div>
         ) : (
-          <div className="max-w-5xl mx-auto">
+          <div className={`max-w-5xl ${alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto'}`}>
             {/* Animated Title */}
             {title && (
               <h1 className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tight text-foreground mb-8 leading-tight drop-shadow-2xl">
@@ -200,14 +212,14 @@ export default function Hero({ page = 'home', bureau, data: propData }: { page?:
             
             {/* Subtitle */}
             {subtitle && (
-              <p className="text-xl sm:text-2xl md:text-3xl text-foreground-secondary max-w-3xl mx-auto leading-relaxed mb-12 font-light tracking-wide drop-shadow-lg backdrop-blur-sm py-2 rounded-lg">
+              <p className={`text-xl sm:text-2xl md:text-3xl text-foreground-secondary max-w-3xl leading-relaxed mb-12 font-light tracking-wide drop-shadow-lg backdrop-blur-sm py-2 rounded-lg ${alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto'}`}>
                 {typeof subtitle === 'string' ? subtitle : (subtitle?.[lang] || subtitle?.en || '')}
               </p>
             )}
             
             {/* CTAs */}
             {ctas.length > 0 && (
-              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+              <div className={`flex flex-col sm:flex-row gap-6 ${justifyClasses[alignment]} items-center`}>
                 {ctas.map((cta, i) => (
                   <a
                     key={i}

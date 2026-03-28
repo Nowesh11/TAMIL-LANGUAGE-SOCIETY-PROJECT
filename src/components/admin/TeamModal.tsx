@@ -73,14 +73,14 @@ const TeamModal: React.FC<TeamModalProps> = ({
   ];
 
   const teamDepartments = [
-    { value: 'High Committee', label: 'High Committee' },
-    { value: 'Media and Public Relations', label: 'Media and Public Relations' },
-    { value: 'Sports and Leadership', label: 'Sports and Leadership' },
-    { value: 'Education and Intellectual', label: 'Education and Intellectual' },
-    { value: 'Arts & Culture', label: 'Arts & Culture' },
-    { value: 'Social Welfare & Voluntary', label: 'Social Welfare & Voluntary' },
-    { value: 'Language and Literature', label: 'Language and Literature' },
-    { value: 'Auditing Department', label: 'Auditing Department' }
+    { value: 'High Council', label: 'High Council' },
+    { value: 'Media and Public Relations Committee Member', label: 'Media and Public Relations' },
+    { value: 'Sports and Leadership Committee Member', label: 'Sports and Leadership' },
+    { value: 'Education and Intellectual Committee Member', label: 'Education and Intellectual' },
+    { value: 'Arts & Culture Committee Member', label: 'Arts & Culture' },
+    { value: 'Social Welfare & Voluntary Committee Member', label: 'Social Welfare & Voluntary' },
+    { value: 'Language and Literature Committee Member', label: 'Language and Literature' },
+    { value: 'Auditors', label: 'Auditors' }
   ];
 
   useEffect(() => {
@@ -150,9 +150,8 @@ const TeamModal: React.FC<TeamModalProps> = ({
       if (onSave) {
         await onSave(formData);
       } else {
-        const url = '/api/admin/team';
+        const url = mode === 'create' ? '/api/admin/team' : `/api/admin/team/${member?._id}`;
         const method = mode === 'create' ? 'POST' : 'PUT';
-        const body = mode === 'create' ? formData : { _id: member?._id, ...formData };
         
         const response = await fetch(url, {
           method,
@@ -160,17 +159,21 @@ const TeamModal: React.FC<TeamModalProps> = ({
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${accessToken}`
           },
-          body: JSON.stringify(body)
+          body: JSON.stringify(formData)
         });
 
-        if (!response.ok) throw new Error('Failed to save team member');
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || data.message || `Failed to ${mode === 'create' ? 'create' : 'update'} team member`);
+        }
       }
 
       if (onSuccess) onSuccess();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving team member:', error);
-      setErrors({ submit: 'Failed to save team member' });
+      setErrors({ submit: error.message || 'An unexpected error occurred while saving' });
     } finally {
       setIsLoading(false);
     }

@@ -13,7 +13,7 @@ interface BilingualText {
 export interface ProjectItemForm {
   _id?: string;
   type: 'project' | 'activity' | 'initiative';
-  bureau?: 'sports_leadership' | 'education_intellectual' | 'arts_culture' | 'social_welfare_voluntary' | 'language_literature';
+  bureau?: 'sports_leadership' | 'education_intellectual' | 'arts_culture' | 'social_welfare_voluntary' | 'language_literature' | 'media_public_relations';
   title: BilingualText;
   shortDesc: BilingualText;
   fullDesc: BilingualText;
@@ -322,6 +322,7 @@ const ProjectItemModal: React.FC<ProjectItemModalProps> = ({ isOpen, onClose, it
                   <option value="arts_culture">Arts & Culture</option>
                   <option value="social_welfare_voluntary">Social Welfare & Voluntary</option>
                   <option value="language_literature">Language & Literature</option>
+                  <option value="media_public_relations">Media & Public Relations</option>
                 </select>
               </div>
               <div className="form-group">

@@ -42,6 +42,13 @@ const options: { label: { en: string; ta: string }; value: string }[] = [
     }, 
     value: 'language_literature' 
   },
+  { 
+    label: { 
+      en: 'Media & Public Relations Bureau', 
+      ta: 'ஊடகம் மற்றும் மக்கள் தொடர்பு பணியகம்' 
+    }, 
+    value: 'media_public_relations' 
+  },
 ];
 
 export default function FilterBar({ value, onChange }: FilterBarProps) {

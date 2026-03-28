@@ -68,7 +68,8 @@ async function main() {
     { key: 'education_intellectual', en: 'Education & Intellectual', ta: 'கல்வி & அறிவாற்றல்' },
     { key: 'arts_culture', en: 'Arts & Culture', ta: 'கலை & பண்பு' },
     { key: 'social_welfare_voluntary', en: 'Social Welfare & Voluntary', ta: 'சமூக நலன் & தன்னார்வம்' },
-    { key: 'language_literature', en: 'Language & Literature', ta: 'மொழி & இலக்கியம்' }
+    { key: 'language_literature', en: 'Language & Literature', ta: 'மொழி & இலக்கியம்' },
+    { key: 'media_public_relations', en: 'Media & Public Relations', ta: 'ஊடகம் & மக்கள் தொடர்பு' }
   ] as const;
 
   for (const b of bureaus) {

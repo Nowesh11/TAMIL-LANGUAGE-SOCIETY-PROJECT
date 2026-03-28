@@ -8,11 +8,24 @@ interface TestimonialsProps {
   page: string;
   slug?: string;
   data?: any;
+  alignment?: 'left' | 'center' | 'right';
 }
 
-export default function Testimonials({ page, slug = 'testimonials', data }: TestimonialsProps) {
+export default function Testimonials({ page, slug = 'testimonials', data, alignment = 'center' }: TestimonialsProps) {
   const { lang } = useLanguage();
   const [content, setContent] = React.useState<any>(data || null);
+
+  const alignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
 
   React.useEffect(() => {
     if (data) return;

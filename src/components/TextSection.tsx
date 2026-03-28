@@ -20,7 +20,7 @@ type ComponentRecord = {
   slug?: string;
 };
 
-export default function TextSection({ page = 'about', slug, data: propData }: { page?: string; slug?: string; data?: any }) {
+export default function TextSection({ page = 'about', slug, data: propData, alignment: propAlignment }: { page?: string; slug?: string; data?: any; alignment?: 'left' | 'center' | 'right' }) {
   const { lang } = useLanguage();
   const [data, setData] = useState<TextContent | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -92,7 +92,7 @@ export default function TextSection({ page = 'about', slug, data: propData }: { 
 
     const fontSize = content?.fontSize ?? 'md';
     const fontWeight = content?.fontWeight ?? 'normal';
-    const alignment = content?.alignment ?? 'left';
+    const alignment = propAlignment || content?.alignment || 'left';
 
     const bodyClass = `text-slate-700 dark:text-slate-300 ${
       fontSize === 'sm' ? 'text-sm' :
@@ -135,7 +135,7 @@ export default function TextSection({ page = 'about', slug, data: propData }: { 
           ) : error ? null : (
             <>
               {content?.title && (
-                <h2 className="text-3xl md:text-4xl font-bold mb-8 text-white drop-shadow-lg text-center gradient-title">
+                <h2 className={`text-3xl md:text-4xl font-bold mb-8 text-white drop-shadow-lg gradient-title ${alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left'}`}>
                   <span className="animate-text-glow">{content.title?.[lang] || content.title?.en || ''}</span>
                 </h2>
               )}

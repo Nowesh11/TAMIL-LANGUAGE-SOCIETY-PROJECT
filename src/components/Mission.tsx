@@ -13,11 +13,23 @@ type TextContent = {
 };
 type ComponentRecord = { type: string; content: TextContent; slug?: string };
 
-export default function Mission({ page = 'about', data: propData }: { page?: string; data?: any }) {
+export default function Mission({ page = 'about', data: propData, alignment = 'right' }: { page?: string; data?: any; alignment?: 'left' | 'center' | 'right' }) {
   const { lang } = useLanguage();
   const [data, setData] = useState<TextContent | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const textAlignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
 
   useEffect(() => {
     // If data is provided as prop, use it directly
@@ -89,27 +101,27 @@ export default function Mission({ page = 'about', data: propData }: { page?: str
   return (
     <section className="py-24 relative overflow-hidden aurora-bg">
       <div className="layout-container relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${alignment === 'left' ? 'lg:flex-row-reverse' : ''}`}>
           {/* Text Content */}
-          <div className="order-2 lg:order-1 space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 text-primary font-bold text-sm uppercase tracking-wider animate-fade-in border border-primary/20">
+          <div className={`space-y-8 flex flex-col ${textAlignmentClasses[alignment]} ${alignment === 'left' ? 'lg:order-2' : 'lg:order-1'}`}>
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 text-primary font-bold text-sm uppercase tracking-wider animate-fade-in border border-primary/20 ${textAlignmentClasses[alignment]}`}>
               <span>🎯</span>
               {lang === 'en' ? 'Our Mission' : 'எங்கள் பணி'}
             </div>
             
             {content.title && (
-              <h2 className="text-4xl md:text-5xl font-bold leading-tight animate-slide-in-up text-white drop-shadow-lg">
+              <h2 className={`text-4xl md:text-5xl font-bold leading-tight animate-slide-in-up text-white drop-shadow-lg ${textAlignmentClasses[alignment]}`}>
                 {content.title?.[lang] || content.title?.en || ''}
               </h2>
             )}
             
-            <p className="text-lg text-gray-300 leading-relaxed animate-slide-in-up drop-shadow-md" style={{ animationDelay: '0.1s' }}>
+            <p className={`text-lg text-gray-300 leading-relaxed animate-slide-in-up drop-shadow-md ${textAlignmentClasses[alignment]}`} style={{ animationDelay: '0.1s' }}>
               {content.content?.[lang] || content.content?.en || ''}
             </p>
             
-            <div className="grid grid-cols-1 gap-6 pt-4 animate-slide-in-up" style={{ animationDelay: '0.2s' }}>
-              <div className="flex gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-primary/50 transition-colors group card-morphism hover:bg-white/10">
-                <div className="w-12 h-12 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform border border-indigo-500/30">
+            <div className={`grid grid-cols-1 gap-6 pt-4 animate-slide-in-up w-full flex flex-col ${textAlignmentClasses[alignment]}`} style={{ animationDelay: '0.2s' }}>
+              <div className={`flex gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-primary/50 transition-colors group card-morphism hover:bg-white/10 w-full ${alignment === 'right' ? 'flex-row text-left' : 'flex-row-reverse text-right'}`}>
+                <div className="w-12 h-12 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform border border-indigo-500/30 shrink-0">
                   📚
                 </div>
                 <div>
@@ -120,8 +132,8 @@ export default function Mission({ page = 'about', data: propData }: { page?: str
                 </div>
               </div>
               
-              <div className="flex gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-emerald-500/50 transition-colors group card-morphism hover:bg-white/10">
-                <div className="w-12 h-12 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform border border-emerald-500/30">
+              <div className={`flex gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-emerald-500/50 transition-colors group card-morphism hover:bg-white/10 w-full ${alignment === 'right' ? 'flex-row text-left' : 'flex-row-reverse text-right'}`}>
+                <div className="w-12 h-12 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform border border-emerald-500/30 shrink-0">
                   🌍
                 </div>
                 <div>
@@ -132,8 +144,8 @@ export default function Mission({ page = 'about', data: propData }: { page?: str
                 </div>
               </div>
               
-              <div className="flex gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-amber-500/50 transition-colors group card-morphism hover:bg-white/10">
-                <div className="w-12 h-12 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform border border-amber-500/30">
+              <div className={`flex gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-amber-500/50 transition-colors group card-morphism hover:bg-white/10 w-full ${alignment === 'right' ? 'flex-row text-left' : 'flex-row-reverse text-right'}`}>
+                <div className="w-12 h-12 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform border border-amber-500/30 shrink-0">
                   🤝
                 </div>
                 <div>
@@ -145,19 +157,19 @@ export default function Mission({ page = 'about', data: propData }: { page?: str
               </div>
             </div>
             
-            <div className="flex gap-4 pt-4 animate-slide-in-up" style={{ animationDelay: '0.3s' }}>
-              <button className="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-primary/25 transform hover:-translate-y-1 transition-all duration-300 group flex items-center">
+            <div className={`flex gap-4 pt-4 animate-slide-in-up ${justifyClasses[alignment]}`} style={{ animationDelay: '0.3s' }}>
+              <button className="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-primary/25 transform hover:-translate-y-1 transition-all duration-300 group flex items-center shrink-0">
                 <span>{lang === 'en' ? 'Join Our Mission' : 'எங்கள் பணியில் சேருங்கள்'}</span>
                 <i className="fa-solid fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
               </button>
-              <button className="px-6 py-3 rounded-xl font-medium border border-white/20 hover:bg-white/10 text-white transition-all backdrop-blur-sm">
+              <button className="px-6 py-3 rounded-xl font-medium border border-white/20 hover:bg-white/10 text-white transition-all backdrop-blur-sm shrink-0">
                 {lang === 'en' ? 'Learn More' : 'மேலும் அறிக'}
               </button>
             </div>
           </div>
           
           {/* Visual Content */}
-          <div className="order-1 lg:order-2 relative animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <div className={`relative animate-fade-in ${alignment === 'left' ? 'lg:order-1' : 'lg:order-2'}`} style={{ animationDelay: '0.2s' }}>
             <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white/10 aspect-[4/5] lg:aspect-square transform hover:rotate-2 transition-transform duration-500 card-morphism">
               <Image
                 src="/images/mission-hero.jpg"

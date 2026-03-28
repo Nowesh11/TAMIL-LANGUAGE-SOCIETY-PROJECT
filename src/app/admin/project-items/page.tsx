@@ -21,7 +21,7 @@ interface BilingualText { en: string; ta: string; }
 interface ProjectItem {
   _id: string;
   type: 'project' | 'activity' | 'initiative';
-  bureau?: 'sports_leadership' | 'education_intellectual' | 'arts_culture' | 'social_welfare_voluntary' | 'language_literature';
+  bureau?: 'sports_leadership' | 'education_intellectual' | 'arts_culture' | 'social_welfare_voluntary' | 'language_literature' | 'media_public_relations';
   title: BilingualText;
   shortDesc: BilingualText;
   fullDesc: BilingualText;
@@ -321,6 +321,7 @@ export default function ProjectItemsPage() {
                 <option value="arts_culture">Arts & Culture</option>
                 <option value="social_welfare_voluntary">Social Welfare</option>
                 <option value="language_literature">Language & Literature</option>
+                <option value="media_public_relations">Media & PR</option>
               </select>
             </div>
 

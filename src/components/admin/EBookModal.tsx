@@ -9,7 +9,8 @@ import {
   FaCheckSquare, 
   FaFilePdf,
   FaCloudUploadAlt,
-  FaLanguage
+  FaLanguage,
+  FaExclamationTriangle
 } from 'react-icons/fa';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -597,6 +598,13 @@ const EBookModal: React.FC<EBookModalProps> = ({
           </div>
 
           <div className="modern-modal-footer">
+            <div className="modal-footer-left">
+              {errors.submit && (
+                <div className="error-badge">
+                  <FaExclamationTriangle /> {errors.submit}
+                </div>
+              )}
+            </div>
             <div className="modal-footer-right">
               <button 
                 type="button" 

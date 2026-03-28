@@ -20,9 +20,21 @@ interface TeamMember {
 
 import { safeFetchJson } from '../lib/safeFetch';
 // ...
-export default function Team({ page, data }: { page?: string, data?: any }) {
+export default function Team({ page, data, alignment = 'center' }: { page?: string, data?: any, alignment?: 'left' | 'center' | 'right' }) {
   const [members, setMembers] = useState<TeamMember[]>([]);
   const { lang } = useLanguage();
+
+  const alignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
 
   useEffect(() => {
     async function loadTeam() {

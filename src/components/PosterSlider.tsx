@@ -13,12 +13,24 @@ interface PosterItem {
   order: number;
 }
 
-export default function PosterSlider({ page, data }: { page?: string, data?: any }) {
+export default function PosterSlider({ page, data, alignment = 'center' }: { page?: string, data?: any, alignment?: 'left' | 'center' | 'right' }) {
   const [posters, setPosters] = useState<PosterItem[]>([]);
   const { lang } = useLanguage();
   const [index, setIndex] = useState(0);
   const timerRef = useRef<number | null>(null);
   const refreshTimerRef = useRef<number | null>(null);
+
+  const alignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
 
   const loadPosters = async () => {
     try {

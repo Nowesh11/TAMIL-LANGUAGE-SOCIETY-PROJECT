@@ -8,11 +8,25 @@ interface ContactFormProps {
   page: string;
   slug?: string;
   data?: any;
+  alignment?: 'left' | 'center' | 'right';
 }
 
-export default function ContactForm({ page, slug = 'contact-form', data }: ContactFormProps) {
+export default function ContactForm({ page, slug = 'contact-form', data, alignment = 'center' }: ContactFormProps) {
   const { lang } = useLanguage();
   const [content, setContent] = React.useState<any>(data || null);
+
+  const alignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',

@@ -9,9 +9,21 @@ type TimelineItem = { year: string; title?: Bilingual; description: Bilingual; i
 type TimelineContent = { title?: Bilingual; items: TimelineItem[]; layout?: 'vertical' | 'horizontal' };
 type ComponentRecord = { type: string; content: TimelineContent };
 
-export default function Timeline({ page = 'about', data: propData }: { page?: string; data?: any }) {
+export default function Timeline({ page = 'about', data: propData, alignment = 'center' }: { page?: string; data?: any; alignment?: 'left' | 'center' | 'right' }) {
   const { lang } = useLanguage();
   const [data, setData] = useState<TimelineContent | null>(null);
+
+  const alignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
 
   useEffect(() => {
     // If data is provided as prop, use it directly

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '../../../../lib/mongodb';
-import Component from '../../../../models/Component';
-import { ActivityLogger } from '../../../../lib/activityLogger';
-import { getUserFromAccessToken } from '../../../../lib/auth';
-import { FileHandler } from '../../../../lib/fileHandler';
+import dbConnect from '@/lib/mongodb';
+import Component from '@/models/Component';
+import { ActivityLogger } from '@/lib/activityLogger';
+import { getUserFromAccessToken } from '@/lib/auth';
+import { deleteFolder } from '@/lib/fileManager';
+import { FileHandler } from '@/lib/fileHandler';
 
 export const runtime = 'nodejs';
 
@@ -286,6 +287,7 @@ export async function POST(request: NextRequest) {
       content, 
       order, 
       isActive = true, 
+      alignment,
       cssClasses, 
       customStyles, 
       visibility, 
@@ -319,8 +321,9 @@ export async function POST(request: NextRequest) {
       content,
       order: order || 0,
       isActive,
-      cssClasses,
-      customStyles,
+      alignment,
+      cssClasses, 
+      customStyles, 
       visibility: visibility || { desktop: true, tablet: true, mobile: true },
       animation,
       seo,
@@ -395,6 +398,7 @@ export async function PUT(request: NextRequest) {
       content, 
       order, 
       isActive, 
+      alignment,
       cssClasses, 
       customStyles, 
       visibility, 
@@ -441,6 +445,7 @@ export async function PUT(request: NextRequest) {
     if (content !== undefined) updateData.content = content;
     if (order !== undefined) updateData.order = order;
     if (isActive !== undefined) updateData.isActive = isActive;
+    if (alignment !== undefined) updateData.alignment = alignment;
     if (cssClasses !== undefined) updateData.cssClasses = cssClasses;
     if (customStyles !== undefined) updateData.customStyles = customStyles;
     if (visibility !== undefined) updateData.visibility = visibility;
@@ -534,13 +539,11 @@ export async function DELETE(request: NextRequest) {
     // Delete component
     await Component.findByIdAndDelete(id);
     
-    // Clean up component's upload directory
+    // Clean up component's upload directory using new fileManager
     try {
-      const componentUploadDir = `uploads/components/${component.type}/${id}`;
-      FileHandler.deleteDirectory(componentUploadDir);
+      await deleteFolder('components', id);
     } catch (cleanupError) {
       console.error('Failed to cleanup component directory:', cleanupError);
-      // Don't fail the deletion if cleanup fails
     }
     
     // Log activity

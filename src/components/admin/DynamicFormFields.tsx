@@ -175,7 +175,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
     updateContent('events', [
       ...currentEvents,
       {
-        date: '',
+        year: '',
         title: { en: '', ta: '' },
         description: { en: '', ta: '' },
         image: ''
@@ -1379,10 +1379,11 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
               {(formData.content.events || []).map((event: any, index: number) => (
                 <div key={index} className="button-item">
                   <input
-                    type="date"
+                    type="text"
                     className="modern-input"
-                    value={event.date || ''}
-                    onChange={(e) => updateTimelineEvent(index, 'date', e.target.value)}
+                    value={event.year || ''}
+                    onChange={(e) => updateTimelineEvent(index, 'year', e.target.value)}
+                    placeholder="Enter year (e.g. 1959)"
                   />
                   <div className="bilingual-inputs">
                     <div className="bilingual-input-group">
@@ -1972,6 +1973,113 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
         </div>
       );
 
+    case 'social-links':
+      return (
+        <div className="content-fields">
+          {renderBilingualInput('title', 'Social Links Section Title')}
+          <div className="modern-field-group">
+            <label className="modern-label">Social Links</label>
+            <div className="buttons-list">
+              {(formData.content.links || []).map((link: any, index: number) => (
+                <div key={index} className="button-item">
+                  <div className="modern-field-group">
+                    <label>Platform</label>
+                    <select
+                      className="modern-select"
+                      value={link.platform || ''}
+                      onChange={(e) => {
+                        const newLinks = [...(formData.content.links || [])];
+                        let icon = '';
+                        switch (e.target.value) {
+                          case 'instagram': icon = 'fa-brands fa-instagram'; break;
+                          case 'facebook': icon = 'fa-brands fa-facebook'; break;
+                          case 'youtube': icon = 'fa-brands fa-youtube'; break;
+                          case 'tiktok': icon = 'fa-brands fa-tiktok'; break;
+                          case 'linkedin': icon = 'fa-brands fa-linkedin'; break;
+                        }
+                        newLinks[index] = { ...newLinks[index], platform: e.target.value, icon };
+                        updateContent('links', newLinks);
+                      }}
+                    >
+                      <option value="">Select Platform</option>
+                      <option value="instagram">Instagram</option>
+                      <option value="facebook">Facebook</option>
+                      <option value="youtube">YouTube</option>
+                      <option value="tiktok">TikTok</option>
+                      <option value="linkedin">LinkedIn</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div className="modern-field-group">
+                    <label>URL</label>
+                    <input
+                      type="url"
+                      className="modern-input"
+                      value={link.url || ''}
+                      onChange={(e) => {
+                        const newLinks = [...(formData.content.links || [])];
+                        newLinks[index] = { ...newLinks[index], url: e.target.value };
+                        updateContent('links', newLinks);
+                      }}
+                      placeholder="https://..."
+                    />
+                  </div>
+                  <div className="modern-field-group">
+                    <label>Icon Class</label>
+                    <input
+                      type="text"
+                      className="modern-input"
+                      value={link.icon || ''}
+                      onChange={(e) => {
+                        const newLinks = [...(formData.content.links || [])];
+                        newLinks[index] = { ...newLinks[index], icon: e.target.value };
+                        updateContent('links', newLinks);
+                      }}
+                      placeholder="fa-brands fa-..."
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="delete-button"
+                    onClick={() => {
+                      const newLinks = formData.content.links.filter((_: any, i: number) => i !== index);
+                      updateContent('links', newLinks);
+                    }}
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                className="add-button"
+                onClick={() => {
+                  const currentLinks = formData.content.links || [];
+                  updateContent('links', [
+                    ...currentLinks,
+                    { platform: '', url: '', icon: '' }
+                  ]);
+                }}
+              >
+                <FaPlus /> Add Social Link
+              </button>
+            </div>
+          </div>
+          <div className="modern-field-group">
+            <label className="modern-label">Layout</label>
+            <select
+              className="modern-select"
+              value={formData.content.layout || 'horizontal'}
+              onChange={(e) => updateContent('layout', e.target.value)}
+            >
+              <option value="horizontal">Horizontal</option>
+              <option value="vertical">Vertical</option>
+              <option value="grid">Grid</option>
+            </select>
+          </div>
+        </div>
+      );
+
     case 'footer':
       return (
         <div className="content-fields">
@@ -1996,22 +2104,6 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
                     });
                   }}
                   placeholder="https://facebook.com/..."
-                />
-              </div>
-              <div className="modern-field-group">
-                <label>Twitter URL</label>
-                <input
-                  type="url"
-                  className="modern-input"
-                  value={formData.content.socialLinks?.twitterUrl || ''}
-                  onChange={(e) => {
-                    const currentSocialLinks = formData.content.socialLinks || {};
-                    updateContent('socialLinks', {
-                      ...currentSocialLinks,
-                      twitterUrl: e.target.value
-                    });
-                  }}
-                  placeholder="https://twitter.com/..."
                 />
               </div>
               <div className="modern-field-group">
@@ -2044,6 +2136,38 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
                     });
                   }}
                   placeholder="https://youtube.com/..."
+                />
+              </div>
+              <div className="modern-field-group">
+                <label>TikTok URL</label>
+                <input
+                  type="url"
+                  className="modern-input"
+                  value={formData.content.socialLinks?.tiktokUrl || ''}
+                  onChange={(e) => {
+                    const currentSocialLinks = formData.content.socialLinks || {};
+                    updateContent('socialLinks', {
+                      ...currentSocialLinks,
+                      tiktokUrl: e.target.value
+                    });
+                  }}
+                  placeholder="https://tiktok.com/@..."
+                />
+              </div>
+              <div className="modern-field-group">
+                <label>LinkedIn URL</label>
+                <input
+                  type="url"
+                  className="modern-input"
+                  value={formData.content.socialLinks?.linkedinUrl || ''}
+                  onChange={(e) => {
+                    const currentSocialLinks = formData.content.socialLinks || {};
+                    updateContent('socialLinks', {
+                      ...currentSocialLinks,
+                      linkedinUrl: e.target.value
+                    });
+                  }}
+                  placeholder="https://linkedin.com/in/..."
                 />
               </div>
             </div>

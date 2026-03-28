@@ -29,11 +29,23 @@ interface ComponentRecord {
   content: StatsContent;
 }
 
-export default function Stats({ page = 'home', bureau, data: propData }: { page?: string; bureau?: string; data?: any }) {
+export default function Stats({ page = 'home', bureau, data: propData, alignment = 'center' }: { page?: string; bureau?: string; data?: any; alignment?: 'left' | 'center' | 'right' }) {
   const { lang } = useLanguage();
   const [data, setData] = useState<StatsContent | null>(null);
   const [values, setValues] = useState<number[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+
+  const alignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
 
   useEffect(() => {
     // If data is provided as prop, use it directly
@@ -138,16 +150,16 @@ export default function Stats({ page = 'home', bureau, data: propData }: { page?
     <section className="py-20 aurora-bg relative overflow-hidden">
       <div className="layout-container relative z-10">
         {data.title ? (
-          <h3 className="text-4xl font-bold mb-16 text-center text-white drop-shadow-lg animate-slide-in-up">
+          <h3 className={`text-4xl font-bold mb-16 text-white drop-shadow-lg animate-slide-in-up flex flex-col ${alignmentClasses[alignment]}`}>
             <span className="animate-text-glow">{data.title?.[lang] || data.title?.en || ''}</span>
           </h3>
         ) : null}
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 ${justifyClasses[alignment]}`}>
           {data.stats.map((s, idx) => (
             <div 
               key={idx} 
-              className="card-morphism p-8 text-center hover-lift flex flex-col items-center justify-center group animate-slide-in-up rounded-3xl border border-white/10 shadow-xl"
+              className={`card-morphism p-8 hover-lift flex flex-col group animate-slide-in-up rounded-3xl border border-white/10 shadow-xl ${alignmentClasses[alignment]}`}
               style={{ animationDelay: `${idx * 0.1}s` }}
             >
               {s.icon ? (

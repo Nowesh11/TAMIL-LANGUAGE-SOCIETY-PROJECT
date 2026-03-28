@@ -8,12 +8,24 @@ type FAQItem = { question: Bilingual; answer: Bilingual; category?: string };
 type FAQContent = { title?: Bilingual; faqs: FAQItem[]; searchable?: boolean; categories?: string[] };
 type ComponentRecord = { type: string; content: FAQContent };
 
-export default function FAQ({ page = 'contacts', data: propData }: { page?: string; data?: any }) {
+export default function FAQ({ page = 'contacts', data: propData, alignment = 'center' }: { page?: string; data?: any; alignment?: 'left' | 'center' | 'right' }) {
   const { lang } = useLanguage();
   const [data, setData] = useState<FAQContent | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
+
+  const alignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
 
   useEffect(() => {
     // If data is provided as prop, use it directly

@@ -143,14 +143,14 @@ const TeamSchema = new Schema<ITeam>({
     maxlength: [100, 'Department cannot exceed 100 characters'],
     enum: {
       values: [
-        'High Committee',
+        'High Council',
         'Media and Public Relations Committee Member',
         'Sports and Leadership Committee Member',
         'Education and Intellectual Committee Member',
         'Arts & Culture Committee Member',
         'Social Welfare & Voluntary Committee Member',
         'Language and Literature Committee Member',
-        'Auditor'
+        'Auditors'
       ],
       message: 'Please select a valid department'
     }

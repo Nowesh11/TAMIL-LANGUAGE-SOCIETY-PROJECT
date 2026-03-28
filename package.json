@@ -20,6 +20,8 @@
     "seed:ebooks-components": "tsx scripts/seed-ebooks-components.ts",
     "seed:ebooks": "tsx scripts/seed-ebooks.ts",
     "seed:contacts-components": "tsx scripts/seed-contacts-components.ts",
+    "seed:projects-components": "tsx scripts/seed-projects-components.ts",
+    "seed:project-items": "tsx scripts/seed-project-items.ts",
     "cleanup:components": "tsx scripts/cleanup-duplicates.ts",
     "fix:component-content": "tsx scripts/fix-component-content.ts",
     "cleanup:uploads": "tsx scripts/cleanup-orphan-uploads.ts"
@@ -67,6 +69,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/uuid": "^10.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "tailwindcss": "^4",

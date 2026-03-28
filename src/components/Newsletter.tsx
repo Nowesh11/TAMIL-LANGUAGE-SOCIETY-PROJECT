@@ -7,14 +7,27 @@ interface NewsletterProps {
   page: string;
   slug?: string;
   data?: any;
+  alignment?: 'left' | 'center' | 'right';
 }
 
-export default function Newsletter({ page, slug = 'newsletter', data }: NewsletterProps) {
+export default function Newsletter({ page, slug = 'newsletter', data, alignment = 'center' }: NewsletterProps) {
   const { lang } = useLanguage();
   const [content, setContent] = React.useState<any>(data || null);
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const alignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
 
   React.useEffect(() => {
     if (data) return;

@@ -24,11 +24,23 @@ type TimeLeft = {
   seconds: number;
 };
 
-export default function Countdown({ page = 'home', data: propData }: { page?: string; data?: any }) {
+export default function Countdown({ page = 'home', data: propData, alignment = 'center' }: { page?: string; data?: any; alignment?: 'left' | 'center' | 'right' }) {
   const { lang } = useLanguage();
   const [data, setData] = useState<CountdownContent | null>(null);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [isExpired, setIsExpired] = useState(false);
+
+  const alignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
 
   useEffect(() => {
     // If data is provided as prop, use it directly

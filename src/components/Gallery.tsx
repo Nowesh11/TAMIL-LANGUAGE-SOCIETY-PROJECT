@@ -22,12 +22,24 @@ type ComponentRecord = {
   slug?: string;
 };
 
-export default function Gallery({ page = 'about', slug, data: propData }: { page?: string; slug?: string; data?: any }) {
+export default function Gallery({ page = 'about', slug, data: propData, alignment = 'center' }: { page?: string; slug?: string; data?: any; alignment?: 'left' | 'center' | 'right' }) {
   const { lang } = useLanguage();
   const [data, setData] = useState<GalleryContent | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [fallbackImages, setFallbackImages] = useState<{ url: string; alt?: Bilingual }[]>([]);
+
+  const alignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
 
   useEffect(() => {
     // If data is provided as prop, use it directly

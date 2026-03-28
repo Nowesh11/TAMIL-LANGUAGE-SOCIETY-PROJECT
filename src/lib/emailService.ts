@@ -1,7 +1,21 @@
 import { Resend } from 'resend'
 import nodemailer from 'nodemailer'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+let resendInstance: Resend | null = null;
+
+function getResend() {
+  if (!resendInstance) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.warn('RESEND_API_KEY is missing. Email sending via Resend will fail.');
+      // Return a mock or handle it in sendEmail
+      resendInstance = new Resend('missing_key');
+    } else {
+      resendInstance = new Resend(apiKey);
+    }
+  }
+  return resendInstance;
+}
 
 type EmailPayload = {
   to: string
@@ -231,6 +245,7 @@ export async function sendEmail({ to, subject, template, data = {} }: EmailPaylo
   // Official Resend Node.js SDK integration
   // Use a verified domain in the from address for production. 
   // onboarding@resend.dev is for testing only.
+  const resend = getResend();
   const { data: resendData, error } = await resend.emails.send({
     from: from,
     to: Array.isArray(to) ? to : [to],

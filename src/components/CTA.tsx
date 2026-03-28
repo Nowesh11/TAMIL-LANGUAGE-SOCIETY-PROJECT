@@ -15,11 +15,23 @@ type CTAContent = {
 
 type ComponentRecord = { type: string; content: CTAContent };
 
-export default function CTA({ page = 'home', bureau, data: propData }: { page?: string; bureau?: string; data?: any }) {
+export default function CTA({ page = 'home', bureau, data: propData, alignment = 'center' }: { page?: string; bureau?: string; data?: any; alignment?: 'left' | 'center' | 'right' }) {
   const { lang } = useLanguage();
   const [data, setData] = useState<CTAContent | null>(propData || null);
   const [loading, setLoading] = useState<boolean>(!propData);
   const [error, setError] = useState<string | null>(null);
+
+  const alignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
 
   useEffect(() => {
     if (propData) return;
@@ -90,26 +102,26 @@ export default function CTA({ page = 'home', bureau, data: propData }: { page?: 
         <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-accent/20 rounded-full blur-3xl opacity-30 animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
-      <div className="layout-container relative z-10 text-center text-white">
-        <div className="max-w-4xl mx-auto card-morphism p-12 rounded-3xl border border-white/10 shadow-2xl">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 tracking-tight leading-tight text-white drop-shadow-lg">
+      <div className={`layout-container relative z-10 text-white flex flex-col ${alignmentClasses[alignment]}`}>
+        <div className={`max-w-4xl card-morphism p-12 rounded-3xl border border-white/10 shadow-2xl flex flex-col ${alignmentClasses[alignment]} ${alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto'}`}>
+          <h2 className={`text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 tracking-tight leading-tight text-white drop-shadow-lg ${alignmentClasses[alignment]}`}>
             {(title?.[lang] || title?.en || (typeof title === 'string' ? title : ''))}
           </h2>
           
           {subtitle ? (
-            <p className="text-xl md:text-2xl font-medium text-gray-200 mb-6 drop-shadow-md">
+            <p className={`text-xl md:text-2xl font-medium text-gray-200 mb-6 drop-shadow-md ${alignmentClasses[alignment]}`}>
               {(subtitle?.[lang] || subtitle?.en || (typeof subtitle === 'string' ? subtitle : ''))}
             </p>
           ) : null}
           
           {description ? (
-            <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p className={`text-lg text-gray-300 max-w-2xl mb-10 leading-relaxed ${alignmentClasses[alignment]}`}>
               {(description?.[lang] || description?.en || (typeof description === 'string' ? description : ''))}
             </p>
           ) : null}
           
           {buttons && buttons.length > 0 ? (
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className={`flex flex-wrap gap-4 ${justifyClasses[alignment]}`}>
               {buttons.map((b, i) => (
                 <a
                   key={i}

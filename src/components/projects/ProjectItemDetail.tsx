@@ -429,6 +429,7 @@ export default function ProjectItemDetail({ id, type }: { id: string; type?: 'pr
     arts_culture: { en: 'Arts & Culture Bureau', ta: 'கலை & பண்பாட்டுக் கழகம்' },
     social_welfare_voluntary: { en: 'Social Welfare & Voluntary Bureau', ta: 'சமூக நலன் & தன்னார்வக் கழகம்' },
     language_literature: { en: 'Language & Literature Bureau', ta: 'மொழி & இலக்கியக் கழகம்' },
+    media_public_relations: { en: 'Media & Public Relations Bureau', ta: 'ஊடகம் & மக்கள் தொடர்பு கழகம்' },
   };
   const bureauLabel = item.bureau ? (bureauLabels[item.bureau] || { en: item.bureau, ta: item.bureau })[lang] : undefined;
 

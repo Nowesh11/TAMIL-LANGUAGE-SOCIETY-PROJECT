@@ -14,10 +14,22 @@ type SocialLinksContent = {
 
 type ComponentRecord = { type: string; content: SocialLinksContent };
 
-export default function SocialLinks({ page = 'contacts', data: propData }: { page?: string; data?: any }) {
+export default function SocialLinks({ page = 'contacts', data: propData, alignment = 'center' }: { page?: string; data?: any; alignment?: 'left' | 'center' | 'right' }) {
   const [data, setData] = useState<SocialLinksContent | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const { lang: language } = useLanguage();
+
+  const alignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
 
   useEffect(() => {
     // If data is provided as prop, use it directly

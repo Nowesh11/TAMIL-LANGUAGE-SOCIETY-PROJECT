@@ -97,18 +97,14 @@ const TeamAdmin: React.FC = () => {
 
   // Departments
   const DEPARTMENTS = [
-    'High Committee',
-    'Committee Member - Cultural Affairs',
-    'Committee Member - Education',
-    'Committee Member - Events',
-    'Committee Member - Media & Communications',
-    'Committee Member - Technical',
-    'Committee Member - Research',
-    'Committee Member - Outreach',
-    'Committee Member - Finance',
-    'Committee Member - Administration',
-    'Committee Member - Volunteers',
-    'Auditing Department'
+    'High Council',
+    'Media and Public Relations Committee Member',
+    'Sports and Leadership Committee Member',
+    'Education and Intellectual Committee Member',
+    'Arts & Culture Committee Member',
+    'Social Welfare & Voluntary Committee Member',
+    'Language and Literature Committee Member',
+    'Auditors'
   ];
 
   // Fetch team members data

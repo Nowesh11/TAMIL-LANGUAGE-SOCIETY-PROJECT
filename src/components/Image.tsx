@@ -5,9 +5,10 @@ import { useLanguage } from '../hooks/LanguageContext';
 interface ImageProps {
   page: string;
   data: any;
+  alignment?: 'left' | 'center' | 'right';
 }
 
-export default function Image({ page, data }: ImageProps) {
+export default function Image({ page, data, alignment: propAlignment }: ImageProps) {
   const { lang } = useLanguage();
 
   if (!data) return null;
@@ -17,7 +18,7 @@ export default function Image({ page, data }: ImageProps) {
   const altText = data.alt?.[lang] || data.alt?.en || data.image?.alt?.[lang] || data.image?.alt?.en || '';
   const caption = data.caption?.[lang] || data.caption?.en || data.image?.caption?.[lang] || data.image?.caption?.en || '';
   const size = data.size || data.image?.size || 'medium';
-  const alignment = data.alignment || data.image?.alignment || 'center';
+  const alignment = propAlignment || data.alignment || data.image?.alignment || 'center';
   const borderRadius = data.borderRadius || data.image?.borderRadius || 0;
 
   // Normalize any value containing "uploads" (including Windows paths) to /api/files/serve

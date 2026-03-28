@@ -7,11 +7,24 @@ interface VideoProps {
   page: string;
   slug?: string;
   data?: any;
+  alignment?: 'left' | 'center' | 'right';
 }
 
-export default function Video({ page, slug = 'video', data }: VideoProps) {
+export default function Video({ page, slug = 'video', data, alignment = 'center' }: VideoProps) {
   const { lang } = useLanguage();
   const [content, setContent] = React.useState<any>(data || null);
+
+  const alignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
 
   React.useEffect(() => {
     if (data) return;

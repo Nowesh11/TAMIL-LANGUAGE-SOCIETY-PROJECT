@@ -305,9 +305,10 @@ export interface IFooterContent {
   description?: IBilingualContent;
   socialLinks?: {
     facebookUrl?: string;
-    twitterUrl?: string;
     instagramUrl?: string;
     youtubeUrl?: string;
+    tiktokUrl?: string;
+    linkedinUrl?: string;
   };
   quickLinks?: {
     aboutLink?: ILinkContent;
@@ -356,10 +357,11 @@ export interface IComponent extends Document {
   type: 'hero' | 'banner' | 'text' | 'image' | 'gallery' | 'testimonials' | 'stats' | 'features' | 'cta' | 'faq' | 'contact-form' | 'newsletter' | 'social-links' | 'video' | 'countdown' | 'navbar' | 'footer' | 'seo' | 'timeline';
   page: string;
   // Optional bureau filter for components to support bureau-specific content
-  bureau?: 'sports_leadership' | 'education_intellectual' | 'arts_culture' | 'social_welfare_voluntary' | 'language_literature';
+  bureau?: 'sports_leadership' | 'education_intellectual' | 'arts_culture' | 'social_welfare_voluntary' | 'language_literature' | 'media_public_relations';
   content: ComponentContent;
   order: number;
   isActive: boolean;
+  alignment?: 'left' | 'center' | 'right';
   slug?: string;
   cssClasses?: string[];
   customStyles?: Record<string, unknown>;
@@ -437,7 +439,7 @@ const ComponentSchema = new Schema<IComponent>({
     trim: true,
     lowercase: true,
     enum: {
-      values: ['sports_leadership', 'education_intellectual', 'arts_culture', 'social_welfare_voluntary', 'language_literature'],
+      values: ['sports_leadership', 'education_intellectual', 'arts_culture', 'social_welfare_voluntary', 'language_literature', 'media_public_relations'],
       message: 'Invalid bureau'
     },
     index: true,
@@ -466,6 +468,11 @@ const ComponentSchema = new Schema<IComponent>({
     type: Boolean,
     default: true,
     index: true
+  },
+  alignment: {
+    type: String,
+    enum: ['left', 'center', 'right'],
+    default: 'center'
   },
   slug: {
     type: String,

@@ -33,11 +33,12 @@ type Component = {
   page: string;
   content: Record<string, unknown>;
   order: number;
+  alignment?: 'left' | 'center' | 'right';
   slug?: string;
 };
 
 export default function DynamicComponent({ component }: { component: Component }) {
-  const { type, page, content, slug } = component;
+  const { type, page, content, slug, alignment } = component;
   switch (type) {
     case 'seo':
       return <SeoHead page={page} data={content} />;
@@ -46,45 +47,45 @@ export default function DynamicComponent({ component }: { component: Component }
     case 'footer':
       return <Footer page={page} data={content} />;
     case 'poster':
-      return <PosterSlider page={page} data={content} />;
+      return <PosterSlider page={page} data={content} alignment={alignment} />;
     case 'hero':
-      return <Hero page={page} data={content} />;
+      return <Hero page={page} data={content} alignment={alignment} />;
     case 'banner':
-      return <Banner page={page} data={content} />;
+      return <Banner page={page} data={content} alignment={alignment} />;
     case 'features':
-      return <Features page={page} data={content} />;
+      return <Features page={page} data={content} alignment={alignment} />;
     case 'stats':
-      return <Stats page={page} data={content} />;
+      return <Stats page={page} data={content} alignment={alignment} />;
     case 'gallery':
-      return <Gallery page={page} data={content} />;
+      return <Gallery page={page} data={content} alignment={alignment} />;
     case 'image':
-      return <Image page={page} data={content} />;
+      return <Image page={page} data={content} alignment={alignment} />;
     case 'text':
-      if (slug === 'mission') return <Mission page={page} data={content} />;
-      if (slug === 'vision') return <Vision page={page} data={content} />;
-      return <TextSection page={page} slug={slug} data={content} />;
+      if (slug === 'mission') return <Mission page={page} data={content} alignment={alignment} />;
+      if (slug === 'vision') return <Vision page={page} data={content} alignment={alignment} />;
+      return <TextSection page={page} slug={slug} data={content} alignment={alignment} />;
     case 'cta':
-      return <CTA page={page} data={content} />;
+      return <CTA page={page} data={content} alignment={alignment} />;
     case 'timeline':
-      return <Timeline page={page} data={content} />;
+      return <Timeline page={page} data={content} alignment={alignment} />;
     case 'testimonials':
-      return <Testimonials page={page} data={content} />;
+      return <Testimonials page={page} data={content} alignment={alignment} />;
     case 'faq':
-      return <FAQ page={page} data={content} />;
+      return <FAQ page={page} data={content} alignment={alignment} />;
     case 'contact-form':
-      return <ContactForm page={page} data={content} />;
+      return <ContactForm page={page} data={content} alignment={alignment} />;
     case 'newsletter':
-      return <Newsletter page={page} data={content} />;
+      return <Newsletter page={page} data={content} alignment={alignment} />;
     case 'video':
-      return <Video page={page} data={content} />;
+      return <Video page={page} data={content} alignment={alignment} />;
     case 'social-links':
-      return <SocialLinks page={page} data={content} />;
+      return <SocialLinks page={page} data={content} alignment={alignment} />;
     case 'countdown':
-      return <Countdown page={page} data={content} />;
+      return <Countdown page={page} data={content} alignment={alignment} />;
     case 'team':
-      return <Team page={page} data={content} />;
+      return <Team page={page} data={content} alignment={alignment} />;
     case 'team-hierarchy':
-      return <TeamHierarchyLayout page={page} data={content} />;
+      return <TeamHierarchyLayout page={page} data={content} alignment={alignment} />;
     default:
       // Unknown component types should not render anything
       return null;

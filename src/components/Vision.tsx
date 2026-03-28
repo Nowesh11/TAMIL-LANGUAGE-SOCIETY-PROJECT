@@ -13,11 +13,23 @@ type TextContent = {
 };
 type ComponentRecord = { type: string; content: TextContent; slug?: string };
 
-export default function Vision({ page = 'about', data: propData }: { page?: string; data?: any }) {
+export default function Vision({ page = 'about', data: propData, alignment = 'left' }: { page?: string; data?: any; alignment?: 'left' | 'center' | 'right' }) {
   const { lang } = useLanguage();
   const [data, setData] = useState<TextContent | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const textAlignmentClasses = {
+    left: 'text-left items-start',
+    center: 'text-center items-center',
+    right: 'text-right items-end'
+  };
+
+  const justifyClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end'
+  };
 
   useEffect(() => {
     // If data is provided as prop, use it directly
@@ -93,9 +105,9 @@ export default function Vision({ page = 'about', data: propData }: { page?: stri
   return (
     <section className="py-24 relative overflow-hidden aurora-bg">
       <div className="layout-container relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${alignment === 'right' ? 'lg:flex-row-reverse' : ''}`}>
           {/* Visual Content */}
-          <div className="relative animate-fade-in">
+          <div className={`relative animate-fade-in ${alignment === 'right' ? 'lg:order-2' : 'lg:order-1'}`}>
              <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white/10 aspect-[4/5] lg:aspect-square transform hover:-rotate-2 transition-transform duration-500 card-morphism">
                <Image
                  src="/images/vision-hero.jpg"
@@ -122,25 +134,25 @@ export default function Vision({ page = 'about', data: propData }: { page?: stri
           </div>
 
           {/* Text Content */}
-          <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/20 text-secondary font-bold text-sm uppercase tracking-wider animate-fade-in border border-secondary/20">
+          <div className={`space-y-8 flex flex-col ${textAlignmentClasses[alignment]} ${alignment === 'right' ? 'lg:order-1' : 'lg:order-2'}`}>
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/20 text-secondary font-bold text-sm uppercase tracking-wider animate-fade-in border border-secondary/20 ${textAlignmentClasses[alignment]}`}>
               <span>🔮</span>
               {lang === 'en' ? 'Our Vision' : 'எங்கள் பார்வை'}
             </div>
             
             {data.title && (
-              <h2 className="text-4xl md:text-5xl font-bold leading-tight animate-slide-in-up text-white drop-shadow-lg">
+              <h2 className={`text-4xl md:text-5xl font-bold leading-tight animate-slide-in-up text-white drop-shadow-lg ${textAlignmentClasses[alignment]}`}>
                 {data.title?.[lang] || data.title?.en || ''}
               </h2>
             )}
             
-            <p className="text-lg text-gray-300 leading-relaxed animate-slide-in-up drop-shadow-md" style={{ animationDelay: '0.1s' }}>
+            <p className={`text-lg text-gray-300 leading-relaxed animate-slide-in-up drop-shadow-md ${textAlignmentClasses[alignment]}`} style={{ animationDelay: '0.1s' }}>
               {data.content?.[lang] || data.content?.en || ''}
             </p>
             
-            <div className="space-y-4 pt-4 animate-slide-in-up" style={{ animationDelay: '0.2s' }}>
-              <div className="flex gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-secondary/50 transition-colors group card-morphism hover:bg-white/10">
-                <div className="w-12 h-12 rounded-lg bg-yellow-500/20 text-yellow-400 flex items-center justify-center text-2xl group-hover:rotate-12 transition-transform border border-yellow-500/30">
+            <div className={`space-y-4 pt-4 animate-slide-in-up w-full flex flex-col ${textAlignmentClasses[alignment]}`} style={{ animationDelay: '0.2s' }}>
+              <div className={`flex gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-secondary/50 transition-colors group card-morphism hover:bg-white/10 w-full ${alignment === 'right' ? 'flex-row-reverse text-right' : 'flex-row text-left'}`}>
+                <div className="w-12 h-12 rounded-lg bg-yellow-500/20 text-yellow-400 flex items-center justify-center text-2xl group-hover:rotate-12 transition-transform border border-yellow-500/30 shrink-0">
                   🌟
                 </div>
                 <div>
@@ -151,8 +163,8 @@ export default function Vision({ page = 'about', data: propData }: { page?: stri
                 </div>
               </div>
               
-              <div className="flex gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-sky-500/50 transition-colors group card-morphism hover:bg-white/10">
-                <div className="w-12 h-12 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center text-2xl group-hover:rotate-12 transition-transform border border-sky-500/30">
+              <div className={`flex gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-sky-500/50 transition-colors group card-morphism hover:bg-white/10 w-full ${alignment === 'right' ? 'flex-row-reverse text-right' : 'flex-row text-left'}`}>
+                <div className="w-12 h-12 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center text-2xl group-hover:rotate-12 transition-transform border border-sky-500/30 shrink-0">
                   🚀
                 </div>
                 <div>
@@ -163,8 +175,8 @@ export default function Vision({ page = 'about', data: propData }: { page?: stri
                 </div>
               </div>
               
-              <div className="flex gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-green-500/50 transition-colors group card-morphism hover:bg-white/10">
-                <div className="w-12 h-12 rounded-lg bg-green-500/20 text-green-400 flex items-center justify-center text-2xl group-hover:rotate-12 transition-transform border border-green-500/30">
+              <div className={`flex gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-green-500/50 transition-colors group card-morphism hover:bg-white/10 w-full ${alignment === 'right' ? 'flex-row-reverse text-right' : 'flex-row text-left'}`}>
+                <div className="w-12 h-12 rounded-lg bg-green-500/20 text-green-400 flex items-center justify-center text-2xl group-hover:rotate-12 transition-transform border border-green-500/30 shrink-0">
                   🌱
                 </div>
                 <div>
@@ -176,12 +188,12 @@ export default function Vision({ page = 'about', data: propData }: { page?: stri
               </div>
             </div>
             
-            <div className="flex gap-4 pt-4 animate-slide-in-up" style={{ animationDelay: '0.3s' }}>
-              <button className="bg-secondary hover:bg-secondary-dark text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-secondary/25 transform hover:-translate-y-1 transition-all duration-300 group flex items-center">
+            <div className={`flex gap-4 pt-4 animate-slide-in-up ${justifyClasses[alignment]}`} style={{ animationDelay: '0.3s' }}>
+              <button className="bg-secondary hover:bg-secondary-dark text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-secondary/25 transform hover:-translate-y-1 transition-all duration-300 group flex items-center shrink-0">
                 <span>{lang === 'en' ? 'Be Part of Our Vision' : 'எங்கள் பார்வையின் பகுதியாக இருங்கள்'}</span>
                 <i className="fa-solid fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
               </button>
-              <button className="px-6 py-3 rounded-xl font-medium border border-white/20 hover:bg-white/10 text-white transition-all backdrop-blur-sm">
+              <button className="px-6 py-3 rounded-xl font-medium border border-white/20 hover:bg-white/10 text-white transition-all backdrop-blur-sm shrink-0">
                 {lang === 'en' ? 'Explore More' : 'மேலும் ஆராயுங்கள்'}
               </button>
             </div>
