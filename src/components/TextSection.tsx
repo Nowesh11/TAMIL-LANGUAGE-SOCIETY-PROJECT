@@ -4,166 +4,128 @@ import { useLanguage } from '../hooks/LanguageContext';
 import { safeFetchJson } from '../lib/safeFetch';
 
 type Bilingual = { en: string; ta: string };
-
 type TextContent = {
   title?: Bilingual;
   content: Bilingual;
-  format?: 'plain' | 'markdown' | 'html';
   alignment?: 'left' | 'center' | 'right' | 'justify';
-  fontSize?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
-  fontWeight?: 'normal' | 'medium' | 'semibold' | 'bold';
+  format?: 'plain' | 'markdown' | 'html';
+  // ── Typography / colour settings saved from admin DynamicFormFields ──
+  fontSize?: string;        // e.g. "24px", "1.5rem"
+  fontWeight?: string;      // e.g. "700"
+  fontColor?: string;       // e.g. "#ffffff"
+  backgroundColor?: string; // e.g. "#1a1a2e"
+  textColor?: string;       // legacy alias for fontColor
 };
 
-type ComponentRecord = {
-  type: string;
-  content: TextContent;
+type ComponentRecord = { type: string; content: TextContent; slug?: string };
+
+interface TextSectionProps {
+  page?: string;
   slug?: string;
-};
+  data?: any;
+  alignment?: 'left' | 'center' | 'right';
+}
 
-export default function TextSection({ page = 'about', slug, data: propData, alignment: propAlignment }: { page?: string; slug?: string; data?: any; alignment?: 'left' | 'center' | 'right' }) {
+export default function TextSection({ page = 'home', slug, data: propData, alignment: propAlignment = 'left' }: TextSectionProps) {
   const { lang } = useLanguage();
-  const [data, setData] = useState<TextContent | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<TextContent | null>(propData || null);
+  const [loading, setLoading] = useState(!propData);
 
   useEffect(() => {
-    // If data is provided as prop, use it directly
-    if (propData) {
-      setData(propData as TextContent);
-      setLoading(false);
-      return;
-    }
-
-    // Fallback to API call if no data prop provided
+    if (propData) { setData(propData); setLoading(false); return; }
     async function load() {
       try {
-        const url = (() => {
-          try {
-            const base = typeof window !== 'undefined' ? window.location.origin : '';
-            const u = new URL('/api/components/page', base || 'http://localhost:3000');
-            u.searchParams.set('page', page);
-            return u.toString();
-          } catch {
-            const qs = new URLSearchParams({ page });
-            return `/api/components/page?${qs.toString()}`;
-          }
-        })();
-        const json = await safeFetchJson<{ components?: ComponentRecord[] }>(url);
-        const list = Array.isArray(json.components) ? (json.components as ComponentRecord[]) : [];
-        let record = list.find((c) => c.type === 'text');
-        if (slug) {
-          const bySlug = list.find((c) => c.type === 'text' && c.slug === slug);
-          if (bySlug) record = bySlug;
-        }
+        const qs = new URLSearchParams({ page });
+        const json = await safeFetchJson<{ components?: ComponentRecord[] }>(`/api/components/page?${qs}`);
+        const list = Array.isArray(json.components) ? json.components : [];
+        const record = slug
+          ? list.find(c => c.type === 'text' && c.slug === slug)
+          : list.find(c => c.type === 'text');
         if (record?.content) setData(record.content);
-        else setData(null);
-      } catch (e) {
-        console.error('Failed to load text section', e);
-        setData(null);
-      } finally {
-        setLoading(false);
-      }
+      } catch {}
+      finally { setLoading(false); }
     }
     load();
   }, [page, slug, propData]);
 
-  const content: TextContent | null = data;
+  if (loading) return (
+    <section className="py-16 animate-pulse">
+      <div className="max-w-4xl mx-auto px-6 space-y-4">
+        <div className="h-8 bg-white/10 rounded w-1/2" />
+        <div className="h-4 bg-white/10 rounded w-full" />
+        <div className="h-4 bg-white/10 rounded w-5/6" />
+      </div>
+    </section>
+  );
 
-  if (loading) {
-    return (
-      <section className="mx-auto max-w-5xl px-6 py-10">
-        <div className="space-y-4 animate-pulse">
-          <div className="h-7 bg-slate-300/40 dark:bg-white/10 rounded w-1/3 mx-auto" />
-          <div className="h-4 bg-slate-300/40 dark:bg-white/10 rounded w-2/3 mx-auto" />
-          <div className="h-4 bg-slate-300/40 dark:bg-white/10 rounded w-2/3 mx-auto" />
-          <div className="h-4 bg-slate-300/40 dark:bg-white/10 rounded w-1/2 mx-auto" />
-        </div>
-      </section>
-    );
+  if (!data) return null;
+
+  // ── Resolve alignment ──────────────────────────────────────────────────────
+  const align: 'left' | 'center' | 'right' | 'justify' = data.alignment || propAlignment || 'left';
+  const textAlignClass = {
+    left: 'text-left',
+    center: 'text-center',
+    right: 'text-right',
+    justify: 'text-justify',
+  }[align] || 'text-left';
+
+  // ── Typography styles from admin settings ──────────────────────────────────
+  const sectionStyle: React.CSSProperties = {};
+  const headingStyle: React.CSSProperties = {};
+  const bodyStyle: React.CSSProperties = {};
+
+  // Background colour
+  if (data.backgroundColor) sectionStyle.backgroundColor = data.backgroundColor;
+
+  // Font size applies to both heading and body
+  if (data.fontSize) {
+    headingStyle.fontSize = data.fontSize;
+    bodyStyle.fontSize = data.fontSize;
+    sectionStyle.fontSize = data.fontSize; // so all child elements inherit
   }
 
-  if (!content) return null;
+  // Font weight
+  if (data.fontWeight) {
+    headingStyle.fontWeight = data.fontWeight;
+    bodyStyle.fontWeight = data.fontWeight;
+  }
 
-    const Title = content?.title ? (
-      <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
-        {content.title?.[lang] || content.title?.en || ''}
-      </h2>
-    ) : null;
+  // Font colour — support both new (fontColor) and legacy (textColor) field names
+  const colour = data.fontColor || data.textColor;
+  if (colour) {
+    headingStyle.color = colour;
+    bodyStyle.color = colour;
+  }
 
-    const fontSize = content?.fontSize ?? 'md';
-    const fontWeight = content?.fontWeight ?? 'normal';
-    const alignment = propAlignment || content?.alignment || 'left';
+  // ── Content text ───────────────────────────────────────────────────────────
+  const titleText = data.title?.[lang] || data.title?.en || '';
+  const bodyText  = data.content?.[lang] || data.content?.en || '';
 
-    const bodyClass = `text-slate-700 dark:text-slate-300 ${
-      fontSize === 'sm' ? 'text-sm' :
-      fontSize === 'md' ? 'text-base' :
-      fontSize === 'lg' ? 'text-lg' :
-      fontSize === 'xl' ? 'text-xl' :
-      fontSize === '2xl' ? 'text-2xl' : 'text-base'
-    } ${
-      fontWeight === 'normal' ? 'font-normal' :
-      fontWeight === 'medium' ? 'font-medium' :
-      fontWeight === 'semibold' ? 'font-semibold' :
-      fontWeight === 'bold' ? 'font-bold' : 'font-normal'
-    } ${
-      alignment === 'center' ? 'text-center' :
-      alignment === 'right' ? 'text-right' :
-      alignment === 'justify' ? 'text-justify' : 'text-left'
-    }`;
-
-    const Body = (
-      <div className={bodyClass}>
-        {content?.format === 'html' ? (
-          <div dangerouslySetInnerHTML={{ __html: content?.content?.[lang] || content?.content?.en || '' }} />
-        ) : content ? (
-          <p>{content?.content?.[lang] || content?.content?.en || ''}</p>
-        ) : null}
-      </div>
-    );
+  const renderBody = () => {
+    if (data.format === 'html') {
+      return <div dangerouslySetInnerHTML={{ __html: bodyText }} style={bodyStyle} />;
+    }
+    // plain / markdown — render as paragraphs split on double newline
+    return bodyText.split(/\n\n+/).map((para, i) => (
+      <p key={i} className="leading-relaxed mb-4 last:mb-0" style={bodyStyle}>
+        {para}
+      </p>
+    ));
+  };
 
   return (
-    <section className="py-20 relative overflow-hidden aurora-bg">
-      <div className="layout-container relative z-10 max-w-5xl">
-        <div className="card-morphism p-8 md:p-12 rounded-3xl border border-white/10 shadow-2xl animate-slide-in-up">
-          {loading ? (
-            <div className="space-y-4 animate-pulse">
-              <div className="h-8 bg-white/10 rounded w-1/3 mx-auto" />
-              <div className="h-4 bg-white/10 rounded w-full" />
-              <div className="h-4 bg-white/10 rounded w-5/6" />
-              <div className="h-4 bg-white/10 rounded w-4/5" />
-            </div>
-          ) : error ? null : (
-            <>
-              {content?.title && (
-                <h2 className={`text-3xl md:text-4xl font-bold mb-8 text-white drop-shadow-lg gradient-title ${alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left'}`}>
-                  <span className="animate-text-glow">{content.title?.[lang] || content.title?.en || ''}</span>
-                </h2>
-              )}
-              
-              <div className={`text-gray-300 leading-relaxed ${
-                fontSize === 'sm' ? 'text-sm' :
-                fontSize === 'md' ? 'text-base' :
-                fontSize === 'lg' ? 'text-lg' :
-                fontSize === 'xl' ? 'text-xl' :
-                fontSize === '2xl' ? 'text-2xl' : 'text-base'
-              } ${
-                fontWeight === 'normal' ? 'font-normal' :
-                fontWeight === 'medium' ? 'font-medium' :
-                fontWeight === 'semibold' ? 'font-semibold' :
-                fontWeight === 'bold' ? 'font-bold' : 'font-normal'
-              } ${
-                alignment === 'center' ? 'text-center' :
-                alignment === 'right' ? 'text-right' :
-                alignment === 'justify' ? 'text-justify' : 'text-left'
-              }`}>
-                {content?.format === 'html' ? (
-                  <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: content?.content?.[lang] || content?.content?.en || '' }} />
-                ) : (
-                  <p className="whitespace-pre-line">{content?.content?.[lang] || content?.content?.en || ''}</p>
-                )}
-              </div>
-            </>
-          )}
+    <section className={`py-16 px-4 ${textAlignClass}`} style={sectionStyle}>
+      <div className="max-w-4xl mx-auto">
+        {titleText && (
+          <h2
+            className="text-3xl md:text-4xl font-bold mb-6 text-white drop-shadow-md"
+            style={headingStyle}
+          >
+            {titleText}
+          </h2>
+        )}
+        <div className="text-gray-300 leading-relaxed text-lg">
+          {renderBody()}
         </div>
       </div>
     </section>

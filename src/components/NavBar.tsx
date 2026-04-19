@@ -29,6 +29,13 @@ type NavbarContent = {
   menu: MenuItem[];
   languageToggle?: { enabled: boolean; languages: ('en' | 'ta')[]; defaultLang?: 'en' | 'ta' };
   hamburger?: boolean;
+  // Typography/colour from admin
+  backgroundColor?: string;
+  textColor?: string;
+  fontColor?: string;
+  hoverColor?: string;
+  fontSize?: string;
+  fontWeight?: string;
 };
 
 type ComponentRecord = {
@@ -269,12 +276,21 @@ export default function NavBar({ page = 'home', data: initialData }: { page?: st
     }
   };
 
+  // ── Typography / colour settings from admin ──
+  const navStyle: React.CSSProperties = {};
+  const navTextStyle: React.CSSProperties = {};
+  const navColour = (navData as any)?.fontColor || (navData as any)?.textColor;
+  if ((navData as any)?.backgroundColor) navStyle.backgroundColor = (navData as any).backgroundColor;
+  if ((navData as any)?.fontSize) { navStyle.fontSize = (navData as any).fontSize; navTextStyle.fontSize = (navData as any).fontSize; }
+  if ((navData as any)?.fontWeight) navTextStyle.fontWeight = (navData as any).fontWeight;
+  if (navColour) navTextStyle.color = navColour;
+
   return (
     <div className={`sticky top-0 z-50 w-full transition-all duration-500 flex flex-col ${
       scrolled 
         ? 'card-morphism !rounded-none !border-x-0 !border-t-0 shadow-lg !bg-surface/80 backdrop-blur-xl' 
         : 'bg-transparent'
-    }`}>
+    }`} style={navStyle}>
       {/* Main Navbar */}
       <div className={`w-full transition-all duration-500 ${scrolled ? 'py-3' : 'py-5'}`}>
         <div className="layout-container flex items-center justify-between">

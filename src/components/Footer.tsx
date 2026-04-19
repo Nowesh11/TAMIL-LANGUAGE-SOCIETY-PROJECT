@@ -24,6 +24,13 @@ type FooterContent = {
   copyright?: Bilingual;
   quickLinksTitle?: Bilingual;
   supportTitle?: Bilingual;
+  // Typography/colour from admin
+  fontSize?: string;
+  fontWeight?: string;
+  fontColor?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  linkColor?: string;
 };
 
 type ComponentRecord = { _id: string; type: string; page: string; content: FooterContent };
@@ -143,8 +150,19 @@ export default function Footer({ page = 'home', data: initialData }: { page?: st
   const content = data;
   if (!content) return null;
 
+  // ── Typography / colour settings from admin ──
+  const footerStyle: React.CSSProperties = {};
+  const textStyle: React.CSSProperties = {};
+  const linkStyle: React.CSSProperties = {};
+  const colour = content.fontColor || content.textColor;
+  if (content.backgroundColor) footerStyle.backgroundColor = content.backgroundColor;
+  if (content.fontSize) { footerStyle.fontSize = content.fontSize; textStyle.fontSize = content.fontSize; }
+  if (content.fontWeight) textStyle.fontWeight = content.fontWeight;
+  if (colour) textStyle.color = colour;
+  if (content.linkColor) linkStyle.color = content.linkColor;
+
   return (
-    <footer className="bg-surface border-t border-border pt-24 pb-12 relative overflow-hidden">
+    <footer className="bg-surface border-t border-border pt-24 pb-12 relative overflow-hidden" style={footerStyle}>
       {/* Decorative background elements */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-[100px] pointer-events-none"></div>
@@ -178,7 +196,7 @@ export default function Footer({ page = 'home', data: initialData }: { page?: st
             </div>
             
             {content.description ? (
-              <p className="text-foreground-secondary leading-relaxed font-medium text-sm">
+              <p className="text-foreground-secondary leading-relaxed font-medium text-sm" style={textStyle}>
                 {content.description?.[lang] || content.description?.en || ''}
               </p>
             ) : null}
@@ -276,7 +294,7 @@ export default function Footer({ page = 'home', data: initialData }: { page?: st
 
         <div className="pt-12 border-t border-border flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex flex-col items-center md:items-start gap-2">
-            <p className="text-xs font-bold text-foreground-muted text-center md:text-left">
+            <p className="text-xs font-bold text-foreground-muted text-center md:text-left" style={textStyle}>
               {content.copyright ? (typeof content.copyright === 'string' ? content.copyright : (content.copyright?.[lang] || content.copyright?.en || '')) : ''}
             </p>
             <div className="text-[10px] font-black uppercase tracking-widest text-foreground-muted/60">

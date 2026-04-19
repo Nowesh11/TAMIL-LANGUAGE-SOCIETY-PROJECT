@@ -15,6 +15,12 @@ type HeroContent = {
   backgroundImages?: ImageContent[];
   backgroundImage?: string;
   image?: string;
+  // Typography/colour from admin
+  fontSize?: string;
+  fontWeight?: string;
+  fontColor?: string;
+  backgroundColor?: string;
+  textColor?: string;
 };
 
 type ComponentRecord = { type: string; content: HeroContent };
@@ -155,8 +161,16 @@ export default function Hero({ page = 'home', bureau, data: propData, alignment 
     return null;
   }
 
+  // ── Typography / colour settings from admin ──
+  const sectionStyle: React.CSSProperties = {};
+  const textStyle: React.CSSProperties = {};
+  if (data?.backgroundColor) sectionStyle.backgroundColor = data.backgroundColor;
+  if (data?.fontSize) { sectionStyle.fontSize = data.fontSize; textStyle.fontSize = data.fontSize; }
+  if (data?.fontWeight) textStyle.fontWeight = data.fontWeight;
+  if (data?.fontColor) textStyle.color = data.fontColor;
+
   return (
-    <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-background">
+    <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-background" style={sectionStyle}>
       {/* Dynamic Background Slider */}
       <div className="absolute inset-0 z-0 w-full h-full">
         {allImages.length > 0 ? (
@@ -203,8 +217,8 @@ export default function Hero({ page = 'home', bureau, data: propData, alignment 
           <div className={`max-w-5xl ${alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto'}`}>
             {/* Animated Title */}
             {title && (
-              <h1 className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tight text-foreground mb-8 leading-tight drop-shadow-2xl">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-foreground via-primary-light to-foreground animate-text-glow">
+              <h1 className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tight text-foreground mb-8 leading-tight drop-shadow-2xl" style={textStyle}>
+                <span style={data?.fontColor ? {} : { backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', backgroundImage: 'linear-gradient(to right, var(--foreground), var(--primary-light), var(--foreground))' }}>
                   {typeof title === 'string' ? title : (title?.[lang] || title?.en || '')}
                 </span>
               </h1>
@@ -212,7 +226,7 @@ export default function Hero({ page = 'home', bureau, data: propData, alignment 
             
             {/* Subtitle */}
             {subtitle && (
-              <p className={`text-xl sm:text-2xl md:text-3xl text-foreground-secondary max-w-3xl leading-relaxed mb-12 font-light tracking-wide drop-shadow-lg backdrop-blur-sm py-2 rounded-lg ${alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto'}`}>
+              <p className={`text-xl sm:text-2xl md:text-3xl text-foreground-secondary max-w-3xl leading-relaxed mb-12 font-light tracking-wide drop-shadow-lg backdrop-blur-sm py-2 rounded-lg ${alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto'}`} style={textStyle}>
                 {typeof subtitle === 'string' ? subtitle : (subtitle?.[lang] || subtitle?.en || '')}
               </p>
             )}

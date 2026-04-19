@@ -516,6 +516,38 @@ const RecruitmentFormModal: React.FC<RecruitmentFormModalProps> = ({
                         </div>
                       </div>
 
+                      {/* ── Placeholder fields ── */}
+                      {!['radio', 'checkbox', 'select', 'date', 'file'].includes(field.type) && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 p-3 bg-black/20 rounded-lg border border-white/5">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">
+                              Placeholder (English)
+                              <span className="ml-1 text-gray-600 font-normal">— hint text shown inside the input</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={field.placeholder?.en || ''}
+                              onChange={(e) => updateField(index, { placeholder: { en: e.target.value, ta: field.placeholder?.ta || '' } })}
+                              className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm focus:border-purple-500 focus:outline-none"
+                              placeholder="e.g. Enter your full name"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">
+                              Placeholder (Tamil)
+                              <span className="ml-1 text-gray-600 font-normal">— உள்ளீட்டு குறிப்பு உரை</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={field.placeholder?.ta || ''}
+                              onChange={(e) => updateField(index, { placeholder: { en: field.placeholder?.en || '', ta: e.target.value } })}
+                              className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm focus:border-purple-500 focus:outline-none"
+                              placeholder="எ.கா. உங்கள் முழு பெயரை உள்ளிடவும்"
+                            />
+                          </div>
+                        </div>
+                      )}
+
                       {['select', 'radio', 'checkbox'].includes(field.type) && (
                         <div className="mt-4 p-3 bg-black/30 rounded-lg border border-white/5">
                           <label className="block text-xs font-medium text-gray-400 mb-2">Options (comma separated)</label>

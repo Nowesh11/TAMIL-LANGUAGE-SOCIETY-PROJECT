@@ -11,6 +11,13 @@ type CTAContent = {
   subtitle?: Bilingual;
   description?: Bilingual;
   buttons: Button[];
+  backgroundImages?: { src: string; alt: Bilingual }[];
+  // Typography/colour from admin
+  fontSize?: string;
+  fontWeight?: string;
+  fontColor?: string;
+  backgroundColor?: string;
+  textColor?: string;
 };
 
 type ComponentRecord = { type: string; content: CTAContent };
@@ -93,8 +100,17 @@ export default function CTA({ page = 'home', bureau, data: propData, alignment =
 
   const { title, subtitle, description, buttons } = data;
 
+  // ── Typography / colour settings from admin ──
+  const sectionStyle: React.CSSProperties = {};
+  const textStyle: React.CSSProperties = {};
+  const colour = data.fontColor || data.textColor;
+  if (data.backgroundColor) sectionStyle.backgroundColor = data.backgroundColor;
+  if (data.fontSize) { sectionStyle.fontSize = data.fontSize; textStyle.fontSize = data.fontSize; }
+  if (data.fontWeight) textStyle.fontWeight = data.fontWeight;
+  if (colour) textStyle.color = colour;
+
   return (
-    <section className="py-24 relative overflow-hidden aurora-bg">
+    <section className="py-24 relative overflow-hidden aurora-bg" style={sectionStyle}>
       {/* Decorative Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-primary/20 rounded-full blur-3xl opacity-30 animate-pulse"></div>
@@ -104,18 +120,18 @@ export default function CTA({ page = 'home', bureau, data: propData, alignment =
 
       <div className={`layout-container relative z-10 text-white flex flex-col ${alignmentClasses[alignment]}`}>
         <div className={`max-w-4xl card-morphism p-12 rounded-3xl border border-white/10 shadow-2xl flex flex-col ${alignmentClasses[alignment]} ${alignment === 'center' ? 'mx-auto' : alignment === 'right' ? 'ml-auto' : 'mr-auto'}`}>
-          <h2 className={`text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 tracking-tight leading-tight text-white drop-shadow-lg ${alignmentClasses[alignment]}`}>
+          <h2 className={`text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 tracking-tight leading-tight text-white drop-shadow-lg ${alignmentClasses[alignment]}`} style={textStyle}>
             {(title?.[lang] || title?.en || (typeof title === 'string' ? title : ''))}
           </h2>
           
           {subtitle ? (
-            <p className={`text-xl md:text-2xl font-medium text-gray-200 mb-6 drop-shadow-md ${alignmentClasses[alignment]}`}>
+            <p className={`text-xl md:text-2xl font-medium text-gray-200 mb-6 drop-shadow-md ${alignmentClasses[alignment]}`} style={textStyle}>
               {(subtitle?.[lang] || subtitle?.en || (typeof subtitle === 'string' ? subtitle : ''))}
             </p>
           ) : null}
           
           {description ? (
-            <p className={`text-lg text-gray-300 max-w-2xl mb-10 leading-relaxed ${alignmentClasses[alignment]}`}>
+            <p className={`text-lg text-gray-300 max-w-2xl mb-10 leading-relaxed ${alignmentClasses[alignment]}`} style={textStyle}>
               {(description?.[lang] || description?.en || (typeof description === 'string' ? description : ''))}
             </p>
           ) : null}

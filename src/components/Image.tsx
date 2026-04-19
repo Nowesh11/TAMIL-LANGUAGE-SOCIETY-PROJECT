@@ -20,6 +20,14 @@ export default function Image({ page, data, alignment: propAlignment }: ImagePro
   const size = data.size || data.image?.size || 'medium';
   const alignment = propAlignment || data.alignment || data.image?.alignment || 'center';
   const borderRadius = data.borderRadius || data.image?.borderRadius || 0;
+  
+  // ── Typography / colour settings from admin ──
+  const sectionStyle: React.CSSProperties = {};
+  const imgStyle: React.CSSProperties = { borderRadius: `${borderRadius}px` };
+  if (data?.backgroundColor) sectionStyle.backgroundColor = data.backgroundColor;
+  if (data?.fontColor) sectionStyle.color = data.fontColor;
+  if (data?.fontSize) sectionStyle.fontSize = data.fontSize;
+  if (data?.fontWeight) sectionStyle.fontWeight = data.fontWeight;
 
   // Normalize any value containing "uploads" (including Windows paths) to /api/files/serve
   if (imageUrl) {
@@ -86,16 +94,14 @@ export default function Image({ page, data, alignment: propAlignment }: ImagePro
   const alignmentClasses = getAlignmentClasses(alignment);
 
   return (
-    <div className={`image-component py-8 ${alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left'}`}>
+    <div className={`image-component py-8 ${alignment === 'center' ? 'text-center' : alignment === 'right' ? 'text-right' : 'text-left'}`} style={sectionStyle}>
       <div className="image-container max-w-6xl mx-auto px-4">
         <div className={`image-wrapper ${sizeClasses} ${alignmentClasses}`}>
           <img
             src={imageUrl}
             alt={altText}
             className="image-element w-full h-auto shadow-lg"
-            style={{
-              borderRadius: `${borderRadius}px`
-            }}
+            style={imgStyle}
           />
           {caption && (
             <p className="image-caption mt-4 text-gray-600 text-sm italic">

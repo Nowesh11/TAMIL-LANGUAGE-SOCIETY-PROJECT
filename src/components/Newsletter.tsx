@@ -83,6 +83,15 @@ export default function Newsletter({ page, slug = 'newsletter', data, alignment 
   const textColor = content.textColor || '';
   const style = content.style || 'default';
 
+  // ── Typography / colour settings from admin ──
+  const sectionStyle: React.CSSProperties = {};
+  const textStyle: React.CSSProperties = {};
+  const colour = content.fontColor || content.textColor;
+  if (content.backgroundColor) sectionStyle.backgroundColor = content.backgroundColor;
+  if (content.fontSize) { sectionStyle.fontSize = content.fontSize; textStyle.fontSize = content.fontSize; }
+  if (content.fontWeight) textStyle.fontWeight = content.fontWeight;
+  if (colour) textStyle.color = colour;
+
   // Tailwind style mapping
   const getStyleClasses = (style: string) => {
     switch (style) {
@@ -121,7 +130,7 @@ export default function Newsletter({ page, slug = 'newsletter', data, alignment 
   return (
     <section 
       className={`${styleClasses.section}`}
-      style={backgroundImage ? { backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+      style={{ ...(backgroundImage ? { backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}), ...sectionStyle }}
     >
       {/* Overlay for background images */}
       {(backgroundImage) && (
@@ -131,12 +140,12 @@ export default function Newsletter({ page, slug = 'newsletter', data, alignment 
       <div className={styleClasses.container}>
         <div className={style === 'inline' ? `flex-1 ${textAlignClass}` : `${textAlignClass}`}>
           {title && (
-            <h2 className={`text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-lg`}>
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-lg`} style={textStyle}>
               {title}
             </h2>
           )}
           {description && (
-            <p className={`text-lg leading-relaxed text-gray-300 drop-shadow-md`}>
+            <p className={`text-lg leading-relaxed text-gray-300 drop-shadow-md`} style={textStyle}>
               {description}
             </p>
           )}

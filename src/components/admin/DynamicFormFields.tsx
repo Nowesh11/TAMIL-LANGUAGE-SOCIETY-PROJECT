@@ -358,7 +358,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
       <MediaUploader
         category="components"
         subCategory={componentType}
-        accept="image/*"
+        accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml,image/avif,image/bmp,image/*"
         previewType="image"
         label={label}
         onUploaded={(r) => {
@@ -381,6 +381,136 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
       />
     </div>
   );
+
+  const renderTypographySettings = (section?: string) => (
+    <div className="modern-field-group" style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '14px', marginTop: '8px' }}>
+      <label className="modern-label" style={{ borderBottom: '1px solid #e5e7eb', paddingBottom: '6px', marginBottom: '12px', display: 'block' }}>
+        🔤 Typography &amp; Colour Settings
+      </label>
+
+      <div className="modern-field-group">
+        <label className="modern-label">Font Size</label>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <select
+            className="modern-select"
+            style={{ flex: 1 }}
+            value={formData.content.fontSize || ''}
+            onChange={(e) => updateContent('fontSize', e.target.value)}
+          >
+            <option value="">Default (inherit)</option>
+            <option value="12px">XS – 12px</option>
+            <option value="14px">SM – 14px</option>
+            <option value="16px">Base – 16px</option>
+            <option value="18px">LG – 18px</option>
+            <option value="20px">XL – 20px</option>
+            <option value="24px">2XL – 24px</option>
+            <option value="30px">3XL – 30px</option>
+            <option value="36px">4XL – 36px</option>
+            <option value="48px">5XL – 48px</option>
+            <option value="60px">6XL – 60px</option>
+            <option value="72px">7XL – 72px</option>
+          </select>
+          <input
+            type="text"
+            className="modern-input"
+            style={{ width: '110px', flexShrink: 0 }}
+            placeholder="e.g. 1.5rem"
+            value={formData.content.fontSize || ''}
+            onChange={(e) => updateContent('fontSize', e.target.value)}
+          />
+        </div>
+        <small style={{ color: '#6b7280', fontSize: '11px' }}>Select a preset or type any CSS value (px, rem, em, vw)</small>
+      </div>
+
+      <div className="modern-field-group">
+        <label className="modern-label">Font Weight</label>
+        <select
+          className="modern-select"
+          value={formData.content.fontWeight || ''}
+          onChange={(e) => updateContent('fontWeight', e.target.value)}
+        >
+          <option value="">Default</option>
+          <option value="100">Thin – 100</option>
+          <option value="300">Light – 300</option>
+          <option value="400">Normal – 400</option>
+          <option value="500">Medium – 500</option>
+          <option value="600">Semibold – 600</option>
+          <option value="700">Bold – 700</option>
+          <option value="800">ExtraBold – 800</option>
+          <option value="900">Black – 900</option>
+        </select>
+      </div>
+
+      <div className="modern-field-group">
+        <label className="modern-label">Font / Text Colour</label>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <input
+            type="color"
+            style={{ width: '44px', height: '36px', padding: '2px', border: '1.5px solid #d1d5db', borderRadius: '6px', cursor: 'pointer', flexShrink: 0, background: 'none' }}
+            value={formData.content.fontColor || '#000000'}
+            onChange={(e) => updateContent('fontColor', e.target.value)}
+            title="Pick text colour"
+          />
+          <input
+            type="text"
+            className="modern-input"
+            placeholder="#000000  or  rgba(0,0,0,1)"
+            value={formData.content.fontColor || ''}
+            onChange={(e) => updateContent('fontColor', e.target.value)}
+          />
+          {formData.content.fontColor && (
+            <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', padding: '4px' }}
+              onClick={() => updateContent('fontColor', '')}>✕</button>
+          )}
+        </div>
+      </div>
+
+      <div className="modern-field-group">
+        <label className="modern-label">Section Background Colour</label>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <input
+            type="color"
+            style={{ width: '44px', height: '36px', padding: '2px', border: '1.5px solid #d1d5db', borderRadius: '6px', cursor: 'pointer', flexShrink: 0, background: 'none' }}
+            value={formData.content.backgroundColor || '#ffffff'}
+            onChange={(e) => updateContent('backgroundColor', e.target.value)}
+            title="Pick background colour"
+          />
+          <input
+            type="text"
+            className="modern-input"
+            placeholder="#ffffff  or  transparent"
+            value={formData.content.backgroundColor || ''}
+            onChange={(e) => updateContent('backgroundColor', e.target.value)}
+          />
+          {formData.content.backgroundColor && (
+            <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', padding: '4px' }}
+              onClick={() => updateContent('backgroundColor', '')}>✕</button>
+          )}
+        </div>
+      </div>
+
+      {(formData.content.title?.en || formData.content.content?.en) && (
+        <div className="modern-field-group">
+          <label className="modern-label">Live Preview</label>
+          <div style={{
+            fontSize: formData.content.fontSize || '16px',
+            fontWeight: formData.content.fontWeight || '400',
+            color: formData.content.fontColor || '#111827',
+            backgroundColor: formData.content.backgroundColor || 'transparent',
+            padding: '14px',
+            borderRadius: '8px',
+            border: '1px dashed #d1d5db',
+            minHeight: '44px',
+            transition: 'all 0.2s',
+          }}>
+            {formData.content.title?.en || formData.content.content?.en || 'Preview text appears here'}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+
 
   const renderButtons = () => (
     <div className="modern-field-group">
@@ -457,14 +587,22 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
                   <div className="image-upload-container">
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml,image/avif,image/bmp,image/*"
                       onChange={(e) => handleFileUpload(e, 'hero', index)}
                       className="hidden"
                       id={`hero-bg-upload-${index}`}
                     />
                     <label htmlFor={`hero-bg-upload-${index}`} className="upload-button">
-                      <FaImage /> Choose Image
+                      <FaImage /> Choose Image (JPEG, PNG, GIF, WebP, SVG…)
                     </label>
+                    <input
+                      type="url"
+                      className="modern-input"
+                      placeholder="Or paste image URL: https://example.com/image.jpg"
+                      style={{ fontSize: '12px', marginTop: '4px' }}
+                      defaultValue=""
+                      onChange={(e) => { if(e.target.value) updateHeroImage(index, 'src', e.target.value); }}
+                    />
                     {image.src && (
                       <div className="image-preview">
                         <img src={image.src} alt={`Background ${index + 1}`} />
@@ -593,6 +731,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
               <option value="fullscreen">Full Screen</option>
             </select>
           </div>
+          {renderTypographySettings()}
         </div>
       );
 
@@ -618,6 +757,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
               <option value="error">Error</option>
             </select>
           </div>
+          {renderTypographySettings()}
         </div>
       );
 
@@ -653,6 +793,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
           </div>
           {renderColorInput('textColor', 'Text Color')}
           {renderColorInput('backgroundColor', 'Background Color')}
+          {renderTypographySettings()}
         </div>
       );
 
@@ -701,7 +842,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
                 
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml,image/avif,image/bmp,image/*"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
@@ -805,6 +946,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
               min="0"
             />
           </div>
+          {renderTypographySettings()}
         </div>
       );
 
@@ -821,7 +963,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
                   <div className="image-upload-container">
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml,image/avif,image/bmp,image/*"
                       onChange={(e) => handleFileUpload(e, 'gallery', index)}
                       className="hidden"
                       id={`gallery-upload-${index}`}
@@ -1037,7 +1179,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
                     <div className="image-upload-container">
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml,image/avif,image/bmp,image/*"
                         onChange={(e) => handleFileUpload(e, 'feature', index)}
                         className="hidden"
                         id={`feature-upload-${index}`}
@@ -1211,6 +1353,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
 
           {renderColorInput('backgroundColor', 'Background Color')}
           {renderColorInput('textColor', 'Text Color')}
+          {renderTypographySettings()}
         </div>
       );
 
@@ -1229,14 +1372,22 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
                   <div className="image-upload-container">
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml,image/avif,image/bmp,image/*"
                       onChange={(e) => handleFileUpload(e, 'cta', index)}
                       className="hidden"
                       id={`cta-upload-${index}`}
                     />
                     <label htmlFor={`cta-upload-${index}`} className="upload-button">
-                      <FaImage /> Choose Image
+                      <FaImage /> Choose Image (JPEG, PNG, GIF, WebP, SVG…)
                     </label>
+                    <input
+                      type="url"
+                      className="modern-input"
+                      placeholder="Or paste image URL: https://example.com/image.jpg"
+                      style={{ fontSize: '12px', marginTop: '4px' }}
+                      defaultValue=""
+                      onChange={(e) => { if(e.target.value) updateCTAImage(index, 'src', e.target.value); }}
+                    />
                     {image.src && (
                       <div className="image-preview">
                         <img src={image.src} alt={`Background ${index + 1}`} />
@@ -1296,6 +1447,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
               <option value="bold">Bold</option>
             </select>
           </div>
+          {renderTypographySettings()}
         </div>
       );
 
@@ -1430,7 +1582,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
                   <div className="image-upload-container">
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml,image/avif,image/bmp,image/*"
                       onChange={(e) => handleFileUpload(e, 'timeline', index)}
                       className="hidden"
                       id={`timeline-upload-${index}`}
@@ -1488,7 +1640,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
                     <div className="image-upload-container">
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml,image/avif,image/bmp,image/*"
                         onChange={(e) => handleFileUpload(e, 'testimonial', index)}
                         className="hidden"
                         id={`testimonial-avatar-${index}`}

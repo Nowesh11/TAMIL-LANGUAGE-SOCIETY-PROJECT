@@ -49,6 +49,14 @@ export default function Banner({ page, slug = 'banner', data, alignment = 'cente
   const bannerType = content.type || 'info';
   const buttons = content.buttons || [];
 
+  // ── Typography / colour settings from admin ──
+  const sectionStyle: React.CSSProperties = {};
+  const textStyle: React.CSSProperties = {};
+  if (content?.backgroundColor) sectionStyle.backgroundColor = content.backgroundColor;
+  if (content?.fontSize) { sectionStyle.fontSize = content.fontSize; textStyle.fontSize = content.fontSize; }
+  if (content?.fontWeight) textStyle.fontWeight = content.fontWeight;
+  if (content?.fontColor) textStyle.color = content.fontColor;
+
   // Banner type styles
   const getTypeStyles = (type: string) => {
     switch (type) {
@@ -85,6 +93,7 @@ export default function Banner({ page, slug = 'banner', data, alignment = 'cente
     <section 
       className="relative py-20 px-4 overflow-hidden"
       style={{
+        ...sectionStyle,
         backgroundImage: backgroundImage 
           ? `url(${
               backgroundImage.startsWith('/') || backgroundImage.startsWith('http')
@@ -110,12 +119,12 @@ export default function Banner({ page, slug = 'banner', data, alignment = 'cente
       <div className="max-w-6xl mx-auto relative z-10">
         <div className={`card-morphism p-8 md:p-12 rounded-3xl border border-white/10 shadow-2xl flex flex-col ${alignmentClasses[alignment]}`}>
           {title && (
-            <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight ${backgroundImage ? 'text-white' : ''} ${alignmentClasses[alignment]}`} style={{ color: backgroundImage ? 'white' : typeStyles.textColor }}>
+            <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight ${backgroundImage ? 'text-white' : ''} ${alignmentClasses[alignment]}`} style={{ color: content?.fontColor || (backgroundImage ? 'white' : typeStyles.textColor), ...textStyle }}>
               {title}
             </h1>
           )}
           {subtitle && (
-            <h2 className={`text-xl md:text-2xl font-medium mb-8 ${backgroundImage ? 'text-gray-200' : ''} ${alignmentClasses[alignment]}`} style={{ color: backgroundImage ? 'rgba(255,255,255,0.8)' : typeStyles.textColor, opacity: 0.9 }}>
+            <h2 className={`text-xl md:text-2xl font-medium mb-8 ${backgroundImage ? 'text-gray-200' : ''} ${alignmentClasses[alignment]}`} style={{ color: content?.fontColor || (backgroundImage ? 'rgba(255,255,255,0.8)' : typeStyles.textColor), opacity: 0.9, ...textStyle }}>
               {subtitle}
             </h2>
           )}

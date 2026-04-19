@@ -22,6 +22,12 @@ interface StatsContent {
   stats: StatItem[];
   layout?: 'horizontal' | 'grid';
   animated?: boolean;
+  // Typography/colour from admin
+  fontSize?: string;
+  fontWeight?: string;
+  fontColor?: string;
+  backgroundColor?: string;
+  textColor?: string;
 }
 
 interface ComponentRecord {
@@ -146,11 +152,21 @@ export default function Stats({ page = 'home', bureau, data: propData, alignment
 
   if (!data) return null;
 
+  // ── Typography / colour settings from admin ──
+  const sectionStyle: React.CSSProperties = {};
+  const titleStyle: React.CSSProperties = {};
+  const valueStyle: React.CSSProperties = {};
+  const colour = data.fontColor || data.textColor;
+  if (data.backgroundColor) sectionStyle.backgroundColor = data.backgroundColor;
+  if (data.fontSize) { sectionStyle.fontSize = data.fontSize; valueStyle.fontSize = data.fontSize; }
+  if (data.fontWeight) { titleStyle.fontWeight = data.fontWeight; valueStyle.fontWeight = data.fontWeight; }
+  if (colour) { titleStyle.color = colour; valueStyle.color = colour; }
+
   return (
-    <section className="py-20 aurora-bg relative overflow-hidden">
+    <section className="py-20 aurora-bg relative overflow-hidden" style={sectionStyle}>
       <div className="layout-container relative z-10">
         {data.title ? (
-          <h3 className={`text-4xl font-bold mb-16 text-white drop-shadow-lg animate-slide-in-up flex flex-col ${alignmentClasses[alignment]}`}>
+          <h3 className={`text-4xl font-bold mb-16 text-white drop-shadow-lg animate-slide-in-up flex flex-col ${alignmentClasses[alignment]}`} style={titleStyle}>
             <span className="animate-text-glow">{data.title?.[lang] || data.title?.en || ''}</span>
           </h3>
         ) : null}
@@ -168,8 +184,8 @@ export default function Stats({ page = 'home', bureau, data: propData, alignment
                 </div>
               ) : null}
               
-              <div className="text-5xl font-black text-white mb-3 flex items-baseline justify-center tracking-tight drop-shadow-md">
-                <span className="bg-clip-text text-transparent bg-gradient-to-br from-white to-gray-400 group-hover:from-white group-hover:to-primary/50 transition-all">
+              <div className="text-5xl font-black text-white mb-3 flex items-baseline justify-center tracking-tight drop-shadow-md" style={valueStyle}>
+                <span style={colour ? { color: colour } : { backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', backgroundImage: 'linear-gradient(to bottom right, white, #9ca3af)' }}>
                   {(values[idx] ?? (Number.parseInt(s.value, 10) || 0))}
                 </span>
                 {s.suffix ? <span className="text-2xl ml-1 text-primary font-bold">{s.suffix}</span> : ''}
